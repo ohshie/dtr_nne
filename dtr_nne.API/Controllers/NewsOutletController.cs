@@ -12,6 +12,13 @@ public class NewsOutletController(INewsOutletService newsOutletService) : Contro
     [HttpGet("Get", Name = "Get")]
     public async Task<ActionResult> Get()
     {
-        return Ok("All good");
+        var newsOutlet = await newsOutletService.GetAllNewsOutlets();
+
+        if (newsOutlet.Any())
+        {
+            return Ok(newsOutlet);
+        }
+        
+        return NotFound(newsOutlet);
     }
 }
