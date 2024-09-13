@@ -1,8 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dtr_nne", "dtr_nne\dtr_nne.csproj", "{F1B41410-BBC9-4208-A791-45F951173C74}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dtr_nne.API", "dtr_nne.API\dtr_nne.API.csproj", "{F1B41410-BBC9-4208-A791-45F951173C74}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{1A89CE9F-49D8-46BF-B222-471B9463654C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dtr_nne.Domain", "dtr_nne.Domain\dtr_nne.Domain.csproj", "{76475293-DBCA-4449-B0F1-B3C757FFF1EA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dtr_nne.Application", "dtr_nne.Application\dtr_nne.Application.csproj", "{F2C525EF-790D-4397-AC76-9DF0BC9753D9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dtr_nne.Infrastructure", "dtr_nne.Infrastructure\dtr_nne.Infrastructure.csproj", "{ED5F8707-02F9-4A38-8923-FADD452A2C03}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,5 +24,17 @@ Global
 		{1A89CE9F-49D8-46BF-B222-471B9463654C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1A89CE9F-49D8-46BF-B222-471B9463654C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1A89CE9F-49D8-46BF-B222-471B9463654C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76475293-DBCA-4449-B0F1-B3C757FFF1EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76475293-DBCA-4449-B0F1-B3C757FFF1EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76475293-DBCA-4449-B0F1-B3C757FFF1EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76475293-DBCA-4449-B0F1-B3C757FFF1EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2C525EF-790D-4397-AC76-9DF0BC9753D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2C525EF-790D-4397-AC76-9DF0BC9753D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2C525EF-790D-4397-AC76-9DF0BC9753D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2C525EF-790D-4397-AC76-9DF0BC9753D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED5F8707-02F9-4A38-8923-FADD452A2C03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED5F8707-02F9-4A38-8923-FADD452A2C03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED5F8707-02F9-4A38-8923-FADD452A2C03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED5F8707-02F9-4A38-8923-FADD452A2C03}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
