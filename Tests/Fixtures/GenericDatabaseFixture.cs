@@ -3,7 +3,6 @@ using dtr_nne.Domain.UnitOfWork;
 using dtr_nne.Infrastructure.Context;
 using dtr_nne.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Moq;
 
 [assembly: InternalsVisibleTo("Tests")]
@@ -22,14 +21,14 @@ public class GenericDatabaseFixture<TEntity> : IDisposable, IAsyncDisposable whe
             .Options;
         Context = new NneDbContext(options);
 
-        var mockLogger = new Mock<ILogger<GenericRepository<TEntity, NneDbContext>>>();
+        var mockLogger = new GenericLoggerFixture<GenericRepository<TEntity, NneDbContext>>();
 
         var mockUoW = new Mock<IUnitOfWork<NneDbContext>>();
         mockUoW.Setup(uow => uow.Context).Returns(Context);
 
         GenericRepository = new GenericRepository<TEntity, NneDbContext>
         (
-            logger: mockLogger.Object,
+            logger: mockLogger.Logger,
             unitOfWork: mockUoW.Object
         );
     }

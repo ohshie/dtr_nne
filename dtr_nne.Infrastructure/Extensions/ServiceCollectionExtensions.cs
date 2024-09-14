@@ -1,4 +1,6 @@
+using dtr_nne.Domain.UnitOfWork;
 using dtr_nne.Infrastructure.Context;
+using dtr_nne.Infrastructure.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,5 +17,7 @@ public static class ServiceCollectionExtensions
         {
             s.UseSqlite(connectionString);
         });
+
+        serviceCollection.AddScoped<IUnitOfWork<NneDbContext>, UnitOfWork<NneDbContext>>();
     }
 }

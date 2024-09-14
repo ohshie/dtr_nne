@@ -7,12 +7,13 @@ namespace Tests.Systems.Repositories;
 public class TestNewsOutletRepository(GenericDatabaseFixture<NewsOutlet> genericDatabaseFixture)
     : IClassFixture<GenericDatabaseFixture<NewsOutlet>>, IDisposable
 {
-    [Fact]
-    public async Task Add_WhenInvoked_AddsNewsOutlet()
+    [Theory]
+    [ClassData(typeof(NewsOutletFixture))]
+    public async Task Add_WhenInvoked_AddsNewsOutlet(List<NewsOutlet> newsOutlets)
     {
         // Assemble
-        var newsOutletToBeAdded = NewsOutletFixture.GetTestNewsOutlet().First();
-
+        var newsOutletToBeAdded = newsOutlets.First();
+        
         // Act
         await genericDatabaseFixture.GenericRepository.Add(newsOutletToBeAdded);
         await genericDatabaseFixture.Context.SaveChangesAsync();
@@ -22,40 +23,75 @@ public class TestNewsOutletRepository(GenericDatabaseFixture<NewsOutlet> generic
         addedEntity.Should().BeEquivalentTo(newsOutletToBeAdded);
     }
 
-    [Fact]
-    public async Task AddRange_WhenInvoked_AddsMultipleOutlets()
+    [Theory]
+    [ClassData(typeof(NewsOutletFixture))]
+    public async Task AddRange_WhenInvoked_AddsMultipleOutlets(List<NewsOutlet> newsOutlets)
     {
         // Assemble
-        var newsOutletToBeAdded = NewsOutletFixture.GetTestNewsOutlet();
         
         // Act
-        await genericDatabaseFixture.GenericRepository.AddRange(newsOutletToBeAdded);
+        await genericDatabaseFixture.GenericRepository.AddRange(newsOutlets);
         await genericDatabaseFixture.Context.SaveChangesAsync();
         
         // Assert
         var addedEntities = await genericDatabaseFixture.Context.NewsOutlets.ToListAsync();
-        addedEntities.Should().BeEquivalentTo(newsOutletToBeAdded);
+        addedEntities.Should().BeEquivalentTo(newsOutlets);
     }
     
-    [Fact]
-    public async Task GetAll_WhenInvoked_ReturnsExpectedListOfNewsOutlets()
+    [Theory]
+    [ClassData(typeof(NewsOutletFixture))]
+    public async Task GetAll_WhenInvoked_ReturnsExpectedListOfNewsOutlets(List<NewsOutlet> newsOutlets)
     {
-        // Assembl
-        var newsOutletToBeAdded = NewsOutletFixture.GetTestNewsOutlet();
         
-        await genericDatabaseFixture.GenericRepository.AddRange(newsOutletToBeAdded);
+        // Assemble
+        await genericDatabaseFixture.GenericRepository.AddRange(newsOutlets);
         await genericDatabaseFixture.Context.SaveChangesAsync();
         
         // Act
-        var newsOutlets = await genericDatabaseFixture.GenericRepository.GetAll() as List<NewsOutlet>;
+        var savedNewsOutlets = await genericDatabaseFixture.GenericRepository.GetAll() as List<NewsOutlet>;
 
         // Assert
-        newsOutlets.Should().BeOfType<List<NewsOutlet>>();
-        newsOutlets.Should().BeEquivalentTo(newsOutletToBeAdded);
+        savedNewsOutlets.Should().BeOfType<List<NewsOutlet>>();
+        savedNewsOutlets.Should().BeEquivalentTo(newsOutlets);
+    }
+    
+    [Theory]
+    [ClassData(typeof(NewsOutletFixture))]
+    public async Task AddRange_WhenInvoked_ReturnsTrue(List<NewsOutlet> newsOutlets)
+    {
+        // Assemble
+        
+        // Act
+        var success = await genericDatabaseFixture.GenericRepository.AddRange(newsOutlets);
+        await genericDatabaseFixture.Context.SaveChangesAsync();
+
+        // Assert
+        success.Should().BeTrue();
+        var trackedEntries = genericDatabaseFixture.Context.ChangeTracker
+            .Entries<NewsOutlet>()
+            .Select(e => e.Entity)
+            .ToList();
+        trackedEntries.Should().BeOfType<List<NewsOutlet>>();
+        trackedEntries.Should().HaveCount(newsOutlets.Count);
+        trackedEntries.Should().BeEquivalentTo(newsOutlets);
+    }
+    
+    [Fact]
+    public async Task AddRange_WithNullEntities_ShouldLogErrorAndThrowException()
+    {
+        // Arrange
+        IEnumerable<NewsOutlet> entities = null!;
+
+        // Act
+        Func<Task> act = async () => await genericDatabaseFixture.GenericRepository.AddRange(entities);
+
+        // Assert
+        await act.Should().ThrowAsync<NullReferenceException>();
     }
 
     public void Dispose()
     {
+        genericDatabaseFixture.Context.ChangeTracker.Clear();
         genericDatabaseFixture.Context.Database.EnsureDeleted();
     }
 }

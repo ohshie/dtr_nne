@@ -36,8 +36,19 @@ internal class GenericRepository<TEntity, TContext>(
 
     public async Task<bool> AddRange(IEnumerable<TEntity> entities)
     {
-        await _dbSet.AddRangeAsync(entities);
-        return true;
+        try
+        {
+            await _dbSet.AddRangeAsync(entities);
+            return true;
+        }
+        catch (Exception e)
+        {
+            Logger.LogError("Something went really wrong when trying to AddRange to Db {Exception}, \n {ExceptionTrace} \n {ExceptionInnerException}", 
+                e.Message, 
+                e.StackTrace, 
+                e.InnerException);
+            throw;
+        }
     }
 
     public Task<bool> Update(TEntity? entity)

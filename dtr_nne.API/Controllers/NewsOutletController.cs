@@ -1,3 +1,4 @@
+using dtr_nne.Application.DTO;
 using dtr_nne.Application.NewsOutletServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,13 +13,26 @@ public class NewsOutletController(INewsOutletService newsOutletService) : Contro
     [HttpGet("Get", Name = "Get")]
     public async Task<ActionResult> Get()
     {
-        var newsOutlet = await newsOutletService.GetAllNewsOutlets();
+        var newsOutlets = await newsOutletService.GetAllNewsOutlets();
 
-        if (newsOutlet.Count != 0)
+        if (newsOutlets.Count != 0)
         {
-            return Ok(newsOutlet);
+            return Ok(newsOutlets);
         }
         
-        return NotFound(newsOutlet);
+        return NotFound(newsOutlets);
+    }
+
+    [HttpGet("Add", Name = "Add")]
+    public async Task<ActionResult> Add(List<NewsOutletDto> newsOutletDtos)
+    {
+        var addedNewsOutletDtos = await newsOutletService.AddNewsOutlets(newsOutletDtos);
+
+        if (addedNewsOutletDtos.Count == 0)
+        {
+            return UnprocessableEntity();
+        }
+        
+        return CreatedAtAction(nameof(Add), addedNewsOutletDtos);
     }
 }
