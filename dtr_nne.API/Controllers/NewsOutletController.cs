@@ -14,7 +14,7 @@ public class NewsOutletController(INewsOutletService newsOutletService) : Contro
     {
         var newsOutlet = await newsOutletService.GetAllNewsOutlets();
 
-        if (newsOutlet.Any())
+        if (newsOutlet.Count != 0)
         {
             return Ok(newsOutlet);
         }

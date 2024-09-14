@@ -53,7 +53,7 @@ public class TestNewsOutletController
     {
         // Arrange 
         var newsOutletService = new Mock<INewsOutletService>();
-
+        
         newsOutletService
             .Setup(service => service.GetAllNewsOutlets().Result)
             .Returns(NewsOutletFixture.GetTestNewsOutlet);

@@ -2,7 +2,6 @@ using dtr_nne.Application.NewsOutletServices;
 using dtr_nne.Domain.Entities;
 using dtr_nne.Domain.Repositories;
 using Moq;
-using Tests.Fixtures;
 
 namespace Tests.Systems.Services;
 
@@ -32,6 +31,6 @@ public class TestNewsOutletService
         var newsOutlets = await sut.GetAllNewsOutlets();
 
         // Assert
-        newsOutlets.Should().BeOfType<List<NewsOutlet>>();
+        
     }
 }

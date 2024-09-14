@@ -3,6 +3,7 @@ obj/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
-/dtr_nne/appsettings.json
-/dtr_nne/appsettings.Development.json
-/dtr_nne/Properties/launchSettings.json
+/dtr_nne.API/appsettings.json
+/dtr_nne.API/appsettings.Development.json
+/dtr_nne.API/Properties/launchSettings.json
+/dtr_nne.API/Dockerfile

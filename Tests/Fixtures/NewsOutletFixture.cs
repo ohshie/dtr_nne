@@ -1,14 +1,8 @@
 using dtr_nne.Domain.Entities;
-using dtr_nne.Domain.UnitOfWork;
-using dtr_nne.Infrastructure.Context;
-using dtr_nne.Infrastructure.Repositories;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Moq;
 
 namespace Tests.Fixtures;
 
-internal class NewsOutletFixture
+internal static class NewsOutletFixture
 {
     public static List<NewsOutlet> GetTestNewsOutlet() =>
     [
@@ -49,25 +43,4 @@ internal class NewsOutletFixture
         }
 
     ];
-
-    public (GenericRepository<NewsOutlet, NneDbContext>, NneDbContext) ProvideEmptyRepository()
-    {
-        var options = new DbContextOptionsBuilder<NneDbContext>()
-            .UseInMemoryDatabase(databaseName: "testDb")
-            .Options;
-        var context = new NneDbContext(options);
-        
-        var mockLogger = new Mock<ILogger<GenericRepository<NewsOutlet, NneDbContext>>>();
-        
-        var mockUoW = new Mock<IUnitOfWork<NneDbContext>>();
-        mockUoW.Setup(uow => uow.Context).Returns(context);
-        
-        var newsOutletRepository = new GenericRepository<NewsOutlet, NneDbContext>
-        (
-            logger: mockLogger.Object, 
-            unitOfWork: mockUoW.Object
-        );
-
-        return (newsOutletRepository, context);
-    }
 }
