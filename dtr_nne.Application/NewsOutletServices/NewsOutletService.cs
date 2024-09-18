@@ -12,8 +12,8 @@ using Microsoft.Extensions.Logging;
 namespace dtr_nne.Application.NewsOutletServices;
 
 public class NewsOutletService(ILogger<NewsOutletService> logger, 
-    IRepository<NewsOutlet> repository, 
-    NewsOutletMapper mapper,
+    INewsOutletRepository repository, 
+    INewsOutletMapper mapper,
     IUnitOfWork<INneDbContext> unitOfWork) : INewsOutletService
 {
     public async Task<List<NewsOutletDto>> GetAllNewsOutlets()
@@ -33,17 +33,17 @@ public class NewsOutletService(ILogger<NewsOutletService> logger,
         return mappedNewsOutlets;
     }
 
-    public async Task<List<NewsOutletDto>> AddNewsOutlets(List<NewsOutletDto> incomingNewsOutletsDtos)
+    public async Task<List<NewsOutletDto>> AddNewsOutlets(List<NewsOutletDto> incomingNewsOutletDtos)
     {
-        if (incomingNewsOutletsDtos.Count == 0)
+        if (incomingNewsOutletDtos.Count == 0)
         {
             logger.LogWarning("Provided 0 News Outlets Dto. Returning");
             return [];
         }
         
-        logger.LogInformation("Adding {IncomingNewsOutletsDtosCount} Provided News Outlets to Db", incomingNewsOutletsDtos.Count);
+        logger.LogInformation("Adding {IncomingNewsOutletsDtosCount} Provided News Outlets to Db", incomingNewsOutletDtos.Count);
 
-        var incomingNewsOutlets = mapper.NewsOutletDtosToNewsOutlets(incomingNewsOutletsDtos);
+        var incomingNewsOutlets = mapper.NewsOutletDtosToNewsOutlets(incomingNewsOutletDtos);
 
         var addedNewsOutlets = await repository.AddRange(incomingNewsOutlets);
 
@@ -53,8 +53,35 @@ public class NewsOutletService(ILogger<NewsOutletService> logger,
         }
 
         var addedNewsOutletsDtos = mapper.NewsOutletsToNewsOutletsDto(incomingNewsOutlets);
-        logger.LogInformation("Added {IncomingNewsOutletsCount} Provided News Outlets to Db", incomingNewsOutlets.Count);
+        logger.LogInformation("Added {AddedNewsOutletsCount} Provided News Outlets to Db", addedNewsOutletsDtos.Count);
         
         return addedNewsOutletsDtos;
+    }
+
+    public async Task<List<NewsOutletDto>> UpdateNewsOutlets(List<NewsOutletDto> incomingNewsOutletDtos)
+    {
+        if (incomingNewsOutletDtos.Count == 0)
+        {
+            logger.LogWarning("Provided 0 News Outlets Dto. Returning");
+            return [];
+        }
+        
+        logger.LogInformation("Updating {IncomingNewsOutletsDtosCount} Provided News Outlets in Db", incomingNewsOutletDtos.Count);
+
+        var mappedIncomingNewsOutlets = mapper.NewsOutletDtosToNewsOutlets(incomingNewsOutletDtos);
+        
+        var updatedOutlets = repository.UpdateRange(mappedIncomingNewsOutlets);
+
+        if (updatedOutlets)
+        {
+            await unitOfWork.Save();
+            
+            var mappedUpdatedNewsOutlets = mapper.NewsOutletsToNewsOutletsDto(mappedIncomingNewsOutlets);
+            logger.LogInformation("Updated {UpdatedNewsOutletsCount} Provided News Outlets to Db", mappedUpdatedNewsOutlets.Count);
+            return mappedUpdatedNewsOutlets;
+        }
+        
+        logger.LogWarning("Failed to update provided News Outlets, returning empty list");
+        return [];
     }
 }

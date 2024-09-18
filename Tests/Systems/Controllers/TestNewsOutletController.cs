@@ -1,7 +1,6 @@
 using dtr_nne.Application.DTO;
 using dtr_nne.Application.NewsOutletServices;
 using dtr_nne.Controllers;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Tests.Fixtures;
@@ -10,20 +9,27 @@ namespace Tests.Systems.Controllers;
 
 public class TestNewsOutletController
 {
+    private readonly Mock<INewsOutletService> _mockNewsOutletService;
+    
+    private readonly NewsOutletController _sut;
+
+    public TestNewsOutletController()
+    {
+        _mockNewsOutletService = new();
+        _sut = new NewsOutletController(_mockNewsOutletService.Object);
+    }
+    
     [Theory]
     [ClassData(typeof(NewsOutletDtoFixture))]
     public async Task Get_OnSuccess_ReturnsStatusCode200(List<NewsOutletDto> newsOutletDtos)
     {
         // Arrange 
-        var newsOutletService = new Mock<INewsOutletService>();
-        var sut = new NewsOutletController(newsOutletService.Object);
-        
-        newsOutletService
+        _mockNewsOutletService
             .Setup(service => service.GetAllNewsOutlets().Result)
             .Returns(newsOutletDtos);
         
         // Act
-        var result = (OkObjectResult)await sut.Get();
+        var result = (OkObjectResult)await _sut.Get();
         
         // Assert
         result.StatusCode.Should().Be(200);
@@ -33,19 +39,15 @@ public class TestNewsOutletController
     public async Task Get_OnSuccess_InvokesNewsOutletService()
     {
         // Arrange 
-        var newsOutletService = new Mock<INewsOutletService>();
-
-        newsOutletService
+        _mockNewsOutletService
             .Setup(service => service.GetAllNewsOutlets().Result)
             .Returns(new List<NewsOutletDto>());
-        
-        var sut = new NewsOutletController(newsOutletService.Object);
 
         // Act
-        await sut.Get();
+        await _sut.Get();
         
         // Assert
-        newsOutletService.Verify(
+        _mockNewsOutletService.Verify(
             service => service.GetAllNewsOutlets(), 
             Times.Once);
     }
@@ -55,16 +57,12 @@ public class TestNewsOutletController
     public async Task Get_OnSuccess_ReturnsListOfUsers(List<NewsOutletDto> newsOutlets)
     {
         // Arrange 
-        var newsOutletService = new Mock<INewsOutletService>();
-        
-        newsOutletService
+        _mockNewsOutletService
             .Setup(service => service.GetAllNewsOutlets().Result)
             .Returns(newsOutlets);
         
-        var sut = new NewsOutletController(newsOutletService.Object);
-
         // Act
-        var result = await sut.Get();
+        var result = await _sut.Get();
         
         // Assert
         result.Should().BeOfType<OkObjectResult>();
@@ -76,16 +74,12 @@ public class TestNewsOutletController
     public async Task Get_OnNoUsersFound_Returns404()
     {
         // Arrange 
-        var newsOutletService = new Mock<INewsOutletService>();
-
-        newsOutletService
+        _mockNewsOutletService
             .Setup(service => service.GetAllNewsOutlets().Result)
             .Returns(new List<NewsOutletDto>());
-        
-        var sut = new NewsOutletController(newsOutletService.Object);
-
+       
         // Act
-        var result = await sut.Get();
+        var result = await _sut.Get();
         
         // Assert
         result.Should().BeOfType<NotFoundObjectResult>();
@@ -98,16 +92,12 @@ public class TestNewsOutletController
     public async Task Add_OnSuccess_Returns201(List<NewsOutletDto> incomingNewsOutletDtos)
     {
         // Assemble
-        var mockNewsOutletService = new Mock<INewsOutletService>();
-
-        mockNewsOutletService
+        _mockNewsOutletService
             .Setup(service => service.AddNewsOutlets(incomingNewsOutletDtos).Result)
             .Returns(incomingNewsOutletDtos);
-
-        var sut = new NewsOutletController(mockNewsOutletService.Object);
         
         // Act
-        var result = await sut.Add(incomingNewsOutletDtos);
+        var result = await _sut.Add(incomingNewsOutletDtos);
         
         // Assert
         result.Should().BeOfType<CreatedAtActionResult>();
@@ -120,16 +110,12 @@ public class TestNewsOutletController
     public async Task Add_OnFailure_ReturnsUnprocessableEntity(List<NewsOutletDto> incomingNewsOutletDtos)
     {
         // Assemble
-        var mockNewsOutletService = new Mock<INewsOutletService>();
-
-        mockNewsOutletService
+        _mockNewsOutletService
             .Setup(service => service.AddNewsOutlets(incomingNewsOutletDtos).Result)
             .Returns([]);
 
-        var sut = new NewsOutletController(mockNewsOutletService.Object);
-        
         // Act
-        var result = await sut.Add(incomingNewsOutletDtos);
+        var result = await _sut.Add(incomingNewsOutletDtos);
         
         // Assert
         result.Should().BeOfType<UnprocessableEntityResult>();
@@ -142,16 +128,12 @@ public class TestNewsOutletController
     public async Task Add_OnSuccess_ReturnsListOfDTOs(List<NewsOutletDto> incomingNewsOutletDtos)
     {
         // Assemble
-        var mockNewsOutletService = new Mock<INewsOutletService>();
-
-        mockNewsOutletService
+        _mockNewsOutletService
             .Setup(service => service.AddNewsOutlets(incomingNewsOutletDtos).Result)
             .Returns(incomingNewsOutletDtos);
 
-        var sut = new NewsOutletController(mockNewsOutletService.Object);
-        
         // Act
-        var result = await sut.Add(incomingNewsOutletDtos);
+        var result = await _sut.Add(incomingNewsOutletDtos);
         
         // Assert
         var objectResult = (ObjectResult)result;
@@ -163,19 +145,80 @@ public class TestNewsOutletController
     public async Task Add_OnSuccess_ReturnsAddedOutletsDtos(List<NewsOutletDto> incomingNewsOutletsDtos)
     {
         // Assemble
-        var mockNewsOutletService = new Mock<INewsOutletService>();
-
-        mockNewsOutletService
+        _mockNewsOutletService
             .Setup(service => service.AddNewsOutlets(incomingNewsOutletsDtos).Result)
             .Returns(incomingNewsOutletsDtos);
 
-        var sut = new NewsOutletController(mockNewsOutletService.Object);
-        
         // Act
-        var result = await sut.Add(incomingNewsOutletsDtos);
+        var result = await _sut.Add(incomingNewsOutletsDtos);
         
         // Assert
         var objectResult = (ObjectResult)result;
         objectResult.Value.Should().BeEquivalentTo(incomingNewsOutletsDtos);
+    }
+
+    [Theory]
+    [ClassData(typeof(NewsOutletDtoFixture))]
+    public async Task Put_OnSuccess_Returns200(List<NewsOutletDto> incomingNewsOutletsDtos)
+    {
+       // Arrange
+       _mockNewsOutletService
+           .Setup(service => service.UpdateNewsOutlets(incomingNewsOutletsDtos).Result)
+           .Returns(incomingNewsOutletsDtos);
+       // Act
+       var result = await _sut.Update(incomingNewsOutletsDtos);
+
+       // Assert
+       var statusCode = (OkObjectResult)result;
+       statusCode.StatusCode.Should().Be(200);
+    }
+
+    [Theory]
+    [ClassData(typeof(NewsOutletDtoFixture))]
+    public async Task Put_OnSuccess_ReturnsListOfChangedDto(List<NewsOutletDto> incomingNewsOutletsDtos)
+    {
+        // Assemble
+        _mockNewsOutletService
+            .Setup(service => service.UpdateNewsOutlets(incomingNewsOutletsDtos).Result)
+            .Returns(incomingNewsOutletsDtos);
+
+        // Act
+        var result = await _sut.Update(incomingNewsOutletsDtos);
+
+        // Assert 
+        var objectResult = (ObjectResult)result;
+        objectResult.Value.Should().BeOfType<List<NewsOutletDto>>();
+    }
+
+    [Fact]
+    public async Task Put_OnInvoke_ShouldCallNewsOutletServiceUpdate()
+    {
+        // Assemble
+        _mockNewsOutletService
+            .Setup(service => service.UpdateNewsOutlets(new List<NewsOutletDto>()).Result)
+            .Returns(new List<NewsOutletDto>());
+
+        // Act
+        await _sut.Update(new List<NewsOutletDto>());
+        
+        // Assert 
+        _mockNewsOutletService.Verify(service => service.UpdateNewsOutlets(new List<NewsOutletDto>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Put_WhenReturnedEmptyListFromService_ShouldReturn422()
+    {
+        // Assemble
+        _mockNewsOutletService
+            .Setup(service => service.UpdateNewsOutlets(It.IsAny<List<NewsOutletDto>>()).Result)
+            .Returns([]);
+
+        // Act
+        var result = await _sut.Update([]);
+
+        // Assert 
+        result.Should().BeOfType<UnprocessableEntityResult>();
+        var objectResult = (StatusCodeResult)result;
+        objectResult.StatusCode.Should().Be(422);
     }
 }

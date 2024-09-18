@@ -35,4 +35,17 @@ public class NewsOutletController(INewsOutletService newsOutletService) : Contro
         
         return CreatedAtAction(nameof(Add), addedNewsOutletDtos);
     }
+
+    [HttpPut("Update", Name = "Update")]
+    public async Task<ActionResult> Update(List<NewsOutletDto> newsOutletDtos)
+    {
+        var updatedNewsOutletDtos = await newsOutletService.UpdateNewsOutlets(newsOutletDtos);
+
+        if (updatedNewsOutletDtos.Count == 0)
+        {
+            return UnprocessableEntity();
+        }
+        
+        return Ok(updatedNewsOutletDtos);
+    }
 }

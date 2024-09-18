@@ -11,32 +11,18 @@ internal class UnitOfWork<TContext>(TContext passedContext)
     private bool _disposed;
     private IDbContextTransaction _objTran;
     
-    public async Task Save()
+    public async Task<bool> Save()
     {
         try
         {
             await Context.SaveChangesAsync();
+            return true;
         }
         catch (Exception dbEx)
         {
             throw;
+            return false;
         }
-    }
-
-    public void CreateTransaction()
-    {
-        _objTran = Context.Database.BeginTransaction();
-    }
-
-    public void Commit()
-    {
-        _objTran.Commit();
-    }
-
-    public void Rollback()
-    {
-        _objTran.Rollback();
-        _objTran.Dispose();
     }
     
     public void Dispose()
@@ -44,8 +30,8 @@ internal class UnitOfWork<TContext>(TContext passedContext)
         Dispose(true);
         GC.SuppressFinalize(this);
     }
-    
-    protected virtual void Dispose(bool disposing)
+
+    private void Dispose(bool disposing)
     {
         if (!_disposed)
             if (disposing)

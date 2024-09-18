@@ -5,7 +5,7 @@ using Riok.Mapperly.Abstractions;
 namespace dtr_nne.Application.Mapper;
 
 [Mapper]
-public partial class NewsOutletMapper
+internal partial class NewsOutletMapper : INewsOutletMapper
 {
     public partial NewsOutletDto NewsOutletToNewsOutletDto(NewsOutlet newsOutlet);
     public partial List<NewsOutletDto> NewsOutletsToNewsOutletsDto(List<NewsOutlet> newsOutlets);

@@ -1,25 +1,46 @@
 using dtr_nne.Domain.Entities;
+using dtr_nne.Infrastructure.Context;
+using dtr_nne.Infrastructure.Repositories;
+using dtr_nne.Infrastructure.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Moq;
 using Tests.Fixtures;
 
 namespace Tests.Systems.Repositories;
 
-public class TestNewsOutletRepository(GenericDatabaseFixture<NewsOutlet> genericDatabaseFixture)
-    : IClassFixture<GenericDatabaseFixture<NewsOutlet>>, IDisposable
+public class TestNewsOutletRepository : IClassFixture<GenericDatabaseFixture<NewsOutlet>>
 {
+    private readonly GenericDatabaseFixture<NewsOutlet> _genericDatabaseFixture;
+    private readonly NewsOutletRepository _newsOutletRepository;
+
+    public TestNewsOutletRepository(GenericDatabaseFixture<NewsOutlet> genericDatabaseFixture)
+    {
+        _genericDatabaseFixture = genericDatabaseFixture;
+        
+        var logger = new Mock<ILogger<NewsOutletRepository>>();
+        var unitOfWork = new UnitOfWork<NneDbContext>(genericDatabaseFixture.Context);
+
+        _newsOutletRepository = new NewsOutletRepository(logger.Object, 
+            unitOfWork);
+    }
+
     [Theory]
     [ClassData(typeof(NewsOutletFixture))]
     public async Task Add_WhenInvoked_AddsNewsOutlet(List<NewsOutlet> newsOutlets)
     {
         // Assemble
         var newsOutletToBeAdded = newsOutlets.First();
+        _genericDatabaseFixture.Context.ChangeTracker.Clear();
+        await _genericDatabaseFixture.Context.Database.EnsureDeletedAsync();
+        await _genericDatabaseFixture.Context.Database.EnsureCreatedAsync();
         
         // Act
-        await genericDatabaseFixture.GenericRepository.Add(newsOutletToBeAdded);
-        await genericDatabaseFixture.Context.SaveChangesAsync();
+        await _genericDatabaseFixture.Repository.Add(newsOutletToBeAdded);
+        await _genericDatabaseFixture.Context.SaveChangesAsync();
 
         // Assert
-        var addedEntity = genericDatabaseFixture.Context.NewsOutlets.First();
+        var addedEntity = _genericDatabaseFixture.Context.NewsOutlets.First();
         addedEntity.Should().BeEquivalentTo(newsOutletToBeAdded);
     }
 
@@ -28,13 +49,16 @@ public class TestNewsOutletRepository(GenericDatabaseFixture<NewsOutlet> generic
     public async Task AddRange_WhenInvoked_AddsMultipleOutlets(List<NewsOutlet> newsOutlets)
     {
         // Assemble
+        _genericDatabaseFixture.Context.ChangeTracker.Clear();
+        await _genericDatabaseFixture.Context.Database.EnsureDeletedAsync();
+        await _genericDatabaseFixture.Context.Database.EnsureCreatedAsync();
         
         // Act
-        await genericDatabaseFixture.GenericRepository.AddRange(newsOutlets);
-        await genericDatabaseFixture.Context.SaveChangesAsync();
+        await _genericDatabaseFixture.Repository.AddRange(newsOutlets);
+        await _genericDatabaseFixture.Context.SaveChangesAsync();
         
         // Assert
-        var addedEntities = await genericDatabaseFixture.Context.NewsOutlets.ToListAsync();
+        var addedEntities = await _genericDatabaseFixture.Context.NewsOutlets.ToListAsync();
         addedEntities.Should().BeEquivalentTo(newsOutlets);
     }
     
@@ -42,13 +66,16 @@ public class TestNewsOutletRepository(GenericDatabaseFixture<NewsOutlet> generic
     [ClassData(typeof(NewsOutletFixture))]
     public async Task GetAll_WhenInvoked_ReturnsExpectedListOfNewsOutlets(List<NewsOutlet> newsOutlets)
     {
-        
         // Assemble
-        await genericDatabaseFixture.GenericRepository.AddRange(newsOutlets);
-        await genericDatabaseFixture.Context.SaveChangesAsync();
+        _genericDatabaseFixture.Context.ChangeTracker.Clear();
+        await _genericDatabaseFixture.Context.Database.EnsureDeletedAsync();
+        await _genericDatabaseFixture.Context.Database.EnsureCreatedAsync();
+        
+        await _genericDatabaseFixture.Repository.AddRange(newsOutlets);
+        await _genericDatabaseFixture.Context.SaveChangesAsync();
         
         // Act
-        var savedNewsOutlets = await genericDatabaseFixture.GenericRepository.GetAll() as List<NewsOutlet>;
+        var savedNewsOutlets = await _genericDatabaseFixture.Repository.GetAll() as List<NewsOutlet>;
 
         // Assert
         savedNewsOutlets.Should().BeOfType<List<NewsOutlet>>();
@@ -60,14 +87,17 @@ public class TestNewsOutletRepository(GenericDatabaseFixture<NewsOutlet> generic
     public async Task AddRange_WhenInvoked_ReturnsTrue(List<NewsOutlet> newsOutlets)
     {
         // Assemble
+        _genericDatabaseFixture.Context.ChangeTracker.Clear();
+        await _genericDatabaseFixture.Context.Database.EnsureDeletedAsync();
+        await _genericDatabaseFixture.Context.Database.EnsureCreatedAsync();
         
         // Act
-        var success = await genericDatabaseFixture.GenericRepository.AddRange(newsOutlets);
-        await genericDatabaseFixture.Context.SaveChangesAsync();
+        var success = await _genericDatabaseFixture.Repository.AddRange(newsOutlets);
+        await _genericDatabaseFixture.Context.SaveChangesAsync();
 
         // Assert
         success.Should().BeTrue();
-        var trackedEntries = genericDatabaseFixture.Context.ChangeTracker
+        var trackedEntries = _genericDatabaseFixture.Context.ChangeTracker
             .Entries<NewsOutlet>()
             .Select(e => e.Entity)
             .ToList();
@@ -77,21 +107,54 @@ public class TestNewsOutletRepository(GenericDatabaseFixture<NewsOutlet> generic
     }
     
     [Fact]
-    public async Task AddRange_WithNullEntities_ShouldLogErrorAndThrowException()
+    public async Task AddRange_WithNullEntities_ShouldThrowException()
     {
         // Arrange
         IEnumerable<NewsOutlet> entities = null!;
 
         // Act
-        Func<Task> act = async () => await genericDatabaseFixture.GenericRepository.AddRange(entities);
+        Func<Task> act = async () => await _genericDatabaseFixture.Repository.AddRange(entities);
 
         // Assert
         await act.Should().ThrowAsync<NullReferenceException>();
     }
 
-    public void Dispose()
+    [Fact]
+    public void UpdateRange_WithNullEntities_ShouldThrowException()
     {
-        genericDatabaseFixture.Context.ChangeTracker.Clear();
-        genericDatabaseFixture.Context.Database.EnsureDeleted();
+        // Assemble
+        IEnumerable<NewsOutlet> entities = null!;
+        
+        // Act
+        var act = () => _newsOutletRepository.UpdateRange(entities);
+        
+        // Assert 
+        act.Should().Throw<NullReferenceException>();
+    }
+    
+    [Theory]
+    [ClassData(typeof(NewsOutletFixture))]
+    public async Task UpdateRange_WhenInvokedWithProperList_ReturnsTrue(List<NewsOutlet> newsOutlets)
+    {
+        // Assemble
+        _genericDatabaseFixture.Context.ChangeTracker.Clear();
+        await _genericDatabaseFixture.Context.Database.EnsureDeletedAsync();
+        await _genericDatabaseFixture.Context.Database.EnsureCreatedAsync();
+        await _genericDatabaseFixture.Context.AddRangeAsync(newsOutlets);
+        await _genericDatabaseFixture.Context.SaveChangesAsync();
+        
+        // Act
+        var success = _newsOutletRepository.UpdateRange(newsOutlets);
+        await _genericDatabaseFixture.Context.SaveChangesAsync();
+
+        // Assert
+        success.Should().BeTrue();
+        var trackedEntries = _genericDatabaseFixture.Context.ChangeTracker
+            .Entries<NewsOutlet>()
+            .Select(e => e.Entity)
+            .ToList();
+        trackedEntries.Should().BeOfType<List<NewsOutlet>>();
+        trackedEntries.Should().HaveCount(newsOutlets.Count);
+        trackedEntries.Should().BeEquivalentTo(newsOutlets);
     }
 }

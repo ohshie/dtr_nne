@@ -10,23 +10,32 @@ using Tests.Fixtures;
 
 namespace Tests.Systems.Services;
 
-public class TestNewsOutletService(GenericLoggerFixture<NewsOutletService> loggerFixture) 
+public class TestNewsOutletService
     : IClassFixture<GenericLoggerFixture<NewsOutletService>>
 {
+    private readonly Mock<INewsOutletRepository> _mockNewsOutletRepository;
+    private readonly INewsOutletMapper _mapper;
+    private readonly NewsOutletService _sut;
+    
+    public TestNewsOutletService(GenericLoggerFixture<NewsOutletService> loggerFixture)
+    {
+        _mockNewsOutletRepository = new Mock<INewsOutletRepository>();
+        Mock<IUnitOfWork<INneDbContext>> mockUnitOfWork = new();
+        _mapper = new NewsOutletMapper();
+        
+        _sut = new NewsOutletService(logger: loggerFixture.Logger, 
+            repository: _mockNewsOutletRepository.Object, 
+            mapper: _mapper, 
+            unitOfWork: mockUnitOfWork.Object);
+    }
+    
     [Fact]
     public async Task GetAllUsers_WhenInvokedEmpty_ReturnEmptyNewsOutletList()
     {
         // Arrange
-        var mockNewsOutletRepository = new Mock<IRepository<NewsOutlet>>();
-        var mockUnitOfWork = new Mock<IUnitOfWork<INneDbContext>>();
-        var mapper = new NewsOutletMapper();
-        var sut = new NewsOutletService(loggerFixture.Logger, 
-            mockNewsOutletRepository.Object, 
-            mapper, 
-            mockUnitOfWork.Object);
 
         // Act
-        var newsOutlets = await sut.GetAllNewsOutlets();
+        var newsOutlets = await _sut.GetAllNewsOutlets();
 
         // Assert
         newsOutlets.Should().NotBeNull();
@@ -36,26 +45,18 @@ public class TestNewsOutletService(GenericLoggerFixture<NewsOutletService> logge
     
     [Theory]
     [ClassData(typeof(NewsOutletFixture))]
-    public async Task GetAllUsers_WhenInvokedPopulated_ReturnsNewsOutletList(List<NewsOutlet> newsOutletDtos)
+    public async Task GetAllUsers_WhenInvokedPopulated_ReturnsNewsOutletList(List<NewsOutlet> incomingNewsOutletDtos)
     {
         // Arrange
-        var mockNewsOutletRepository = new Mock<IRepository<NewsOutlet>>();
-        var mockUnitOfWork = new Mock<IUnitOfWork<INneDbContext>>();
-        var mapper = new NewsOutletMapper();
-        var sut = new NewsOutletService(loggerFixture.Logger, 
-            mockNewsOutletRepository.Object, 
-            mapper, 
-            mockUnitOfWork.Object);
-
-        mockNewsOutletRepository
+        _mockNewsOutletRepository
             .Setup
                 (
                     repository => repository.GetAll().Result
                 )
-            .Returns(newsOutletDtos);
+            .Returns(incomingNewsOutletDtos);
         
         // Act
-        var newsOutlets = await sut.GetAllNewsOutlets();
+        var newsOutlets = await _sut.GetAllNewsOutlets();
 
         // Assert
         newsOutlets.Should().NotBeNull();
@@ -67,16 +68,9 @@ public class TestNewsOutletService(GenericLoggerFixture<NewsOutletService> logge
     public async Task AddNewsOutlets_WhenInvokedEmpty_ReturnsEmptyList()
     {
         // Arrange
-        var mockNewsOutletRepository = new Mock<IRepository<NewsOutlet>>();
-        var mockUnitOfWork = new Mock<IUnitOfWork<INneDbContext>>();
-        var mapper = new NewsOutletMapper();
-        var sut = new NewsOutletService(loggerFixture.Logger, 
-            mockNewsOutletRepository.Object, 
-            mapper, 
-            mockUnitOfWork.Object);
-        
+
         // Act
-        var newsOutlets = await sut.AddNewsOutlets([]);
+        var newsOutlets = await _sut.AddNewsOutlets([]);
 
         // Assert
         newsOutlets.Should().NotBeNull();
@@ -86,20 +80,12 @@ public class TestNewsOutletService(GenericLoggerFixture<NewsOutletService> logge
     
     [Theory]
     [ClassData(typeof(NewsOutletDtoFixture))]
-    public async Task AddNewsOutlets_WhenInvokedWithProperList_ReturnsAddedNewsOutletDtos(List<NewsOutletDto> newsOutletDtos)
+    public async Task AddNewsOutlets_WhenInvokedWithProperList_ReturnsAddedNewsOutletDtos(List<NewsOutletDto> incomingNewsOutletDtos)
     {
         // Arrange
-        var mockNewsOutletRepository = new Mock<IRepository<NewsOutlet>>();
-        var mockUnitOfWork = new Mock<IUnitOfWork<INneDbContext>>();
-        var mapper = new NewsOutletMapper();
-        var sut = new NewsOutletService(loggerFixture.Logger, 
-            mockNewsOutletRepository.Object, 
-            mapper, 
-            mockUnitOfWork.Object);
+        var mappedNewsOutlets = _mapper.NewsOutletDtosToNewsOutlets(incomingNewsOutletDtos);
         
-        var mappedNewsOutlets = mapper.NewsOutletDtosToNewsOutlets(newsOutletDtos);
-        
-        mockNewsOutletRepository
+        _mockNewsOutletRepository
             .Setup
             (
                 repository => repository.AddRange(mappedNewsOutlets).Result
@@ -107,10 +93,41 @@ public class TestNewsOutletService(GenericLoggerFixture<NewsOutletService> logge
             .Returns(true);
         
         // Act
-        var newsOutlets = await sut.AddNewsOutlets(newsOutletDtos);
+        var newsOutlets = await _sut.AddNewsOutlets(incomingNewsOutletDtos);
 
         // Assert
-        newsOutlets.Should().HaveCount(c => c == newsOutletDtos.Count);
-        newsOutlets.Should().BeEquivalentTo(newsOutletDtos);
+        newsOutlets.Should().HaveCount(c => c == incomingNewsOutletDtos.Count);
+        newsOutlets.Should().BeEquivalentTo(incomingNewsOutletDtos);
+    }
+
+    [Fact]
+    public async Task UpdateNewsOutlets_WhenInvokedWithEmptyList_ReturnsEmptyList()
+    {
+        // Assemble
+
+        // Act
+        var result = await _sut.UpdateNewsOutlets([]);
+
+        // Assert 
+        result.Should().BeEmpty();
+    }
+
+    [Theory]
+    [ClassData(typeof(NewsOutletDtoFixture))]
+    public async Task UpdateNewsOutlets_WhenInvokedWithProperList_ReturnsUpdatedList(List<NewsOutletDto> incomingNewsOutletDtos)
+    {
+        // Assemble
+        _mockNewsOutletRepository
+            .Setup
+            (
+                repository => repository.UpdateRange(It.IsAny<List<NewsOutlet>>())
+            )
+            .Returns(true);
+        
+        // Act
+        var result = await _sut.UpdateNewsOutlets(incomingNewsOutletDtos);
+
+        // Assert 
+        result.Should().BeEquivalentTo(incomingNewsOutletDtos);
     }
 }
