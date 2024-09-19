@@ -1,4 +1,5 @@
 using dtr_nne.Application.DTO;
+using dtr_nne.Application.Extensions;
 using dtr_nne.Application.Mapper;
 using dtr_nne.Application.NewsOutletServices;
 using dtr_nne.Domain.Entities;
@@ -129,5 +130,99 @@ public class TestNewsOutletService
 
         // Assert 
         result.Should().BeEquivalentTo(incomingNewsOutletDtos);
+    }
+
+    [Theory]
+    [ClassData(typeof(DeleteNewsOutletsDtoFixture))]
+    public async Task DeleteNewsOutlets_IfAllDeleted_ReturnsListOfEntitiesWithSameIdsAndName(List<DeleteNewsOutletsDto> incomingDeleteNewsOutletDtos)
+    {
+        // Assemble
+        var mappedNewsOutlets = _mapper.DeleteNewsOutletDtosToNewsOutlet(incomingDeleteNewsOutletDtos);
+
+        _mockNewsOutletRepository.Setup(repository => repository.GetAll().Result)
+            .Returns(mappedNewsOutlets);
+        
+        _mockNewsOutletRepository
+            .Setup
+            (
+                repository => repository.RemoveRange(It.IsAny<List<NewsOutlet>>())
+                )
+            .Returns(true);
+
+        // Act
+        var result = await _sut.DeleteNewsOutlets(incomingDeleteNewsOutletDtos);
+
+        // Assert
+        result.Value.Should().HaveCount(0);
+    }
+
+    [Theory]
+    [ClassData(typeof(DeleteNewsOutletsDtoFixture))]
+    public async Task DeleteNewsOutlets_IfNothingIndb_ReturnsError(
+        List<DeleteNewsOutletsDto> incomingDeleteNewsoutletDtos)
+    {
+        // Assemble
+        
+        // Act
+        var result = await _sut.DeleteNewsOutlets(incomingDeleteNewsoutletDtos);
+
+        // Assert
+        result.IsError.Should().BeTrue();
+        result.FirstError.Code.Should().BeEquivalentTo(Errors.NewsOutlets.NotFoundInDb.Code);
+    }
+
+    [Theory]
+    [ClassData(typeof(DeleteNewsOutletsDtoFixture))]
+    public async Task DeleteNewsOutlets_IfSomeNotDeleted_ReturnsListOfEntitiesWithSameIdsAndName(List<DeleteNewsOutletsDto> incomingDeleteNewsOutletDtos)
+    {
+        // Assemble
+        var toBetrimmedIncomingDeleteNewsOutletDtos = incomingDeleteNewsOutletDtos.ToList();
+        toBetrimmedIncomingDeleteNewsOutletDtos.RemoveAt(toBetrimmedIncomingDeleteNewsOutletDtos.Count-1);
+        
+        var trimmedMappedNewsOutlets = _mapper.DeleteNewsOutletDtosToNewsOutlet(toBetrimmedIncomingDeleteNewsOutletDtos);
+
+        _mockNewsOutletRepository.Setup(
+                repository => repository.GetAll().Result)
+            .Returns(trimmedMappedNewsOutlets);
+        
+        _mockNewsOutletRepository
+            .Setup
+            (
+                repository => repository.RemoveRange(It.IsAny<List<NewsOutlet>>())
+            )
+            .Returns(true);
+
+        // Act
+        var result = await _sut.DeleteNewsOutlets(incomingDeleteNewsOutletDtos);
+
+        // Assert 
+        result.Value.Should().NotBeEmpty();
+        result.Value.Should().HaveCount(1);
+        result.Value[^1].Id.Should().Match(no => no == incomingDeleteNewsOutletDtos[incomingDeleteNewsOutletDtos.Count-1].Id);
+    }
+
+    [Theory]
+    [ClassData(typeof(DeleteNewsOutletsDtoFixture))]
+    public async Task DeleteNewsOutlets_WhenInvokedWithProperList_ShouldCallRepositoryRemoveRangeOnce(List<DeleteNewsOutletsDto> incomingDeleteNewsOutletDtos)
+    {
+        // Assemble
+        var mappedNewsOutlets = _mapper.DeleteNewsOutletDtosToNewsOutlet(incomingDeleteNewsOutletDtos);
+        
+        _mockNewsOutletRepository.Setup(
+                repository => repository.GetAll().Result)
+            .Returns(mappedNewsOutlets);
+        
+        _mockNewsOutletRepository
+            .Setup
+            (
+                repository => repository.RemoveRange(It.IsAny<List<NewsOutlet>>())
+            )
+            .Returns(true);
+
+        // Act
+        await _sut.DeleteNewsOutlets(incomingDeleteNewsOutletDtos);
+
+        // Assert 
+        _mockNewsOutletRepository.Verify(repository => repository.RemoveRange(It.IsAny<List<NewsOutlet>>()), Times.Once);
     }
 }

@@ -1,12 +1,11 @@
 namespace dtr_nne.Application.DTO;
 
-public class NewsOutletDto
+public class NewsOutletDto : BaseNewsOutletsDto
 {
-    public required int Id { get; set; }
-    public bool InUse { get; set; }
-    public bool AlwaysJs { get; set; }
-    public required string Name { get; set; } = string.Empty;
-    public Uri? Website { get; set; }
-    public string MainPagePassword { get; set; } = string.Empty;
-    public string NewsPassword { get; set; } = string.Empty;
+    public required bool InUse { get; set; }
+    public required bool AlwaysJs { get; set; }
+    public override required string Name { get; set; } = string.Empty;
+    public required Uri? Website { get; set; }
+    public required string MainPagePassword { get; set; } = string.Empty;
+    public required string NewsPassword { get; set; } = string.Empty;
 }

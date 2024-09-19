@@ -1,4 +1,5 @@
 using dtr_nne.Application.DTO;
+using dtr_nne.Application.Extensions;
 using dtr_nne.Application.NewsOutletServices;
 using dtr_nne.Controllers;
 using Microsoft.AspNetCore.Mvc;
@@ -220,5 +221,84 @@ public class TestNewsOutletController
         result.Should().BeOfType<UnprocessableEntityResult>();
         var objectResult = (StatusCodeResult)result;
         objectResult.StatusCode.Should().Be(422);
+    }
+
+    [Theory]
+    [ClassData(typeof(DeleteNewsOutletsDtoFixture))]
+    public async Task Delete_WhenInvokedWithProperList_ShouldReturn200(List<DeleteNewsOutletsDto> incomingNewsOutletDtos)
+    {
+        // Assemble
+        _mockNewsOutletService
+            .Setup(service => service.DeleteNewsOutlets(incomingNewsOutletDtos).Result)
+            .Returns(new List<NewsOutletDto>
+            {
+                new NewsOutletDto
+                {
+                    InUse = false,
+                    AlwaysJs = false,
+                    Name = "null",
+                    Website = null,
+                    MainPagePassword = "null",
+                    NewsPassword = "null"
+                }
+            });
+        
+        // Act
+        var result = await _sut.Delete(incomingNewsOutletDtos);
+
+        // Assert 
+        var statusCode = (OkObjectResult)result;
+        statusCode.StatusCode.Should().Be(200);
+    }
+    
+    [Theory]
+    [ClassData(typeof(DeleteNewsOutletsDtoFixture))]
+    public async Task Delete_OnSuccess_ReturnsEmptyListOfDeletedDto(List<DeleteNewsOutletsDto> incomingNewsOutletsDtos)
+    {
+        // Assemble
+        _mockNewsOutletService
+            .Setup(service => service.DeleteNewsOutlets(incomingNewsOutletsDtos).Result)
+            .Returns(new List<NewsOutletDto>());
+
+        // Act
+        var result = await _sut.Delete(incomingNewsOutletsDtos);
+
+        // Assert 
+        var objectResult = (ObjectResult)result;
+        objectResult.Should().BeOfType<OkObjectResult>();
+        var returnedList = objectResult.Value as List<NewsOutletDto>;
+        returnedList.Should().BeEmpty();
+    }
+    
+    [Fact]
+    public async Task Delete_OnInvoke_ShouldCallNewsOutletServiceDelete()
+    {
+        // Assemble
+        _mockNewsOutletService
+            .Setup(service => service.DeleteNewsOutlets(new List<DeleteNewsOutletsDto>()).Result)
+            .Returns(new List<NewsOutletDto>());
+
+        // Act
+        await _sut.Delete(new List<DeleteNewsOutletsDto>());
+        
+        // Assert 
+        _mockNewsOutletService.Verify(service => service.DeleteNewsOutlets(new List<DeleteNewsOutletsDto>()), Times.Once);
+    }
+    
+    [Fact]
+    public async Task Delete_WhenNoNewsOutletsInDb_ShouldReturnBadRequest()
+    {
+        // Assemble
+        _mockNewsOutletService
+            .Setup(service => service.DeleteNewsOutlets(It.IsAny<List<DeleteNewsOutletsDto>>()).Result)
+            .Returns(Errors.NewsOutlets.NotFoundInDb);
+
+        // Act
+        var result = await _sut.Delete([]);
+
+        // Assert 
+        result.Should().BeOfType<BadRequestObjectResult>();
+        var objectResult = (ObjectResult)result;
+        objectResult.StatusCode.Should().Be(400);
     }
 }

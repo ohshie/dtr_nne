@@ -12,4 +12,5 @@ internal partial class NewsOutletMapper : INewsOutletMapper
     
     public partial NewsOutlet NewsOutletDtoToNewsOutlet(NewsOutletDto newsOutletDto);
     public partial List<NewsOutlet> NewsOutletDtosToNewsOutlets(List<NewsOutletDto> newsOutlets);
+    public partial List<NewsOutlet> DeleteNewsOutletDtosToNewsOutlet(List<DeleteNewsOutletsDto> newsOutletsDtos);
 }

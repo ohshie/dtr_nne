@@ -10,20 +10,44 @@ internal class NewsOutletRepository(ILogger<GenericRepository<NewsOutlet, NneDbC
     IUnitOfWork<NneDbContext> unitOfWork) 
     : GenericRepository<NewsOutlet, NneDbContext>(logger, unitOfWork), INewsOutletRepository
 {
-    public bool UpdateRange(IEnumerable<NewsOutlet> incomingNewsOutlet)
+    private readonly ILogger<GenericRepository<NewsOutlet, NneDbContext>> _logger = logger;
+    private readonly IUnitOfWork<NneDbContext> _unitOfWork = unitOfWork;
+
+    public bool UpdateRange(IEnumerable<NewsOutlet> incomingNewsOutlets)
     {
         try
         {
-            unitOfWork.Context.UpdateRange(incomingNewsOutlet);
+            _unitOfWork.Context.UpdateRange(incomingNewsOutlets);
             return true;
         }
         catch (Exception e)
         {
-            logger.LogError("Failed to pass Update Range on {TypeOfEntity}, Exception: {Exception}, \n" +
+            _logger.LogError("Failed to pass Update Range on {TypeOfEntity}, Exception: {Exception}, \n" +
                             "{Message}\n" +
                             "{StackTrace}", 
-                incomingNewsOutlet.GetType(),
-                e.InnerException,
+                incomingNewsOutlets.GetType(),
+                e.InnerException?.Message ?? "No Inner Exception",
+                e.Message,
+                e.StackTrace);
+            throw;
+        }
+    }
+
+    public bool RemoveRange(IEnumerable<NewsOutlet> incomingNewsOutlets)
+    {
+        try
+        {
+            _unitOfWork.Context.RemoveRange(incomingNewsOutlets);
+            return true;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError("Failed to pass Remove Range on {TypeOfEntity}, " +
+                            "Exception: {Exception}, \n" +
+                            "{Message}\n" +
+                            "{StackTrace}", 
+                incomingNewsOutlets.GetType(),
+                e.InnerException?.Message ?? "No Inner Exception",
                 e.Message,
                 e.StackTrace);
             throw;

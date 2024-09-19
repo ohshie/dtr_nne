@@ -1,5 +1,6 @@
 using dtr_nne.Application.DTO;
 using dtr_nne.Application.NewsOutletServices;
+using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -47,5 +48,27 @@ public class NewsOutletController(INewsOutletService newsOutletService) : Contro
         }
         
         return Ok(updatedNewsOutletDtos);
+    }
+
+    [HttpDelete("Delete", Name = "Delete")]
+    public async Task<ActionResult> Delete(List<DeleteNewsOutletsDto> newsOutletDtos)
+    {
+        var resultOfDeletion = await newsOutletService.DeleteNewsOutlets(newsOutletDtos);
+
+        if (resultOfDeletion.IsError)
+        {
+            return resultOfDeletion.FirstError.Type switch
+            {
+                ErrorType.NotFound => BadRequest(resultOfDeletion.Errors),
+                _ => StatusCode(500)
+            };
+        }
+        
+        if (resultOfDeletion.Value.Count == 0)
+        {
+            Ok(resultOfDeletion.Value);
+        }
+        
+        return Ok(resultOfDeletion.Value);
     }
 }

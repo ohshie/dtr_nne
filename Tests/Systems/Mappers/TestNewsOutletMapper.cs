@@ -5,18 +5,21 @@ using Tests.Fixtures;
 
 namespace Tests.Systems.Mappers;
 
-public class TestNewsOutletMapper(NewsOutletFixture newsOutletFixture, 
-    NewsOutletDtoFixture newsOutletDtoFixture) : IClassFixture<NewsOutletFixture>, IClassFixture<NewsOutletDtoFixture>
+public class TestNewsOutletMapper(
+    NewsOutletFixture newsOutletFixture,
+    NewsOutletDtoFixture newsOutletDtoFixture)
+    : IClassFixture<NewsOutletFixture>, IClassFixture<NewsOutletDtoFixture>
 {
+    private readonly NewsOutletMapper _sut = new();
+
     [Fact]
     public void Map_NewsOutletToNewsOutletDto_EnsuresSameIdAndName()
     {
         // assemble
-        var sut = new NewsOutletMapper();
         var newsOutlet = newsOutletFixture.FirstOrDefault()![0] as List<NewsOutlet>;
 
         // act
-        var newsOutletDto = sut.NewsOutletToNewsOutletDto(newsOutlet[0]);
+        var newsOutletDto = _sut.NewsOutletToNewsOutletDto(newsOutlet[0]);
         
         // assert
         newsOutletDto.Should().BeOfType<NewsOutletDto>();
@@ -49,11 +52,10 @@ public class TestNewsOutletMapper(NewsOutletFixture newsOutletFixture,
     public void Map_NewsOutletDtoToNewsOutlet_EnsuresSameIdAndName()
     {
         // assemble
-        var sut = new NewsOutletMapper();
         var newsOutletDto = newsOutletDtoFixture.FirstOrDefault()![0] as List<NewsOutletDto>;
 
         // act
-        var newsOutlet = sut.NewsOutletDtoToNewsOutlet(newsOutletDto[0]);
+        var newsOutlet = _sut.NewsOutletDtoToNewsOutlet(newsOutletDto[0]);
         
         // assert
         newsOutlet.Should().BeOfType<NewsOutlet>();
@@ -66,10 +68,9 @@ public class TestNewsOutletMapper(NewsOutletFixture newsOutletFixture,
     public void Map_NewsOutletDtosToNewsOutletList_EnsuresSameIdsAndName(List<NewsOutletDto> newsOutletDtos)
     {
         // assemble
-        var sut = new NewsOutletMapper();
 
         // act
-        var newsOutlets = sut.NewsOutletDtosToNewsOutlets(newsOutletDtos);
+        var newsOutlets = _sut.NewsOutletDtosToNewsOutlets(newsOutletDtos);
         
         // assert
         newsOutlets.Should().BeOfType<List<NewsOutlet>>();
@@ -79,6 +80,26 @@ public class TestNewsOutletMapper(NewsOutletFixture newsOutletFixture,
             .BeEquivalentTo
             (
                 newsOutletDtos.Select(n => n.Id)
+            );
+    }
+
+    [Theory]
+    [ClassData(typeof(DeleteNewsOutletsDtoFixture))]
+    public void Map_DeleteNewsOutletDtosToNewsOutletList_EnsureSameIdsAndName(List<DeleteNewsOutletsDto> incomingNewsOueltDtos)
+    {
+        // Assemble
+
+        // Act
+        var newsOutlets = _sut.DeleteNewsOutletDtosToNewsOutlet(incomingNewsOueltDtos);
+
+        // Assert
+        newsOutlets.Should().BeOfType<List<NewsOutlet>>();
+        newsOutlets
+            .Select(no => no.Id)
+            .Should()
+            .BeEquivalentTo
+            (
+                incomingNewsOueltDtos.Select(no => no.Id)
             );
     }
 }

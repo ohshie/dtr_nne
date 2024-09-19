@@ -157,4 +157,35 @@ public class TestNewsOutletRepository : IClassFixture<GenericDatabaseFixture<New
         trackedEntries.Should().HaveCount(newsOutlets.Count);
         trackedEntries.Should().BeEquivalentTo(newsOutlets);
     }
+
+    [Theory]
+    [ClassData(typeof(NewsOutletFixture))]
+    public async Task DeleteRange_WhenInvokedProperly_ShouldReturnTrue(List<NewsOutlet> newsOutlets)
+    {
+        // Assemble
+        _genericDatabaseFixture.Context.ChangeTracker.Clear();
+        await _genericDatabaseFixture.Context.Database.EnsureDeletedAsync();
+        await _genericDatabaseFixture.Context.Database.EnsureCreatedAsync();
+        await _genericDatabaseFixture.Context.AddRangeAsync(newsOutlets);
+        await _genericDatabaseFixture.Context.SaveChangesAsync();
+        
+        // Act
+        var success = _newsOutletRepository.RemoveRange(newsOutlets);
+
+        // Assert 
+        success.Should().BeTrue();
+    }
+    
+    [Fact]
+    public void RemoveRange_WithNullEntities_ShouldThrowException()
+    {
+        // Assemble
+        IEnumerable<NewsOutlet> entities = null!;
+        
+        // Act
+        var act = () => _newsOutletRepository.RemoveRange(entities);
+        
+        // Assert 
+        act.Should().Throw<NullReferenceException>();
+    }
 }

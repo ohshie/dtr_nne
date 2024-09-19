@@ -1,4 +1,3 @@
-using System.Collections;
 using dtr_nne.Application.DTO;
 
 namespace Tests.Fixtures;

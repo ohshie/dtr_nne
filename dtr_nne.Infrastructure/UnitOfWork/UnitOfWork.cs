@@ -20,8 +20,8 @@ internal class UnitOfWork<TContext>(TContext passedContext)
         }
         catch (Exception dbEx)
         {
+            Console.WriteLine(dbEx.Message);
             throw;
-            return false;
         }
     }
     

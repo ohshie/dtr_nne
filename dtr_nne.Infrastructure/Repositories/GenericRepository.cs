@@ -46,7 +46,7 @@ internal class GenericRepository<TEntity, TContext>(
             Logger.LogError("Something went really wrong when trying to AddRange to Db {Exception}, \n {ExceptionTrace} \n {ExceptionInnerException}", 
                 e.Message, 
                 e.StackTrace, 
-                e.InnerException);
+                e.InnerException?.Message ?? "No Inner Exception");
             throw;
         }
     }

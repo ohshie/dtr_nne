@@ -10,4 +10,5 @@ public interface INewsOutletMapper
     
     public NewsOutlet NewsOutletDtoToNewsOutlet(NewsOutletDto newsOutletDto);
     public List<NewsOutlet> NewsOutletDtosToNewsOutlets(List<NewsOutletDto> newsOutlets);
+    public List<NewsOutlet> DeleteNewsOutletDtosToNewsOutlet(List<DeleteNewsOutletsDto> newsOutletsDtos);
 }
