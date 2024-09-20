@@ -1,3 +1,4 @@
+using dtr_nne.Domain.IContext;
 using dtr_nne.Domain.Repositories;
 using dtr_nne.Domain.UnitOfWork;
 using dtr_nne.Infrastructure.Context;
@@ -11,19 +12,21 @@ namespace dtr_nne.Infrastructure.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static void AddInfrastucture(this IServiceCollection serviceCollection, IConfiguration configuration)
+    public static void AddInfrastructure(this IServiceCollection serviceCollection, IConfiguration configuration)
     {
         // Db
         var connectionString = configuration.GetConnectionString("DefaultConnection");
-        serviceCollection.AddDbContext<NneDbContext>(s =>
+        serviceCollection.AddDbContext<INneDbContext, NneDbContext>(s =>
         {
             s.UseSqlite(connectionString);
         });
 
         // Unit Of Work
+        serviceCollection.AddScoped<IUnitOfWork<INneDbContext>, UnitOfWork<NneDbContext>>();
         serviceCollection.AddScoped<IUnitOfWork<NneDbContext>, UnitOfWork<NneDbContext>>();
+
         
         // Repositories
-        serviceCollection.AddTransient<INewsOutletRepository, NewsOutletRepository>();
+        serviceCollection.AddScoped<INewsOutletRepository, NewsOutletRepository>();
     }
 }

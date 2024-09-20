@@ -1,3 +1,6 @@
+using dtr_nne.Application.Extensions;
+using dtr_nne.Domain.Extensions;
+using dtr_nne.Domain.IContext;
 using dtr_nne.Infrastructure.Extensions;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -7,7 +10,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseSerilog((context, configuration) 
     => configuration.ReadFrom.Configuration(context.Configuration));
 
-builder.Services.AddInfrastucture(builder.Configuration);
+builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddApplication(builder.Configuration);
+builder.Services.AddDomain(builder.Configuration);
 
 builder.Services.AddHttpClient();
 
@@ -49,10 +54,16 @@ app.UseHttpsRedirection();
 
 app.UseSerilogRequestLogging();
 
-
 app.UseSwagger();
 app.UseSwaggerUI();
 
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<INneDbContext>();
+    
+    await dbContext.MigrateAsync();  // If you want to apply migrations
+}
 
 app.Run();

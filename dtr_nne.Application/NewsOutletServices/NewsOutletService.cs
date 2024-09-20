@@ -105,9 +105,9 @@ public class NewsOutletService(ILogger<NewsOutletService> logger,
             return Errors.NewsOutlets.NotFoundInDb;
         }
         
-        var matchedNewsOutlets = mappedIncomingNewsOutlets
+        var matchedNewsOutlets = savedNewsOutlets
             .Where(mino => 
-                savedNewsOutlets
+                mappedIncomingNewsOutlets
                     .Select(no => no.Id)
                     .Contains(mino.Id))
             .ToList();

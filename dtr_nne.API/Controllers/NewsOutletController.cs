@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace dtr_nne.Controllers;
 
 [ApiController]
-[Authorize]
 [Route("[controller]")]
 public class NewsOutletController(INewsOutletService newsOutletService) : ControllerBase
 {
@@ -24,7 +23,7 @@ public class NewsOutletController(INewsOutletService newsOutletService) : Contro
         return NotFound(newsOutlets);
     }
 
-    [HttpGet("Add", Name = "Add")]
+    [HttpPost("Add", Name = "Add")]
     public async Task<ActionResult> Add(List<NewsOutletDto> newsOutletDtos)
     {
         var addedNewsOutletDtos = await newsOutletService.AddNewsOutlets(newsOutletDtos);
