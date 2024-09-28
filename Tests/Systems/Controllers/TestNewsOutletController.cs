@@ -1,4 +1,4 @@
-using dtr_nne.Application.DTO;
+using dtr_nne.Application.DTO.NewsOutlet;
 using dtr_nne.Application.Extensions;
 using dtr_nne.Application.NewsOutletServices;
 using dtr_nne.Controllers;
@@ -11,7 +11,6 @@ namespace Tests.Systems.Controllers;
 public class TestNewsOutletController
 {
     private readonly Mock<INewsOutletService> _mockNewsOutletService;
-    
     private readonly NewsOutletController _sut;
 
     public TestNewsOutletController()

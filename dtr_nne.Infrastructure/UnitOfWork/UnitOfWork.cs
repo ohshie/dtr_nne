@@ -1,10 +1,11 @@
 using dtr_nne.Domain.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.Logging;
 
 namespace dtr_nne.Infrastructure.UnitOfWork;
 
-internal class UnitOfWork<TContext>(TContext passedContext)
+internal class UnitOfWork<TContext>(TContext passedContext, ILogger<UnitOfWork<TContext>> logger)
     : IUnitOfWork<TContext>, IDisposable where TContext : DbContext
 {
     public TContext Context { get; } = passedContext;
@@ -20,7 +21,7 @@ internal class UnitOfWork<TContext>(TContext passedContext)
         }
         catch (Exception dbEx)
         {
-            Console.WriteLine(dbEx.Message);
+            logger.LogCritical("Unit Of Work saving produced Error {DbException}", dbEx.ToString());
             throw;
         }
     }

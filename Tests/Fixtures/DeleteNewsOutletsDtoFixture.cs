@@ -1,4 +1,4 @@
-using dtr_nne.Application.DTO;
+using dtr_nne.Application.DTO.NewsOutlet;
 
 namespace Tests.Fixtures;
 

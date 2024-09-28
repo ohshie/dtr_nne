@@ -1,4 +1,4 @@
-using dtr_nne.Application.DTO;
+using dtr_nne.Application.DTO.NewsOutlet;
 using dtr_nne.Application.Mapper;
 using dtr_nne.Domain.Entities;
 using Tests.Fixtures;
@@ -19,7 +19,7 @@ public class TestNewsOutletMapper(
         var newsOutlet = newsOutletFixture.FirstOrDefault()![0] as List<NewsOutlet>;
 
         // act
-        var newsOutletDto = _sut.NewsOutletToNewsOutletDto(newsOutlet[0]);
+        var newsOutletDto = _sut.NewsOutletToNewsOutletDto(newsOutlet![0]);
         
         // assert
         newsOutletDto.Should().BeOfType<NewsOutletDto>();
@@ -55,7 +55,7 @@ public class TestNewsOutletMapper(
         var newsOutletDto = newsOutletDtoFixture.FirstOrDefault()![0] as List<NewsOutletDto>;
 
         // act
-        var newsOutlet = _sut.NewsOutletDtoToNewsOutlet(newsOutletDto[0]);
+        var newsOutlet = _sut.NewsOutletDtoToNewsOutlet(newsOutletDto![0]);
         
         // assert
         newsOutlet.Should().BeOfType<NewsOutlet>();

@@ -1,5 +1,4 @@
-using dtr_nne.Application.DTO;
-using ErrorOr;
+using dtr_nne.Application.DTO.NewsOutlet;
 
 namespace dtr_nne.Application.NewsOutletServices;
 

@@ -1,4 +1,4 @@
-namespace dtr_nne.Application.DTO;
+namespace dtr_nne.Application.DTO.NewsOutlet;
 
 public class DeleteNewsOutletsDto : BaseNewsOutletsDto
 {

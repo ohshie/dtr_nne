@@ -19,7 +19,8 @@ public class TestNewsOutletRepository : IClassFixture<GenericDatabaseFixture<New
         _genericDatabaseFixture = genericDatabaseFixture;
         
         var logger = new Mock<ILogger<NewsOutletRepository>>();
-        var unitOfWork = new UnitOfWork<NneDbContext>(genericDatabaseFixture.Context);
+        
+        var unitOfWork = new UnitOfWork<NneDbContext>(genericDatabaseFixture.Context, new Mock<ILogger<UnitOfWork<NneDbContext>>>().Object);
 
         _newsOutletRepository = new NewsOutletRepository(logger.Object, 
             unitOfWork);

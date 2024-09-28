@@ -1,4 +1,4 @@
-using dtr_nne.Application.DTO;
+using dtr_nne.Application.DTO.NewsOutlet;
 using dtr_nne.Domain.Entities;
 
 namespace dtr_nne.Application.Mapper;

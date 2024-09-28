@@ -1,7 +1,6 @@
-using dtr_nne.Application.DTO;
+using dtr_nne.Application.DTO.NewsOutlet;
 using dtr_nne.Application.NewsOutletServices;
 using ErrorOr;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace dtr_nne.Controllers;

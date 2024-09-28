@@ -1,5 +1,6 @@
 using dtr_nne.Application.Mapper;
 using dtr_nne.Application.NewsOutletServices;
+using dtr_nne.Application.TranslatorServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,5 +12,7 @@ public static class ServiceCollectionExtensions
     {
         serviceCollection.AddTransient<INewsOutletService, NewsOutletService>();
         serviceCollection.AddTransient<INewsOutletMapper, NewsOutletMapper>();
+
+        serviceCollection.AddTransient<ITranslatorApiKeyService, TranslatorApiKeyService>();
     }
 }
