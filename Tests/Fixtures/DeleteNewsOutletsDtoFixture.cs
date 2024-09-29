@@ -9,26 +9,26 @@ public class DeleteNewsOutletsDtoFixture : TheoryData<List<DeleteNewsOutletsDto>
         Add([
             new DeleteNewsOutletsDto
             {
-                    Id = Faker.RandomNumber.Next(300), 
+                    Id = Faker.RandomNumber.Next(600), 
                     Name = "arkeonews.net"
             }
         ]);
         Add([
             new DeleteNewsOutletsDto
             {
-                    Id = Faker.RandomNumber.Next(300),
+                    Id = Faker.RandomNumber.Next(600),
                     Name = "arkeonews.net"
             },
 
             new DeleteNewsOutletsDto
             {
-                    Id = Faker.RandomNumber.Next(300),
+                    Id = Faker.RandomNumber.Next(600),
                     Name = "eurekalert.org"
             },
 
             new DeleteNewsOutletsDto
             {
-                    Id = Faker.RandomNumber.Next(300),
+                    Id = Faker.RandomNumber.Next(600),
                     Name = "techxplore.com/sort/date/12h/"
             }
         ]);

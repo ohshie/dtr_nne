@@ -9,7 +9,7 @@ public class NewsOutletDtoFixture : TheoryData<List<NewsOutletDto>>
         Add([
             new NewsOutletDto
             {
-                    Id = Faker.RandomNumber.Next(300), 
+                    Id = Faker.RandomNumber.Next(600), 
                     Name = "arkeonews.net", 
                     Website = new Uri("https://arkeonews.net/"), 
                     MainPagePassword = "{ \"links\": \"li div.left a @href\" }", 
@@ -22,7 +22,7 @@ public class NewsOutletDtoFixture : TheoryData<List<NewsOutletDto>>
         Add([
             new NewsOutletDto
             {
-                    Id = Faker.RandomNumber.Next(300),
+                    Id = Faker.RandomNumber.Next(600),
                     Name = "arkeonews.net",
                     Website = new Uri("https://arkeonews.net/"),
                     MainPagePassword = "{ \"links\": \"li div.left a @href\" }",
@@ -34,7 +34,7 @@ public class NewsOutletDtoFixture : TheoryData<List<NewsOutletDto>>
 
             new NewsOutletDto
             {
-                    Id = Faker.RandomNumber.Next(300),
+                    Id = Faker.RandomNumber.Next(600),
                     Name = "eurekalert.org",
                     Website = new Uri("https://eurekalert.org/"),
                     MainPagePassword = "{ \"links\": \"article.trending a @href\" }",
@@ -46,7 +46,7 @@ public class NewsOutletDtoFixture : TheoryData<List<NewsOutletDto>>
 
             new NewsOutletDto
             {
-                    Id = Faker.RandomNumber.Next(300),
+                    Id = Faker.RandomNumber.Next(600),
                     Name = "techxplore.com/sort/date/12h/",
                     Website = new Uri("https://techxplore.com/sort/date/12h/"),
                     MainPagePassword = "{ \"links\": \"a.news-link @href\" }",

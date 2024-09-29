@@ -31,10 +31,21 @@ public static class Errors
             public static Error BadApiKey => Error.Validation(
                 code: "Translator.Api.BadApiKeyProvided",
                 description: "Provided Api Key Did Not Pass a Check");
+            
+            public static Error QuotaExceeded => Error.Validation(
+                code: "Translator.Api.QuotaExceeded",
+                description: "Provided ApiKey Quota Exceeded ");
 
             public static Error AddingFailed => Error.Failure(
                 code: "Translator.Api>AddingFailed",
                 description: "Failed to add a new key to Db");
+        }
+
+        public static class Service
+        {
+            public static Error NoSavedApiKeyFound => Error.NotFound(
+                code: "Translator.Service.NoSavedApiKeyFound",
+                description: "There is no saved api key in db currently");
         }
     }
 }
