@@ -20,4 +20,17 @@ public class TranslatorApiController(ITranslatorApiKeyService translatorApiKeySe
         
         return CreatedAtAction(nameof(Add), apiKey);
     }
+
+    [HttpPatch("Patch", Name = "UpdateKey")]
+    public async Task<ActionResult> UpdateKey(TranslatorApiDto translatorApiDto)
+    {
+        var success = await translatorApiKeyService.UpdateKey(translatorApiDto);
+        
+        if (success.IsError)
+        {
+            return BadRequest(success.FirstError);
+        }
+        
+        return Ok(translatorApiDto.ApiKey);
+    }
 }

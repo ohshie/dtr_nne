@@ -54,6 +54,10 @@ public class TranslatorApiKeyServiceFixture
         MockTranslatorRepository
             .Setup(repository => repository.Add(MockApiKey.Object).Result)
             .Returns(true);
+        
+        MockTranslatorRepository
+            .Setup(repository => repository.Update(MockApiKey.Object).Result)
+            .Returns(true);
     }
 
     internal Mock<IUnitOfWork<NneDbContext>> MockUnitOfWork { get; }

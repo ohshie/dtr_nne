@@ -1,9 +1,11 @@
+using dtr_nne.Application.DTO.Translator;
 using dtr_nne.Application.Extensions;
 using dtr_nne.Domain.Entities;
+using ErrorOr;
 using Moq;
 using Tests.Fixtures;
 
-namespace Tests.Systems.Services;
+namespace Tests.Systems.Services.InternalServices;
 
 public class TestTranslatorApiKeyService(TranslatorApiKeyServiceFixture apiKeyServiceFixture) 
     : IClassFixture<TranslatorApiKeyServiceFixture>
@@ -120,6 +122,97 @@ public class TestTranslatorApiKeyService(TranslatorApiKeyServiceFixture apiKeySe
 
         // Act
         var result = await apiKeyServiceFixture.Sut.Add(apiKeyServiceFixture.MockApiKeyDto.Object);
+
+        // Assert 
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().BeEquivalentTo(Errors.DbErrors.UnitOfWorkSaveFailed);
+    }
+
+    [Fact]
+    public async Task UpdateKey_OnSuccess_ShouldReturnKey()
+    {
+        // Assemble
+        apiKeyServiceFixture.ResetMockState();
+        
+        // Act
+        var result = await apiKeyServiceFixture.Sut.UpdateKey(apiKeyServiceFixture.MockApiKeyDto.Object);
+
+        // Assert 
+        result.Should().BeOfType<ErrorOr<TranslatorApiDto>>();
+    }
+
+    [Fact]
+    public async Task UpdateKey_WhenProvidedWithKey_ShouldCallIMapAndCheckApiKey()
+    {
+        // Assemble
+        apiKeyServiceFixture.ResetMockState();
+        
+        // Act
+        await apiKeyServiceFixture.Sut
+            .UpdateKey(apiKeyServiceFixture.MockApiKeyDto.Object);
+
+        // Assert 
+        apiKeyServiceFixture.MockApiKeyMapper
+            .Verify(mapper => mapper.MapTranslatorApiDtoToTranslatorApi(apiKeyServiceFixture.MockApiKeyDto.Object), Times.AtLeastOnce);
+        apiKeyServiceFixture.MockTranslatorService
+            .Verify(service => service.Translate(It.IsAny<List<Headline>>(), It.IsAny<TranslatorApi>()), Times.AtLeastOnce);
+    }
+
+    [Fact]
+    public async Task UpdateKey_WhenInvokedProperly_ShouldCallIRepositoryTranslatorApiUpdate()
+    {
+        // Assemble
+        apiKeyServiceFixture.ResetMockState();
+        
+        // Act
+        await apiKeyServiceFixture.Sut.UpdateKey(apiKeyServiceFixture.MockApiKeyDto.Object);
+
+        // Assert 
+        apiKeyServiceFixture.MockTranslatorRepository
+            .Verify(repository => repository.Update(apiKeyServiceFixture.MockApiKey.Object), Times.AtLeastOnce);
+    }
+    
+    [Fact]
+    public async Task UpdateKey_WhenInvokedProperly_IfUpdatingFails_ReturnsError()
+    {
+        // Assemble
+        apiKeyServiceFixture.ResetMockState();
+        apiKeyServiceFixture.MockTranslatorRepository
+            .Setup(repository => repository.Update(apiKeyServiceFixture.MockApiKey.Object).Result)
+            .Returns(false);
+
+        // Act
+        var result = await apiKeyServiceFixture.Sut.UpdateKey(apiKeyServiceFixture.MockApiKeyDto.Object);
+
+        // Assert 
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().BeEquivalentTo(Errors.Translator.Api.UpdatingFailed);
+    }
+
+    [Fact]
+    public async Task UpdateKey_WhenInvokedProperly_ShouldCallUnitOfWorkSave()
+    {
+        // Assemble
+        apiKeyServiceFixture.ResetMockState();
+        
+        // Act
+        await apiKeyServiceFixture.Sut.UpdateKey(apiKeyServiceFixture.MockApiKeyDto.Object);
+
+        // Assert 
+        apiKeyServiceFixture.MockUnitOfWork.Verify(work => work.Save(), Times.AtLeastOnce);
+    }
+
+    [Fact]
+    public async Task UpdateKey_WhenInvokedProperly_IfUnitOfWorkSaveFails_ShouldReturnUoWDbError()
+    {
+        // Assemble
+        apiKeyServiceFixture.ResetMockState();
+        apiKeyServiceFixture.MockUnitOfWork
+            .Setup(uow => uow.Save().Result)
+            .Returns(false);
+
+        // Act
+        var result = await apiKeyServiceFixture.Sut.UpdateKey(apiKeyServiceFixture.MockApiKeyDto.Object);
 
         // Assert 
         result.IsError.Should().BeTrue();

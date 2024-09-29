@@ -37,8 +37,12 @@ public static class Errors
                 description: "Provided ApiKey Quota Exceeded ");
 
             public static Error AddingFailed => Error.Failure(
-                code: "Translator.Api>AddingFailed",
+                code: "Translator.Api.AddingFailed",
                 description: "Failed to add a new key to Db");
+            
+            public static Error UpdatingFailed => Error.Failure(
+                code: "Translator.Api.UpdatingFailed",
+                description: "Failed to update Db with a new key");
         }
 
         public static class Service
