@@ -20,7 +20,17 @@ internal class GenericRepository<TEntity, TContext>(
     
     public Task<TEntity?> Get(int id)
     {
-        throw new NotImplementedException();
+        var key = unitOfWork.Context.Model
+            .FindEntityType(typeof(TEntity))?
+            .FindPrimaryKey()?.Properties
+            .FirstOrDefault()?.Name;
+        
+        if (string.IsNullOrEmpty(key))
+        {
+            throw new InvalidOperationException($"Entity {typeof(TEntity).Name} does not have a primary key.");
+        }
+        
+        return _dbSet.FirstOrDefaultAsync(e => EF.Property<int>(e,key) == id);
     }
 
     public async Task<IEnumerable<TEntity>?> GetAll()

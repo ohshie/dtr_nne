@@ -117,11 +117,19 @@ public class DeeplTranslator(ITranslatorApiRepository repository, ILogger<DeeplT
     internal virtual async Task<string> PerformRequest(string originalHeadline, string apiKey)
     {
         var translator = new Translator(apiKey, new TranslatorOptions{sendPlatformInfo = false});
-        
-        var translatedHeadline =
-            (await translator.TranslateTextAsync(originalHeadline, LanguageCode.English, LanguageCode.Russian))
-            .ToString();
 
-        return translatedHeadline;
+        try
+        {
+            var translatedHeadline =
+                (await translator.TranslateTextAsync(originalHeadline, LanguageCode.English, LanguageCode.Russian))
+                .ToString();
+
+            return translatedHeadline;
+        }
+        catch (Exception e)
+        {
+            logger.LogError("Error during translation request for headline: {OriginalHeadline}", originalHeadline);
+            throw;
+        }
     }
 }

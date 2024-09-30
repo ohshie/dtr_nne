@@ -15,7 +15,7 @@ public class TranslatorApiKeyService(ITranslatorService translatorService,
     IUnitOfWork<INneDbContext> unitOfWork, 
     ILogger<TranslatorApiKeyService> logger) : ITranslatorApiKeyService
 {
-    private readonly List<Headline> _testHeadlines = [new Headline()];
+    private readonly List<Headline> _testHeadlines = [new Headline{OriginalHeadline = "api test"}];
     
     public async Task<ErrorOr<TranslatorApiDto>> Add(TranslatorApiDto apiKey)
     {
