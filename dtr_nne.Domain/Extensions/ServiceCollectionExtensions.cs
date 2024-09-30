@@ -1,3 +1,4 @@
+using dtr_nne.Domain.ExternalServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -7,6 +8,5 @@ public static class ServiceCollectionExtensions
 {
     public static void AddDomain(this IServiceCollection serviceCollection, IConfiguration configuration)
     {
-        
     }
 }

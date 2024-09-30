@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 namespace dtr_nne.Infrastructure.ExternalServices;
 
-public class DeeplTranslator(IRepository<TranslatorApi> repository, ILogger<DeeplTranslator> logger) : ITranslatorService
+public class DeeplTranslator(ITranslatorApiRepository repository, ILogger<DeeplTranslator> logger) : ITranslatorService
 {
     public async Task<ErrorOr<List<Headline>>> Translate(List<Headline> headlines, TranslatorApi? translatorApi = null)
     {

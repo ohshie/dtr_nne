@@ -22,7 +22,7 @@ public class NewsOutletController(INewsOutletService newsOutletService) : Contro
         return NotFound(newsOutlets);
     }
 
-    [HttpPost("Add", Name = "Add")]
+    [HttpPost("Add", Name = "Add Outlet")]
     public async Task<ActionResult> Add(List<NewsOutletDto> newsOutletDtos)
     {
         var addedNewsOutletDtos = await newsOutletService.AddNewsOutlets(newsOutletDtos);

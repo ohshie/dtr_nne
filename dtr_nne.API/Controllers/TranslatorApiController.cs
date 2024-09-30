@@ -8,7 +8,7 @@ namespace dtr_nne.Controllers;
 [Route("[controller]")]
 public class TranslatorApiController(ITranslatorApiKeyService translatorApiKeyService) : ControllerBase
 {
-    [HttpPost("Add", Name = "Add")]
+    [HttpPost("Add", Name = "Add TranslatorApiKey")]
     public async Task<ActionResult> Add(TranslatorApiDto apiKey)
     {
         var success = await translatorApiKeyService.Add(apiKey);

@@ -30,14 +30,17 @@ namespace dtr_nne.Infrastructure.Migrations
 
                     b.Property<string>("MainPagePassword")
                         .IsRequired()
+                        .HasMaxLength(300)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("NewsPassword")
                         .IsRequired()
+                        .HasMaxLength(300)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Website")
@@ -46,6 +49,22 @@ namespace dtr_nne.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("NewsOutlets");
+                });
+
+            modelBuilder.Entity("dtr_nne.Domain.Entities.TranslatorApi", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ApiKey")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TranslatorApis");
                 });
 #pragma warning restore 612, 618
         }

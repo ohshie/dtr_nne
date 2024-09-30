@@ -11,7 +11,7 @@ namespace dtr_nne.Application.TranslatorServices;
 
 public class TranslatorApiKeyService(ITranslatorService translatorService, 
     IApiKeyMapper apiKeyMapper,
-    IRepository<TranslatorApi> repository,
+    ITranslatorApiRepository repository,
     IUnitOfWork<INneDbContext> unitOfWork, 
     ILogger<TranslatorApiKeyService> logger) : ITranslatorApiKeyService
 {
@@ -21,13 +21,14 @@ public class TranslatorApiKeyService(ITranslatorService translatorService,
     {
         logger.LogInformation("Starting Add method for API key: {ApiKey}", apiKey.ApiKey);
         
-        var mappedApiKey = await MapAndCheckApiKey(apiKey);
-        if (mappedApiKey.IsError)
+        var mappedApiKey = MapApiKeys(apiKey);
+        var verifiedKey = await CheckApiKey(mappedApiKey);
+        if (verifiedKey.IsError)
         { 
-            return mappedApiKey.FirstError;
+            return verifiedKey.FirstError;
         }
         
-        var success = await repository.Add(mappedApiKey.Value);
+        var success = await repository.Add(verifiedKey.Value);
         if (!success)
         {
             logger.LogError("Failed to add API key to repository");
@@ -50,13 +51,23 @@ public class TranslatorApiKeyService(ITranslatorService translatorService,
 
     public async Task<ErrorOr<TranslatorApiDto>> UpdateKey(TranslatorApiDto apiKey)
     {
-        var mappedApiKey = await MapAndCheckApiKey(apiKey);
-        if (mappedApiKey.IsError)
-        { 
-            return mappedApiKey.FirstError;
+        var currentKey = await repository.Get(1);
+        if (currentKey is null)
+        {
+            logger.LogError("No current key found in Db, cannot update key");
+            return Errors.Translator.Service.NoSavedApiKeyFound;
         }
         
-        var success = await repository.Update(mappedApiKey.Value);
+        var mappedApiKey = MapApiKeys(apiKey);
+        var verifiedKey = await CheckApiKey(mappedApiKey);
+        if (verifiedKey.IsError)
+        { 
+            return verifiedKey.FirstError;
+        }
+
+        currentKey.ApiKey = verifiedKey.Value.ApiKey;
+        
+        var success = repository.Update(currentKey);
         if (!success)
         {
             logger.LogError("Failed to update API key");
@@ -73,12 +84,9 @@ public class TranslatorApiKeyService(ITranslatorService translatorService,
         return apiKey;
     }
     
-    private async Task<ErrorOr<TranslatorApi>> MapAndCheckApiKey(TranslatorApiDto apiKey)
+    private async Task<ErrorOr<TranslatorApi>> CheckApiKey(TranslatorApi apiKey)
     {
-        var mappedApiKey = apiKeyMapper.MapTranslatorApiDtoToTranslatorApi(apiKey);
-        logger.LogDebug("Mapped TranslatorApiDto to TranslatorApi entity");
-        
-        var validKey = await translatorService.Translate(_testHeadlines, mappedApiKey);
+        var validKey = await translatorService.Translate(_testHeadlines, apiKey);
         if (validKey.IsError)
         {
             logger.LogWarning("Failed to validate API key. Error: {Error}", validKey.FirstError);
@@ -86,6 +94,14 @@ public class TranslatorApiKeyService(ITranslatorService translatorService,
         }
         
         logger.LogDebug("API key validated successfully");
+        return apiKey;
+    }
+
+    private TranslatorApi MapApiKeys(TranslatorApiDto apiKey)
+    {
+        var mappedApiKey = apiKeyMapper.MapTranslatorApiDtoToTranslatorApi(apiKey);
+        logger.LogDebug("Mapped TranslatorApiDto to TranslatorApi entity");
+
         return mappedApiKey;
     }
 }

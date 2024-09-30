@@ -32,7 +32,7 @@ public class TestDeeplTranslator
     }
     private readonly Mock<List<Headline>> _mockHeadlines;
     private readonly Mock<TranslatorApi> _mockTranslatorApi;
-    private readonly Mock<IRepository<TranslatorApi>> _mockRepository;
+    private readonly Mock<ITranslatorApiRepository> _mockRepository;
     private readonly Mock<DeeplTranslator> _sut;
      
     [Fact]

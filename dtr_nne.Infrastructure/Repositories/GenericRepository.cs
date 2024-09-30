@@ -51,9 +51,21 @@ internal class GenericRepository<TEntity, TContext>(
         }
     }
 
-    public Task<bool> Update(TEntity? entity)
+    public bool Update(TEntity entity)
     {
-        throw new NotImplementedException();
+        try
+        {
+            _dbSet.Update(entity);
+            return true;
+        }
+        catch (Exception e)
+        {
+            Logger.LogError("Something went really wrong when trying to Perform Update in Db {Exception}, \n {ExceptionTrace} \n {ExceptionInnerException}", 
+                e.Message, 
+                e.StackTrace, 
+                e.InnerException?.Message ?? "No Inner Exception");
+            throw;
+        }
     }
 
     public Task<bool> Remove(TEntity? entity)

@@ -18,7 +18,7 @@ public class TranslatorApiKeyServiceFixture
     {
         MockTranslatorService = new Mock<ITranslatorService>();
         MockApiKeyMapper = new Mock<IApiKeyMapper>();
-        MockTranslatorRepository = new Mock<IRepository<TranslatorApi>>();
+        MockTranslatorRepository = new Mock<ITranslatorApiRepository>();
         MockApiKeyDto = new Mock<TranslatorApiDto>();
         MockApiKey = new Mock<TranslatorApi>();
         MockUnitOfWork = new Mock<IUnitOfWork<NneDbContext>>();
@@ -56,8 +56,12 @@ public class TranslatorApiKeyServiceFixture
             .Returns(true);
         
         MockTranslatorRepository
-            .Setup(repository => repository.Update(MockApiKey.Object).Result)
+            .Setup(repository => repository.Update(MockApiKey.Object))
             .Returns(true);
+        
+        MockTranslatorRepository
+            .Setup(repository => repository.Get(1).Result)
+            .Returns(MockApiKey.Object);
     }
 
     internal Mock<IUnitOfWork<NneDbContext>> MockUnitOfWork { get; }
@@ -68,6 +72,6 @@ public class TranslatorApiKeyServiceFixture
 
     internal Mock<ITranslatorService> MockTranslatorService { get; }
     internal Mock<IApiKeyMapper> MockApiKeyMapper { get; }
-    internal Mock<IRepository<TranslatorApi>> MockTranslatorRepository { get; }
+    internal Mock<ITranslatorApiRepository> MockTranslatorRepository { get; }
     internal TranslatorApiKeyService Sut { get; }
 }

@@ -178,7 +178,7 @@ public class TestTranslatorApiKeyService(TranslatorApiKeyServiceFixture apiKeySe
         // Assemble
         apiKeyServiceFixture.ResetMockState();
         apiKeyServiceFixture.MockTranslatorRepository
-            .Setup(repository => repository.Update(apiKeyServiceFixture.MockApiKey.Object).Result)
+            .Setup(repository => repository.Update(apiKeyServiceFixture.MockApiKey.Object))
             .Returns(false);
 
         // Act
@@ -217,5 +217,23 @@ public class TestTranslatorApiKeyService(TranslatorApiKeyServiceFixture apiKeySe
         // Assert 
         result.IsError.Should().BeTrue();
         result.FirstError.Should().BeEquivalentTo(Errors.DbErrors.UnitOfWorkSaveFailed);
+    }
+
+    [Fact]
+    public async Task UpdateKey_WhenInvokedProperly_ShouldGetCurrentApiKey_And_ReturnErrrorIfNoCurrentKeyFound()
+    {
+        // Assemble
+        apiKeyServiceFixture.ResetMockState();
+        apiKeyServiceFixture.MockTranslatorRepository
+            .Setup(repository => repository.Get(1).Result)
+            .Returns(It.IsAny<TranslatorApi>());
+
+        // Act
+        var result = await apiKeyServiceFixture.Sut.UpdateKey(apiKeyServiceFixture.MockApiKeyDto.Object);
+        
+        // Assert
+        apiKeyServiceFixture.MockTranslatorRepository.Verify(repository => repository.Get(1), Times.AtLeastOnce);
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().BeEquivalentTo(Errors.Translator.Service.NoSavedApiKeyFound);
     }
 }

@@ -7,6 +7,6 @@ public interface IRepository<TEntity>
     Task<IEnumerable<TEntity>?> GetAll();
     Task<bool> Add(TEntity entity);
     public Task<bool> AddRange(IEnumerable<TEntity> entities);
-    Task<bool> Update(TEntity? entity);
-    Task<bool> Remove(TEntity? entity);
+    bool Update(TEntity entity);
+    Task<bool> Remove(TEntity entity);
 }
