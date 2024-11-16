@@ -41,14 +41,23 @@ public class NewsOutletController(IGetNewsOutletService getNewsOutletService,
     [HttpPut("Update", Name = "Update")]
     public async Task<ActionResult> Update(List<NewsOutletDto> newsOutletDtos)
     {
-        var updatedNewsOutletDtos = await updateNewsOutletService.UpdateNewsOutlets(newsOutletDtos);
+        var resultOfUpdate = await updateNewsOutletService.UpdateNewsOutlets(newsOutletDtos);
 
-        if (updatedNewsOutletDtos.Count == 0)
+        if (resultOfUpdate.IsError)
         {
-            return UnprocessableEntity();
+            return resultOfUpdate.FirstError.Type switch
+            {
+                ErrorType.Validation => BadRequest(resultOfUpdate.Errors),
+                _ => StatusCode(500)
+            };
         }
         
-        return Ok(updatedNewsOutletDtos);
+        if (resultOfUpdate.Value.Count == 0)
+        {
+            return Ok();
+        }
+        
+        return StatusCode(206, resultOfUpdate.Value);
     }
 
     [HttpDelete("Delete", Name = "Delete")]
@@ -67,9 +76,9 @@ public class NewsOutletController(IGetNewsOutletService getNewsOutletService,
         
         if (resultOfDeletion.Value.Count == 0)
         {
-            Ok(resultOfDeletion.Value);
+            return Ok(resultOfDeletion.Value);
         }
         
-        return Ok(resultOfDeletion.Value);
+        return StatusCode(206, resultOfDeletion.Value);
     }
 }

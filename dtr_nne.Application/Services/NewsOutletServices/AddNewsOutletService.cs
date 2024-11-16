@@ -6,7 +6,7 @@ using dtr_nne.Domain.UnitOfWork;
 
 namespace dtr_nne.Application.Services.NewsOutletServices;
 
-public class AddNewsOutletService(ILogger<AddNewsOutletService> logger, 
+internal class AddNewsOutletService(ILogger<AddNewsOutletService> logger, 
     INewsOutletRepository repository, 
     INewsOutletMapper mapper,
     IUnitOfWork<INneDbContext> unitOfWork) : IAddNewsOutletService
@@ -21,7 +21,7 @@ public class AddNewsOutletService(ILogger<AddNewsOutletService> logger,
         
         logger.LogInformation("Adding {IncomingNewsOutletsDtosCount} Provided News Outlets to Db", incomingNewsOutletDtos.Count);
 
-        var incomingNewsOutlets = mapper.NewsOutletDtosToNewsOutlets(incomingNewsOutletDtos);
+        var incomingNewsOutlets = mapper.DtosToEntities(incomingNewsOutletDtos);
 
         var addedNewsOutlets = await repository.AddRange(incomingNewsOutlets);
 
@@ -30,8 +30,8 @@ public class AddNewsOutletService(ILogger<AddNewsOutletService> logger,
             await unitOfWork.Save();
         }
 
-        var addedNewsOutletsDtos = mapper.NewsOutletsToNewsOutletsDto(incomingNewsOutlets);
-        logger.LogInformation("Added {AddedNewsOutletsCount} Provided News Outlets to Db", addedNewsOutletsDtos.Count);
+        var addedNewsOutletsDtos = mapper.EntitiesToDtos(incomingNewsOutlets);
+        logger.LogInformation("Added provided News Outlets to Db");
         
         return addedNewsOutletsDtos;
     }

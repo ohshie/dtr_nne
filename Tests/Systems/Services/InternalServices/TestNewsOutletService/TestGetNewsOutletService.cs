@@ -11,13 +11,20 @@ public class TestGetNewsOutletService : BaseTestNewsOutletService
 {
     private readonly GetNewsOutletService _sut;
 
-    private TestGetNewsOutletService()
+    public TestGetNewsOutletService()
     {
         ILogger<GetNewsOutletService> logger = new Mock<ILogger<GetNewsOutletService>>().Object;
         
+        var fixture = new NewsOutletDtoFixture();
+        var randomNewsOutlet = fixture.First()[0] as List<NewsOutletDto>;
+        
+        MockMapper
+            .Setup(mapper => mapper.EntitiesToDtos(It.IsAny<List<NewsOutlet>>()))
+            .Returns(randomNewsOutlet);
+        
         _sut = new GetNewsOutletService(logger: logger, 
-            repository: MockNewsOutletRepository.Object, 
-            mapper: Mapper);
+            repository: Mockrepository.Object, 
+            mapper: MockMapper.Object);
     }
     
     [Fact]
@@ -36,15 +43,12 @@ public class TestGetNewsOutletService : BaseTestNewsOutletService
     
     [Theory]
     [ClassData(typeof(NewsOutletFixture))]
-    public async Task GetAllNewsOutlets_WhenInvokedPopulated_ReturnsNewsOutletList(List<NewsOutlet> incomingNewsOutletDtos)
+    public async Task GetAllNewsOutlets_WhenInvokedPopulated_ReturnsNewsOutletList(List<NewsOutlet> incomingNewsOutlet)
     {
         // Arrange
-        MockNewsOutletRepository
-            .Setup
-            (
-                repository => repository.GetAll().Result
-            )
-            .Returns(incomingNewsOutletDtos);
+        Mockrepository
+            .Setup(repository => repository.GetAll().Result)
+            .Returns(incomingNewsOutlet);
         
         // Act
         var newsOutlets = await _sut.GetAllNewsOutlets();

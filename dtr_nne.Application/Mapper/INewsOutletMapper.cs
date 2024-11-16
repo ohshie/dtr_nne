@@ -5,10 +5,11 @@ namespace dtr_nne.Application.Mapper;
 
 public interface INewsOutletMapper
 {
-    public NewsOutletDto NewsOutletToNewsOutletDto(NewsOutlet newsOutlet);
-    public List<NewsOutletDto> NewsOutletsToNewsOutletsDto(List<NewsOutlet> newsOutlets);
+    public NewsOutletDto EntityToDto(NewsOutlet newsOutlet);
+    public List<NewsOutletDto> EntitiesToDtos(List<NewsOutlet> newsOutlets);
     
-    public NewsOutlet NewsOutletDtoToNewsOutlet(NewsOutletDto newsOutletDto);
-    public List<NewsOutlet> NewsOutletDtosToNewsOutlets(List<NewsOutletDto> newsOutlets);
-    public List<NewsOutlet> DeleteNewsOutletDtosToNewsOutlet(List<BaseNewsOutletsDto> newsOutletsDtos);
+    public NewsOutlet DtoToEntity(NewsOutletDto newsOutletDto);
+    public List<NewsOutlet> DtosToEntities(List<NewsOutletDto> newsOutlets);
+    public List<NewsOutlet> BaseDtosToEntities(List<BaseNewsOutletsDto> newsOutletsDtos);
+    public List<BaseNewsOutletsDto> EntitiesToBaseDtos(List<NewsOutlet> newsOutlets);
 }

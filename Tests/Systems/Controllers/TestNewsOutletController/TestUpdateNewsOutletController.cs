@@ -1,4 +1,5 @@
 using dtr_nne.Application.DTO.NewsOutlet;
+using dtr_nne.Application.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Tests.Fixtures;
@@ -14,12 +15,12 @@ public class TestUpdateNewsOutletController : BaseTestNewsOutletController
        // Arrange
        MockUpdateNewsOutletService
            .Setup(service => service.UpdateNewsOutlets(incomingNewsOutletsDtos).Result)
-           .Returns(incomingNewsOutletsDtos);
+           .Returns(new List<NewsOutletDto>());
        // Act
        var result = await Sut.Update(incomingNewsOutletsDtos);
 
        // Assert
-       var statusCode = (OkObjectResult)result;
+       var statusCode = (OkResult)result;
        statusCode.StatusCode.Should().Be(200);
     }
 
@@ -61,14 +62,14 @@ public class TestUpdateNewsOutletController : BaseTestNewsOutletController
         // Assemble
         MockUpdateNewsOutletService
             .Setup(service => service.UpdateNewsOutlets(It.IsAny<List<NewsOutletDto>>()).Result)
-            .Returns([]);
+            .Returns(Errors.NewsOutlets.NoNewsOutletProvided);
 
         // Act
         var result = await Sut.Update([]);
 
         // Assert 
-        result.Should().BeOfType<UnprocessableEntityResult>();
-        var objectResult = (StatusCodeResult)result;
-        objectResult.StatusCode.Should().Be(422);
+        result.Should().BeOfType<BadRequestObjectResult>();
+        var objectResult = (ObjectResult)result;
+        objectResult.StatusCode.Should().Be(400);
     }
 }

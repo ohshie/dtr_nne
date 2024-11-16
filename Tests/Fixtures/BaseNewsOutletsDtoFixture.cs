@@ -2,9 +2,9 @@ using dtr_nne.Application.DTO.NewsOutlet;
 
 namespace Tests.Fixtures;
 
-public class DeleteNewsOutletsDtoFixture : TheoryData<List<BaseNewsOutletsDto>>
+public class BaseNewsOutletsDtoFixture : TheoryData<List<BaseNewsOutletsDto>>
 {
-    public DeleteNewsOutletsDtoFixture()
+    public BaseNewsOutletsDtoFixture()
     {
         Add([
             new BaseNewsOutletsDto

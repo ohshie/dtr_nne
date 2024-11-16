@@ -26,9 +26,17 @@ public static class Errors
             "NewsOutlet.NotFound",
             description: "No NewsOutlets Were Found in Db");
 
+        public static Error MatchFailed => Error.NotFound(
+            "NewsOutlets.MatchFailed",
+            description: "Provided NewsOutlets not found in Db");
+        
         public static Error DeletionFailed => Error.Failure(
             code: "NewsOutlets.DeletionFailed",
             description: "Failed to delete one or more news outlets.");
+        
+        public static Error UpdateFailed => Error.Failure(
+            code: "NewsOutlets.UpdateFailed",
+            description: "Failed to update one or more news outlets.");
     }
 
     public static class Translator

@@ -1,4 +1,5 @@
 using dtr_nne.Application.DTO.NewsOutlet;
+using dtr_nne.Application.Extensions;
 using dtr_nne.Application.Mapper;
 using dtr_nne.Domain.IContext;
 using dtr_nne.Domain.Repositories;
@@ -7,39 +8,65 @@ using dtr_nne.Domain.UnitOfWork;
 namespace dtr_nne.Application.Services.NewsOutletServices;
 
 public class UpdateNewsOutletService(ILogger<UpdateNewsOutletService> logger, 
+    INewsOutletServiceHelper helper,
     INewsOutletRepository repository, 
     INewsOutletMapper mapper,
     IUnitOfWork<INneDbContext> unitOfWork) : IUpdateNewsOutletService
 {
-    public async Task<List<NewsOutletDto>> UpdateNewsOutlets(List<NewsOutletDto> incomingNewsOutletDtos)
+    public async Task<ErrorOr<List<NewsOutletDto>>> UpdateNewsOutlets(List<NewsOutletDto> incomingNewsOutletDtos)
     {
         if (incomingNewsOutletDtos.Count == 0)
         {
             logger.LogWarning("Provided 0 News Outlets Dto to update. Returning");
-            return [];
+            return Errors.NewsOutlets.NoNewsOutletProvided;
         }
-        
-        logger.LogInformation("Updating {IncomingNewsOutletsDtosCount} Provided News Outlets in Db", incomingNewsOutletDtos.Count);
 
-        var mappedIncomingNewsOutlets = mapper.NewsOutletDtosToNewsOutlets(incomingNewsOutletDtos);
+        var mappedIncomingNewsOutlets = mapper.DtosToEntities(incomingNewsOutletDtos);
         
-        var updatedOutlets = repository.UpdateRange(mappedIncomingNewsOutlets);
-
-        if (updatedOutlets)
+        var matchResult = await helper.MatchNewsOutlets(mappedIncomingNewsOutlets);
+        if (matchResult.IsError)
         {
-            await unitOfWork.Save();
-            
-            var mappedUpdatedNewsOutlets = mapper.NewsOutletsToNewsOutletsDto(mappedIncomingNewsOutlets);
-            logger.LogInformation("Updated {UpdatedNewsOutletsCount} Provided News Outlets to Db", mappedUpdatedNewsOutlets.Count);
-            return mappedUpdatedNewsOutlets;
+            return matchResult.FirstError;
         }
+
+        var (matchedNewsOutlets, notMatchedNewsOutlets) = matchResult.Value;
+        if (matchedNewsOutlets.Count < 1)
+        {
+            logger.LogError("No provided entities found in Db, returning list back to the customer");
+            var notMatchedNewsOutletDtos = mapper.EntitiesToDtos(notMatchedNewsOutlets);
+            return notMatchedNewsOutletDtos;
+        }
+
+        var pendingUpdate = mappedIncomingNewsOutlets
+            .Where(ino => matchedNewsOutlets
+                .Select(no => no.Id)
+                .Contains(ino.Id))
+            .ToList();
         
-        logger.LogWarning("Failed to update provided News Outlets, returning empty list");
-        return [];
+        var success = repository.UpdateRange(pendingUpdate);
+        if (!success)
+        {
+            logger.LogError("Updating range of entities from Db resulted in Error");
+            return Errors.NewsOutlets.UpdateFailed;
+        }
+
+        await unitOfWork.Save();
+        
+        if (notMatchedNewsOutlets.Count <  1)
+        {
+            logger.LogInformation("Successfully updated all provided entities");
+            return new List<NewsOutletDto>();
+        }
+
+        logger.LogWarning(
+            "Partially updated provided entities, returning {NotMatchedOutletsCount} Dtos for customer to check",
+            notMatchedNewsOutlets.Count);
+        var notDeletedNewsOutletDtos = mapper.EntitiesToDtos(notMatchedNewsOutlets); 
+        return notDeletedNewsOutletDtos;
     }
 }
 
 public interface IUpdateNewsOutletService
 {
-    public Task<List<NewsOutletDto>> UpdateNewsOutlets(List<NewsOutletDto> incomingNewsOutletDtos);
+    public Task<ErrorOr<List<NewsOutletDto>>> UpdateNewsOutlets(List<NewsOutletDto> incomingNewsOutletDtos);
 }

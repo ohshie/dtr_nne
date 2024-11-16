@@ -8,10 +8,11 @@ namespace dtr_nne.Application.Mapper;
 [Mapper]
 public partial class NewsOutletMapper : INewsOutletMapper
 {
-    public partial NewsOutletDto NewsOutletToNewsOutletDto(NewsOutlet newsOutlet);
-    public partial List<NewsOutletDto> NewsOutletsToNewsOutletsDto(List<NewsOutlet> newsOutlets);
+    public partial NewsOutletDto EntityToDto(NewsOutlet newsOutlet);
+    public partial List<NewsOutletDto> EntitiesToDtos(List<NewsOutlet> newsOutlets);
     
-    public partial NewsOutlet NewsOutletDtoToNewsOutlet(NewsOutletDto newsOutletDto);
-    public partial List<NewsOutlet> NewsOutletDtosToNewsOutlets(List<NewsOutletDto> newsOutlets);
-    public partial List<NewsOutlet> DeleteNewsOutletDtosToNewsOutlet(List<BaseNewsOutletsDto> newsOutletsDtos);
+    public partial NewsOutlet DtoToEntity(NewsOutletDto newsOutletDto);
+    public partial List<NewsOutlet> DtosToEntities(List<NewsOutletDto> newsOutlets);
+    public partial List<NewsOutlet> BaseDtosToEntities(List<BaseNewsOutletsDto> newsOutletsDtos);
+    public partial List<BaseNewsOutletsDto> EntitiesToBaseDtos(List<NewsOutlet> newsOutlets);
 }

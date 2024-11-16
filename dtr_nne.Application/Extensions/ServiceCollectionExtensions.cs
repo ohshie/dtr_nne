@@ -10,6 +10,7 @@ public static class ServiceCollectionExtensions
 {
     public static void AddApplication(this IServiceCollection serviceCollection, IConfiguration configuration)
     {
+        serviceCollection.AddTransient<INewsOutletServiceHelper, NewsOutletServiceHelper>();
         serviceCollection.AddTransient<IGetNewsOutletService, GetNewsOutletService>();
         serviceCollection.AddTransient<IAddNewsOutletService, AddNewsOutletService>();
         serviceCollection.AddTransient<IUpdateNewsOutletService, UpdateNewsOutletService>();

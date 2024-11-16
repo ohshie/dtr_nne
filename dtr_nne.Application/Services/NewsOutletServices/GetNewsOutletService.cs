@@ -1,9 +1,7 @@
 using dtr_nne.Application.DTO.NewsOutlet;
 using dtr_nne.Application.Mapper;
 using dtr_nne.Domain.Entities;
-using dtr_nne.Domain.IContext;
 using dtr_nne.Domain.Repositories;
-using dtr_nne.Domain.UnitOfWork;
 
 namespace dtr_nne.Application.Services.NewsOutletServices;
 
@@ -22,7 +20,7 @@ public class GetNewsOutletService(ILogger<GetNewsOutletService> logger,
             return [];
         }
         
-        var mappedNewsOutlets = mapper.NewsOutletsToNewsOutletsDto(newsOutlets);
+        var mappedNewsOutlets = mapper.EntitiesToDtos(newsOutlets);
         
         logger.LogInformation("Found {NewsOutletCount} News Outlets, mapped to {MappedNewsOutlets} News Outlets Dto", newsOutlets.Count, mappedNewsOutlets.Count);
         return mappedNewsOutlets;

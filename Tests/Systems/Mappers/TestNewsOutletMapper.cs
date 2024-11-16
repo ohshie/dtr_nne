@@ -19,7 +19,7 @@ public class TestNewsOutletMapper(
         var newsOutlet = newsOutletFixture.FirstOrDefault()![0] as List<NewsOutlet>;
 
         // act
-        var newsOutletDto = _sut.NewsOutletToNewsOutletDto(newsOutlet![0]);
+        var newsOutletDto = _sut.EntityToDto(newsOutlet![0]);
         
         // assert
         newsOutletDto.Should().BeOfType<NewsOutletDto>();
@@ -35,7 +35,7 @@ public class TestNewsOutletMapper(
         var sut = new NewsOutletMapper();
 
         // act
-        var newsOutletDtos = sut.NewsOutletsToNewsOutletsDto(newsOutlets);
+        var newsOutletDtos = sut.EntitiesToDtos(newsOutlets);
         
         // assert
         newsOutletDtos.Should().BeOfType<List<NewsOutletDto>>();
@@ -55,7 +55,7 @@ public class TestNewsOutletMapper(
         var newsOutletDto = newsOutletDtoFixture.FirstOrDefault()![0] as List<NewsOutletDto>;
 
         // act
-        var newsOutlet = _sut.NewsOutletDtoToNewsOutlet(newsOutletDto![0]);
+        var newsOutlet = _sut.DtoToEntity(newsOutletDto![0]);
         
         // assert
         newsOutlet.Should().BeOfType<NewsOutlet>();
@@ -70,7 +70,7 @@ public class TestNewsOutletMapper(
         // assemble
 
         // act
-        var newsOutlets = _sut.NewsOutletDtosToNewsOutlets(newsOutletDtos);
+        var newsOutlets = _sut.DtosToEntities(newsOutletDtos);
         
         // assert
         newsOutlets.Should().BeOfType<List<NewsOutlet>>();
@@ -84,13 +84,13 @@ public class TestNewsOutletMapper(
     }
 
     [Theory]
-    [ClassData(typeof(DeleteNewsOutletsDtoFixture))]
+    [ClassData(typeof(BaseNewsOutletsDtoFixture))]
     public void Map_DeleteNewsOutletDtosToNewsOutletList_EnsureSameIdsAndName(List<BaseNewsOutletsDto> incomingNewsOueltDtos)
     {
         // Assemble
 
         // Act
-        var newsOutlets = _sut.DeleteNewsOutletDtosToNewsOutlet(incomingNewsOueltDtos);
+        var newsOutlets = _sut.BaseDtosToEntities(incomingNewsOueltDtos);
 
         // Assert
         newsOutlets.Should().BeOfType<List<NewsOutlet>>();

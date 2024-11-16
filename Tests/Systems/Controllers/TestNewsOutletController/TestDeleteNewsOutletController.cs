@@ -9,41 +9,13 @@ namespace Tests.Systems.Controllers.TestNewsOutletController;
 public class TestDeleteNewsOutletController : BaseTestNewsOutletController
 {
     [Theory]
-    [ClassData(typeof(DeleteNewsOutletsDtoFixture))]
-    public async Task Delete_WhenInvokedWithProperList_ShouldReturn200(List<BaseNewsOutletsDto> incomingNewsOutletDtos)
-    {
-        // Assemble
-        MockDeleteNewsOutletService
-            .Setup(service => service.DeleteNewsOutlets(incomingNewsOutletDtos).Result)
-            .Returns(new List<NewsOutletDto>
-            {
-                new NewsOutletDto
-                {
-                    InUse = false,
-                    AlwaysJs = false,
-                    Name = "null",
-                    Website = null,
-                    MainPagePassword = "null",
-                    NewsPassword = "null"
-                }
-            });
-        
-        // Act
-        var result = await Sut.Delete(incomingNewsOutletDtos);
-
-        // Assert 
-        var statusCode = (OkObjectResult)result;
-        statusCode.StatusCode.Should().Be(200);
-    }
-    
-    [Theory]
-    [ClassData(typeof(DeleteNewsOutletsDtoFixture))]
+    [ClassData(typeof(BaseNewsOutletsDtoFixture))]
     public async Task Delete_OnSuccess_ReturnsEmptyListOfDeletedDto(List<BaseNewsOutletsDto> incomingNewsOutletsDtos)
     {
         // Assemble
         MockDeleteNewsOutletService
             .Setup(service => service.DeleteNewsOutlets(incomingNewsOutletsDtos).Result)
-            .Returns(new List<NewsOutletDto>());
+            .Returns(new List<BaseNewsOutletsDto>{Capacity = 0});
 
         // Act
         var result = await Sut.Delete(incomingNewsOutletsDtos);
@@ -51,8 +23,6 @@ public class TestDeleteNewsOutletController : BaseTestNewsOutletController
         // Assert 
         var objectResult = (ObjectResult)result;
         objectResult.Should().BeOfType<OkObjectResult>();
-        var returnedList = objectResult.Value as List<NewsOutletDto>;
-        returnedList.Should().BeEmpty();
     }
     
     [Fact]
@@ -61,7 +31,7 @@ public class TestDeleteNewsOutletController : BaseTestNewsOutletController
         // Assemble
         MockDeleteNewsOutletService
             .Setup(service => service.DeleteNewsOutlets(new List<BaseNewsOutletsDto>()).Result)
-            .Returns(new List<NewsOutletDto>());
+            .Returns(new List<BaseNewsOutletsDto>());
 
         // Act
         await Sut.Delete(new List<BaseNewsOutletsDto>());

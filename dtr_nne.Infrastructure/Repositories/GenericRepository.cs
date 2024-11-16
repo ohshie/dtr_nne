@@ -35,7 +35,7 @@ internal class GenericRepository<TEntity, TContext>(
 
     public async Task<IEnumerable<TEntity>?> GetAll()
     {
-        return await _dbSet.ToListAsync();
+        return await _dbSet.AsNoTracking().ToListAsync();
     }
 
     public async Task<bool> Add(TEntity entity)
