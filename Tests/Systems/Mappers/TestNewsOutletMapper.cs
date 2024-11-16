@@ -85,7 +85,7 @@ public class TestNewsOutletMapper(
 
     [Theory]
     [ClassData(typeof(DeleteNewsOutletsDtoFixture))]
-    public void Map_DeleteNewsOutletDtosToNewsOutletList_EnsureSameIdsAndName(List<DeleteNewsOutletsDto> incomingNewsOueltDtos)
+    public void Map_DeleteNewsOutletDtosToNewsOutletList_EnsureSameIdsAndName(List<BaseNewsOutletsDto> incomingNewsOueltDtos)
     {
         // Assemble
 

@@ -7,12 +7,15 @@ namespace dtr_nne.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class NewsOutletController(INewsOutletService newsOutletService) : ControllerBase
+public class NewsOutletController(IGetNewsOutletService getNewsOutletService, 
+    IAddNewsOutletService addNewsOutletService, 
+    IUpdateNewsOutletService updateNewsOutletService, 
+    IDeleteNewsOutletService deleteNewsOutletService) : ControllerBase
 {
     [HttpGet("Get", Name = "Get")]
     public async Task<ActionResult> Get()
     {
-        var newsOutlets = await newsOutletService.GetAllNewsOutlets();
+        var newsOutlets = await getNewsOutletService.GetAllNewsOutlets();
 
         if (newsOutlets.Count != 0)
         {
@@ -25,7 +28,7 @@ public class NewsOutletController(INewsOutletService newsOutletService) : Contro
     [HttpPost("Add", Name = "Add Outlet")]
     public async Task<ActionResult> Add(List<NewsOutletDto> newsOutletDtos)
     {
-        var addedNewsOutletDtos = await newsOutletService.AddNewsOutlets(newsOutletDtos);
+        var addedNewsOutletDtos = await addNewsOutletService.AddNewsOutlets(newsOutletDtos);
 
         if (addedNewsOutletDtos.Count == 0)
         {
@@ -38,7 +41,7 @@ public class NewsOutletController(INewsOutletService newsOutletService) : Contro
     [HttpPut("Update", Name = "Update")]
     public async Task<ActionResult> Update(List<NewsOutletDto> newsOutletDtos)
     {
-        var updatedNewsOutletDtos = await newsOutletService.UpdateNewsOutlets(newsOutletDtos);
+        var updatedNewsOutletDtos = await updateNewsOutletService.UpdateNewsOutlets(newsOutletDtos);
 
         if (updatedNewsOutletDtos.Count == 0)
         {
@@ -49,9 +52,9 @@ public class NewsOutletController(INewsOutletService newsOutletService) : Contro
     }
 
     [HttpDelete("Delete", Name = "Delete")]
-    public async Task<ActionResult> Delete(List<DeleteNewsOutletsDto> newsOutletDtos)
+    public async Task<ActionResult> Delete(List<BaseNewsOutletsDto> newsOutletDtos)
     {
-        var resultOfDeletion = await newsOutletService.DeleteNewsOutlets(newsOutletDtos);
+        var resultOfDeletion = await deleteNewsOutletService.DeleteNewsOutlets(newsOutletDtos);
 
         if (resultOfDeletion.IsError)
         {

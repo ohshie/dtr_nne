@@ -10,7 +10,11 @@ public static class ServiceCollectionExtensions
 {
     public static void AddApplication(this IServiceCollection serviceCollection, IConfiguration configuration)
     {
-        serviceCollection.AddTransient<INewsOutletService, NewsOutletService>();
+        serviceCollection.AddTransient<IGetNewsOutletService, GetNewsOutletService>();
+        serviceCollection.AddTransient<IAddNewsOutletService, AddNewsOutletService>();
+        serviceCollection.AddTransient<IUpdateNewsOutletService, UpdateNewsOutletService>();
+        serviceCollection.AddTransient<IDeleteNewsOutletService, DeleteNewsOutletService>();
+        
         serviceCollection.AddTransient<INewsOutletMapper, NewsOutletMapper>();
 
         serviceCollection.AddTransient<ITranslatorApiKeyService, TranslatorApiKeyService>();
