@@ -1,10 +1,13 @@
-using dtr_nne.Domain.Entities;
+using dtr_nne.Application.ExternalServices;
+using dtr_nne.Application.ExternalServices.LlmServices;
 using dtr_nne.Domain.ExternalServices;
 using dtr_nne.Domain.IContext;
 using dtr_nne.Domain.Repositories;
 using dtr_nne.Domain.UnitOfWork;
 using dtr_nne.Infrastructure.Context;
 using dtr_nne.Infrastructure.ExternalServices;
+using dtr_nne.Infrastructure.ExternalServices.LlmServices;
+using dtr_nne.Infrastructure.ExternalServices.TranslatorServices;
 using dtr_nne.Infrastructure.Repositories;
 using dtr_nne.Infrastructure.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
@@ -34,5 +37,9 @@ public static class ServiceCollectionExtensions
         
         // Services
         serviceCollection.AddTransient<ITranslatorService, DeeplTranslator>();
+        serviceCollection.AddTransient<IOpenAiService, OpenAiService>();
+        
+        // Providers
+        serviceCollection.AddTransient<IExternalServiceProvider, ExternalServiceProvider>();
     }
 }

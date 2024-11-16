@@ -9,7 +9,7 @@ using dtr_nne.Domain.UnitOfWork;
 
 [assembly: InternalsVisibleTo("Tests")]
 
-namespace dtr_nne.Application.NewsOutletServices;
+namespace dtr_nne.Application.Services.NewsOutletServices;
 
 public class NewsOutletService(ILogger<NewsOutletService> logger, 
     INewsOutletRepository repository, 

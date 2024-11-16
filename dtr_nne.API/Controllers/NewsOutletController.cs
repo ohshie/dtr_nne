@@ -1,5 +1,5 @@
 using dtr_nne.Application.DTO.NewsOutlet;
-using dtr_nne.Application.NewsOutletServices;
+using dtr_nne.Application.Services.NewsOutletServices;
 using ErrorOr;
 using Microsoft.AspNetCore.Mvc;
 

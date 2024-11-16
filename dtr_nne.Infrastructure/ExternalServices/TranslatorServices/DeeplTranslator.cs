@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 
 [assembly: InternalsVisibleTo("Tests")]
 
-namespace dtr_nne.Infrastructure.ExternalServices;
+namespace dtr_nne.Infrastructure.ExternalServices.TranslatorServices;
 
 public class DeeplTranslator(ITranslatorApiRepository repository, ILogger<DeeplTranslator> logger) : ITranslatorService
 {
@@ -126,7 +126,7 @@ public class DeeplTranslator(ITranslatorApiRepository repository, ILogger<DeeplT
 
             return translatedHeadline;
         }
-        catch (Exception e)
+        catch (Exception)
         {
             logger.LogError("Error during translation request for headline: {OriginalHeadline}", originalHeadline);
             throw;

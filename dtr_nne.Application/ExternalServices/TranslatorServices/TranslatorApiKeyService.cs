@@ -1,13 +1,13 @@
-using dtr_nne.Domain.Entities;
 using dtr_nne.Application.DTO.Translator;
 using dtr_nne.Application.Extensions;
 using dtr_nne.Application.Mapper;
+using dtr_nne.Domain.Entities;
 using dtr_nne.Domain.ExternalServices;
 using dtr_nne.Domain.IContext;
 using dtr_nne.Domain.Repositories;
 using dtr_nne.Domain.UnitOfWork;
 
-namespace dtr_nne.Application.TranslatorServices;
+namespace dtr_nne.Application.ExternalServices.TranslatorServices;
 
 public class TranslatorApiKeyService(ITranslatorService translatorService, 
     IApiKeyMapper apiKeyMapper,

@@ -1,6 +1,6 @@
+using dtr_nne.Application.ExternalServices.TranslatorServices;
 using dtr_nne.Application.Mapper;
-using dtr_nne.Application.NewsOutletServices;
-using dtr_nne.Application.TranslatorServices;
+using dtr_nne.Application.Services.NewsOutletServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 

@@ -8,6 +8,13 @@ public static class Errors
             code: "DbErrors.UnitOfWorkSaveFailed",
             description: "Saving to Db Produced Error, refer to logs to get more info");
     }
+
+    public static class ExternalServiceProvider
+    {
+        public static Error InvalidRequestedServiceType => Error.Validation(
+            code: "ExternalServiceProvider.InvalidRequestedServiceType",
+            description: "Requested non existent service");
+    }
     
     public static class NewsOutlets
     {
@@ -50,6 +57,16 @@ public static class Errors
             public static Error NoSavedApiKeyFound => Error.NotFound(
                 code: "Translator.Service.NoSavedApiKeyFound",
                 description: "There is no saved api key in db currently");
+        }
+    }
+
+    public static class Llm
+    {
+        public static class Api
+        {
+            public static Error BadApiKey => Error.Validation(
+                code: "Llm.Api.BadApiKeyProvided",
+                description: "Provided Api Key Did Not Pass a Check");
         }
     }
 }

@@ -1,5 +1,5 @@
 using dtr_nne.Application.DTO.Translator;
-using dtr_nne.Application.TranslatorServices;
+using dtr_nne.Application.ExternalServices.TranslatorServices;
 using Microsoft.AspNetCore.Mvc;
 
 namespace dtr_nne.Controllers;

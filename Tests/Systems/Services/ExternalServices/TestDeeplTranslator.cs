@@ -3,6 +3,7 @@ using dtr_nne.Application.Extensions;
 using dtr_nne.Domain.Entities;
 using dtr_nne.Domain.Repositories;
 using dtr_nne.Infrastructure.ExternalServices;
+using dtr_nne.Infrastructure.ExternalServices.TranslatorServices;
 using ErrorOr;
 using Microsoft.Extensions.Logging;
 using Moq;

@@ -13,7 +13,7 @@ namespace Tests.Fixtures;
 
 public class GenericDatabaseFixture<TEntity> : IDisposable, IAsyncDisposable where TEntity : class
 {
-    private DbConnection _connection;
+    private readonly DbConnection _connection;
     internal NneDbContext Context { get; }
     internal GenericRepository<TEntity, NneDbContext> Repository { get; private set; }
     

@@ -1,6 +1,6 @@
 using dtr_nne.Application.DTO.NewsOutlet;
 using dtr_nne.Application.Extensions;
-using dtr_nne.Application.NewsOutletServices;
+using dtr_nne.Application.Services.NewsOutletServices;
 using dtr_nne.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Moq;

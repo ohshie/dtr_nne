@@ -1,6 +1,6 @@
 using dtr_nne.Application.DTO.Translator;
 
-namespace dtr_nne.Application.TranslatorServices;
+namespace dtr_nne.Application.ExternalServices.TranslatorServices;
 
 public interface ITranslatorApiKeyService
 {

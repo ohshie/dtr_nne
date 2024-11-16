@@ -5,10 +5,5 @@ namespace Tests.Fixtures;
 
 public class GenericLoggerFixture<TEntity> where TEntity : class
 {
-    public GenericLoggerFixture()
-    {
-        Logger = new Mock<ILogger<TEntity>>().Object;
-    }
-
-    internal ILogger<TEntity> Logger { get; private set; }
+    internal ILogger<TEntity> Logger { get; private set; } = new Mock<ILogger<TEntity>>().Object;
 }

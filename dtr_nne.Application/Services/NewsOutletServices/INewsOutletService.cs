@@ -1,6 +1,6 @@
 using dtr_nne.Application.DTO.NewsOutlet;
 
-namespace dtr_nne.Application.NewsOutletServices;
+namespace dtr_nne.Application.Services.NewsOutletServices;
 
 public interface INewsOutletService
 {

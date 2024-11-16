@@ -1,6 +1,6 @@
 using dtr_nne.Application.DTO.Translator;
+using dtr_nne.Application.ExternalServices.TranslatorServices;
 using dtr_nne.Application.Mapper;
-using dtr_nne.Application.TranslatorServices;
 using dtr_nne.Domain.Entities;
 using dtr_nne.Domain.ExternalServices;
 using dtr_nne.Domain.Repositories;

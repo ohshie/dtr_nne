@@ -1,7 +1,7 @@
 using dtr_nne.Application.DTO.NewsOutlet;
 using dtr_nne.Application.Extensions;
 using dtr_nne.Application.Mapper;
-using dtr_nne.Application.NewsOutletServices;
+using dtr_nne.Application.Services.NewsOutletServices;
 using dtr_nne.Domain.Entities;
 using dtr_nne.Domain.IContext;
 using dtr_nne.Domain.Repositories;
@@ -9,7 +9,7 @@ using dtr_nne.Domain.UnitOfWork;
 using Moq;
 using Tests.Fixtures;
 
-namespace Tests.Systems.Services;
+namespace Tests.Systems.Services.InternalServices;
 
 public class TestNewsOutletService
     : IClassFixture<GenericLoggerFixture<NewsOutletService>>
@@ -31,7 +31,7 @@ public class TestNewsOutletService
     }
     
     [Fact]
-    public async Task GetAllUsers_WhenInvokedEmpty_ReturnEmptyNewsOutletList()
+    public async Task GetAllNewsOutlets_WhenInvokedEmpty_ReturnEmptyNewsOutletList()
     {
         // Arrange
 
@@ -46,7 +46,7 @@ public class TestNewsOutletService
     
     [Theory]
     [ClassData(typeof(NewsOutletFixture))]
-    public async Task GetAllUsers_WhenInvokedPopulated_ReturnsNewsOutletList(List<NewsOutlet> incomingNewsOutletDtos)
+    public async Task GetAllNewsOutlets_WhenInvokedPopulated_ReturnsNewsOutletList(List<NewsOutlet> incomingNewsOutletDtos)
     {
         // Arrange
         _mockNewsOutletRepository

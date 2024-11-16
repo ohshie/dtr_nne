@@ -16,7 +16,7 @@ internal class GenericRepository<TEntity, TContext>(
     where TContext : DbContext
 {
     private readonly DbSet<TEntity> _dbSet = unitOfWork.Context.Set<TEntity>();
-    protected readonly ILogger<GenericRepository<TEntity, TContext>> Logger = logger;
+    private readonly ILogger<GenericRepository<TEntity, TContext>> Logger = logger;
     
     public Task<TEntity?> Get(int id)
     {
