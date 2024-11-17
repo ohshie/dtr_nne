@@ -1,5 +1,4 @@
 using dtr_nne.Application.ExternalServices;
-using dtr_nne.Application.ExternalServices.LlmServices;
 using dtr_nne.Domain.ExternalServices;
 using dtr_nne.Domain.IContext;
 using dtr_nne.Domain.Repositories;
@@ -11,6 +10,7 @@ using dtr_nne.Infrastructure.ExternalServices.TranslatorServices;
 using dtr_nne.Infrastructure.Repositories;
 using dtr_nne.Infrastructure.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -24,7 +24,8 @@ public static class ServiceCollectionExtensions
         var connectionString = configuration.GetConnectionString("DefaultConnection");
         serviceCollection.AddDbContext<INneDbContext, NneDbContext>(s =>
         {
-            s.UseSqlite(connectionString);
+            s.UseSqlite(connectionString)
+                .ConfigureWarnings(builder => builder.Log(RelationalEventId.PendingModelChangesWarning));
         });
 
         // Unit Of Work
