@@ -1,14 +1,13 @@
-using dtr_nne.Domain.Entities;
+using dtr_nne.Application.DTO.NewsOutlet;
 
-namespace Tests.Fixtures;
+namespace Tests.Fixtures.NewsOutletDtoFixtures;
 
-public class NewsOutletFixture : TheoryData<List<NewsOutlet>>
+public static class NewsOutletDtoFixtureBase
 {
-    public NewsOutletFixture()
-    {
-        Add(
-            [
-                new NewsOutlet
+    public static readonly List<List<NewsOutletDto>> OutletDtos = 
+    [
+        [
+            new NewsOutletDto()
                 {
                     Id = Faker.RandomNumber.Next(600),
                     Name = "arkeonews.net",
@@ -19,9 +18,9 @@ public class NewsOutletFixture : TheoryData<List<NewsOutlet>>
                     AlwaysJs = Faker.Boolean.Random(),
                     InUse = Faker.Boolean.Random()
                 }
-            ]);
-        Add([
-                new NewsOutlet
+        ], 
+        [
+            new NewsOutletDto()
                 {
                     Id = Faker.RandomNumber.Next(600),
                     Name = "arkeonews.net",
@@ -33,7 +32,7 @@ public class NewsOutletFixture : TheoryData<List<NewsOutlet>>
                     InUse = Faker.Boolean.Random()
                 },
 
-                new NewsOutlet
+            new NewsOutletDto()
                 {
                     Id = Faker.RandomNumber.Next(600),
                     Name = "eurekalert.org",
@@ -45,7 +44,7 @@ public class NewsOutletFixture : TheoryData<List<NewsOutlet>>
                     InUse = Faker.Boolean.Random()
                 },
 
-                new NewsOutlet
+            new NewsOutletDto()
                 {
                     Id = Faker.RandomNumber.Next(600),
                     Name = "techxplore.com/sort/date/12h/",
@@ -56,7 +55,6 @@ public class NewsOutletFixture : TheoryData<List<NewsOutlet>>
                     AlwaysJs = Faker.Boolean.Random(),
                     InUse = Faker.Boolean.Random()
                 }
-            ]
-            );
-    }
+        ]
+    ];
 }

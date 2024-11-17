@@ -4,6 +4,9 @@ using dtr_nne.Domain.Entities;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Tests.Fixtures;
+using Tests.Fixtures.NewsOutletDtoFixtures;
+using Tests.Fixtures.NewsOutletFixtures;
+using NewsOutletDtoFixture = Tests.Fixtures.NewsOutletDtoFixture;
 
 namespace Tests.Systems.Services.InternalServices.TestNewsOutletService;
 
@@ -14,9 +17,8 @@ public class TestGetNewsOutletService : BaseTestNewsOutletService
     public TestGetNewsOutletService()
     {
         ILogger<GetNewsOutletService> logger = new Mock<ILogger<GetNewsOutletService>>().Object;
-        
-        var fixture = new NewsOutletDtoFixture();
-        var randomNewsOutlet = fixture.First()[0] as List<NewsOutletDto>;
+
+        var randomNewsOutlet = NewsOutletDtoFixtureBase.OutletDtos[0];
         
         MockMapper
             .Setup(mapper => mapper.EntitiesToDtos(It.IsAny<List<NewsOutlet>>()))

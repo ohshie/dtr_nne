@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Tests.Fixtures;
+using Tests.Fixtures.NewsOutletFixtures;
 
 namespace Tests.Systems.Repositories;
 

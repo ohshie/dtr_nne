@@ -5,6 +5,9 @@ using dtr_nne.Domain.Entities;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Tests.Fixtures;
+using Tests.Fixtures.NewsOutletDtoFixtures;
+using Tests.Fixtures.NewsOutletFixtures;
+using NewsOutletDtoFixture = Tests.Fixtures.NewsOutletDtoFixture;
 
 namespace Tests.Systems.Services.InternalServices.TestNewsOutletService;
 
@@ -19,8 +22,7 @@ public class TestUpdateNewsOutletService : BaseTestNewsOutletService
         _newsOutletFixture = new NewsOutletFixture();
         ILogger<UpdateNewsOutletService> logger = new Mock<ILogger<UpdateNewsOutletService>>().Object;
 
-        var fixture = new NewsOutletDtoFixture();   
-        var newsOutletDtos = fixture.First()[0] as List<NewsOutletDto>;
+        var newsOutletDtos = NewsOutletDtoFixtureBase.OutletDtos[0];
         
         _mockHelpers = new Mock<INewsOutletServiceHelper>();
         
