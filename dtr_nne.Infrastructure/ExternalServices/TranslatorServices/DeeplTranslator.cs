@@ -11,9 +11,9 @@ using Microsoft.Extensions.Logging;
 
 namespace dtr_nne.Infrastructure.ExternalServices.TranslatorServices;
 
-public class DeeplTranslator(ITranslatorApiRepository repository, ILogger<DeeplTranslator> logger) : ITranslatorService
+public class DeeplTranslator(IExternalServiceProviderRepository repository, ILogger<DeeplTranslator> logger) : ITranslatorService
 {
-    public async Task<ErrorOr<List<Headline>>> Translate(List<Headline> headlines, TranslatorApi? translatorApi = null)
+    public async Task<ErrorOr<List<Headline>>> Translate(List<Headline> headlines, ExternalService? translator = null)
     {
         logger.LogInformation("Starting translation process for {HeadlineCount} headlines", headlines.Count);
         
@@ -23,16 +23,16 @@ public class DeeplTranslator(ITranslatorApiRepository repository, ILogger<DeeplT
             return new List<Headline>();
         }
 
-        translatorApi ??= await repository.Get(1);
-        if (translatorApi is null || string.IsNullOrEmpty(translatorApi.ApiKey))
+        translator ??= await repository.Get(1);
+        if (translator is null || string.IsNullOrEmpty(translator.ApiKey))
         {
             logger.LogError("No valid API key found");
             return Errors.Translator.Service.NoSavedApiKeyFound;
         }
         
-        logger.LogDebug("Using API key from TranslatorApi with ID: {ApiKeyId}", translatorApi.ApiKey);
+        logger.LogDebug("Using API key from service: {ExternalServiceName}", translator.ServiceName);
         
-        var translatedHeadlines = await TranslateHeadlines(headlines, translatorApi.ApiKey);
+        var translatedHeadlines = await TranslateHeadlines(headlines, translator.ApiKey);
         if (translatedHeadlines.IsError)
         {
             logger.LogError("Failed to process Headlines. {Error}", translatedHeadlines.FirstError.Description);

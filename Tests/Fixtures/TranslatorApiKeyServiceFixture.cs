@@ -1,3 +1,4 @@
+using dtr_nne.Application.DTO.ExternalService;
 using dtr_nne.Application.DTO.Translator;
 using dtr_nne.Application.ExternalServices.TranslatorServices;
 using dtr_nne.Application.Mapper;
@@ -17,16 +18,16 @@ public class TranslatorApiKeyServiceFixture
     public TranslatorApiKeyServiceFixture()
     {
         MockTranslatorService = new Mock<ITranslatorService>();
-        MockApiKeyMapper = new Mock<IApiKeyMapper>();
-        MockTranslatorRepository = new Mock<ITranslatorApiRepository>();
-        MockApiKeyDto = new Mock<TranslatorApiDto>();
-        MockApiKey = new Mock<TranslatorApi>();
+        MockApiKeyMapper = new Mock<IExternalServiceMapper>();
+        MockTranslatorRepository = new Mock<IExternalServiceProviderRepository>();
+        MockExternalServiceDto = new Mock<ExternalServiceDto>();
+        MockExternalService = new Mock<ExternalService>();
         MockUnitOfWork = new Mock<IUnitOfWork<NneDbContext>>();
 
         ResetMockState();
         
         Sut = new(translatorService: MockTranslatorService.Object, 
-            apiKeyMapper: MockApiKeyMapper.Object, 
+            mapper: MockApiKeyMapper.Object, 
             repository: MockTranslatorRepository.Object,
             unitOfWork: MockUnitOfWork.Object,
             logger: new Mock<ILogger<TranslatorApiKeyService>>().Object);
@@ -40,38 +41,38 @@ public class TranslatorApiKeyServiceFixture
         MockTranslatorRepository.Reset();
         
         MockApiKeyMapper
-            .Setup(mapper => mapper.MapTranslatorApiDtoToTranslatorApi(MockApiKeyDto.Object))
-            .Returns(MockApiKey.Object);
+            .Setup(mapper => mapper.DtoToService(MockExternalServiceDto.Object))
+            .Returns(MockExternalService.Object);
 
         MockUnitOfWork
             .Setup(work => work.Save().Result)
             .Returns(true);
         
         MockTranslatorService
-            .Setup(service => service.Translate(It.IsAny<List<Headline>>(), MockApiKey.Object).Result)
+            .Setup(service => service.Translate(It.IsAny<List<Headline>>(), MockExternalService.Object).Result)
             .Returns(new ErrorOr<List<Headline>>());
         
         MockTranslatorRepository
-            .Setup(repository => repository.Add(MockApiKey.Object).Result)
+            .Setup(repository => repository.Add(MockExternalService.Object).Result)
             .Returns(true);
         
         MockTranslatorRepository
-            .Setup(repository => repository.Update(MockApiKey.Object))
+            .Setup(repository => repository.Update(MockExternalService.Object))
             .Returns(true);
         
         MockTranslatorRepository
             .Setup(repository => repository.Get(1).Result)
-            .Returns(MockApiKey.Object);
+            .Returns(MockExternalService.Object);
     }
 
     internal Mock<IUnitOfWork<NneDbContext>> MockUnitOfWork { get; }
 
-    internal Mock<TranslatorApi> MockApiKey { get; }
+    internal Mock<ExternalService> MockExternalService { get; }
 
-    internal Mock<TranslatorApiDto> MockApiKeyDto { get; }
+    internal Mock<ExternalServiceDto> MockExternalServiceDto { get; }
 
     internal Mock<ITranslatorService> MockTranslatorService { get; }
-    internal Mock<IApiKeyMapper> MockApiKeyMapper { get; }
-    internal Mock<ITranslatorApiRepository> MockTranslatorRepository { get; }
+    internal Mock<IExternalServiceMapper> MockApiKeyMapper { get; }
+    internal Mock<IExternalServiceProviderRepository> MockTranslatorRepository { get; }
     internal TranslatorApiKeyService Sut { get; }
 }

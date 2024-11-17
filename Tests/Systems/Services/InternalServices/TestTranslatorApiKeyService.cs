@@ -1,3 +1,4 @@
+using dtr_nne.Application.DTO.ExternalService;
 using dtr_nne.Application.DTO.Translator;
 using dtr_nne.Application.Extensions;
 using dtr_nne.Domain.Entities;
@@ -17,7 +18,7 @@ public class TestTranslatorApiKeyService(TranslatorApiKeyServiceFixture apiKeySe
         apiKeyServiceFixture.ResetMockState();
         
         // Act
-        var providedApiKey = await apiKeyServiceFixture.Sut.Add(apiKeyServiceFixture.MockApiKeyDto.Object);
+        var providedApiKey = await apiKeyServiceFixture.Sut.Add(apiKeyServiceFixture.MockExternalServiceDto.Object);
 
         // Assert 
         providedApiKey.IsError
@@ -25,7 +26,7 @@ public class TestTranslatorApiKeyService(TranslatorApiKeyServiceFixture apiKeySe
             .BeFalse();
         providedApiKey.Value.ApiKey
             .Should()
-            .BeEquivalentTo(apiKeyServiceFixture.MockApiKeyDto.Object.ApiKey);
+            .BeEquivalentTo(apiKeyServiceFixture.MockExternalServiceDto.Object.ApiKey);
     }
 
     [Fact]
@@ -36,13 +37,13 @@ public class TestTranslatorApiKeyService(TranslatorApiKeyServiceFixture apiKeySe
 
         // Act
         await apiKeyServiceFixture.Sut
-            .Add(apiKeyServiceFixture.MockApiKeyDto.Object);
+            .Add(apiKeyServiceFixture.MockExternalServiceDto.Object);
 
         // Assert 
         apiKeyServiceFixture.MockApiKeyMapper
-            .Verify(mapper => mapper.MapTranslatorApiDtoToTranslatorApi(apiKeyServiceFixture.MockApiKeyDto.Object), Times.AtLeastOnce);
+            .Verify(mapper => mapper.DtoToService(apiKeyServiceFixture.MockExternalServiceDto.Object), Times.AtLeastOnce);
         apiKeyServiceFixture.MockTranslatorService
-            .Verify(service => service.Translate(It.IsAny<List<Headline>>(), It.IsAny<TranslatorApi>()), Times.AtLeastOnce);
+            .Verify(service => service.Translate(It.IsAny<List<Headline>>(), It.IsAny<ExternalService>()), Times.AtLeastOnce);
     }
 
     [Fact]
@@ -52,11 +53,11 @@ public class TestTranslatorApiKeyService(TranslatorApiKeyServiceFixture apiKeySe
         apiKeyServiceFixture.ResetMockState();
         apiKeyServiceFixture.MockTranslatorService
             .Setup(service =>
-                service.Translate(It.IsAny<List<Headline>>(), apiKeyServiceFixture.MockApiKey.Object).Result)
+                service.Translate(It.IsAny<List<Headline>>(), apiKeyServiceFixture.MockExternalService.Object).Result)
             .Returns(Errors.Translator.Api.BadApiKey);
         
         // Act
-        var result = await apiKeyServiceFixture.Sut.Add(apiKeyServiceFixture.MockApiKeyDto.Object);
+        var result = await apiKeyServiceFixture.Sut.Add(apiKeyServiceFixture.MockExternalServiceDto.Object);
         
         // Assert 
         result.IsError
@@ -74,11 +75,11 @@ public class TestTranslatorApiKeyService(TranslatorApiKeyServiceFixture apiKeySe
         apiKeyServiceFixture.ResetMockState();
         
         // Act
-        await apiKeyServiceFixture.Sut.Add(apiKeyServiceFixture.MockApiKeyDto.Object);
+        await apiKeyServiceFixture.Sut.Add(apiKeyServiceFixture.MockExternalServiceDto.Object);
 
         // Assert 
         apiKeyServiceFixture.MockTranslatorRepository
-            .Verify(repository => repository.Add(apiKeyServiceFixture.MockApiKey.Object), Times.AtLeastOnce);
+            .Verify(repository => repository.Add(apiKeyServiceFixture.MockExternalService.Object), Times.AtLeastOnce);
     }
 
     [Fact]
@@ -87,11 +88,11 @@ public class TestTranslatorApiKeyService(TranslatorApiKeyServiceFixture apiKeySe
         // Assemble
         apiKeyServiceFixture.ResetMockState();
        apiKeyServiceFixture.MockTranslatorRepository
-            .Setup(repository => repository.Add(apiKeyServiceFixture.MockApiKey.Object).Result)
+            .Setup(repository => repository.Add(apiKeyServiceFixture.MockExternalService.Object).Result)
             .Returns(false);
 
         // Act
-        var result = await apiKeyServiceFixture.Sut.Add(apiKeyServiceFixture.MockApiKeyDto.Object);
+        var result = await apiKeyServiceFixture.Sut.Add(apiKeyServiceFixture.MockExternalServiceDto.Object);
 
         // Assert 
         result.IsError.Should().BeTrue();
@@ -105,7 +106,7 @@ public class TestTranslatorApiKeyService(TranslatorApiKeyServiceFixture apiKeySe
         apiKeyServiceFixture.ResetMockState();
         
         // Act
-        await apiKeyServiceFixture.Sut.Add(apiKeyServiceFixture.MockApiKeyDto.Object);
+        await apiKeyServiceFixture.Sut.Add(apiKeyServiceFixture.MockExternalServiceDto.Object);
 
         // Assert 
         apiKeyServiceFixture.MockUnitOfWork.Verify(work => work.Save(), Times.AtLeastOnce);
@@ -121,7 +122,7 @@ public class TestTranslatorApiKeyService(TranslatorApiKeyServiceFixture apiKeySe
             .Returns(false);
 
         // Act
-        var result = await apiKeyServiceFixture.Sut.Add(apiKeyServiceFixture.MockApiKeyDto.Object);
+        var result = await apiKeyServiceFixture.Sut.Add(apiKeyServiceFixture.MockExternalServiceDto.Object);
 
         // Assert 
         result.IsError.Should().BeTrue();
@@ -135,10 +136,10 @@ public class TestTranslatorApiKeyService(TranslatorApiKeyServiceFixture apiKeySe
         apiKeyServiceFixture.ResetMockState();
         
         // Act
-        var result = await apiKeyServiceFixture.Sut.UpdateKey(apiKeyServiceFixture.MockApiKeyDto.Object);
+        var result = await apiKeyServiceFixture.Sut.UpdateKey(apiKeyServiceFixture.MockExternalServiceDto.Object);
 
         // Assert 
-        result.Should().BeOfType<ErrorOr<TranslatorApiDto>>();
+        result.Should().BeOfType<ErrorOr<ExternalServiceDto>>();
     }
 
     [Fact]
@@ -149,13 +150,13 @@ public class TestTranslatorApiKeyService(TranslatorApiKeyServiceFixture apiKeySe
         
         // Act
         await apiKeyServiceFixture.Sut
-            .UpdateKey(apiKeyServiceFixture.MockApiKeyDto.Object);
+            .UpdateKey(apiKeyServiceFixture.MockExternalServiceDto.Object);
 
         // Assert 
         apiKeyServiceFixture.MockApiKeyMapper
-            .Verify(mapper => mapper.MapTranslatorApiDtoToTranslatorApi(apiKeyServiceFixture.MockApiKeyDto.Object), Times.AtLeastOnce);
+            .Verify(mapper => mapper.DtoToService(apiKeyServiceFixture.MockExternalServiceDto.Object), Times.AtLeastOnce);
         apiKeyServiceFixture.MockTranslatorService
-            .Verify(service => service.Translate(It.IsAny<List<Headline>>(), It.IsAny<TranslatorApi>()), Times.AtLeastOnce);
+            .Verify(service => service.Translate(It.IsAny<List<Headline>>(), It.IsAny<ExternalService>()), Times.AtLeastOnce);
     }
 
     [Fact]
@@ -165,11 +166,11 @@ public class TestTranslatorApiKeyService(TranslatorApiKeyServiceFixture apiKeySe
         apiKeyServiceFixture.ResetMockState();
         
         // Act
-        await apiKeyServiceFixture.Sut.UpdateKey(apiKeyServiceFixture.MockApiKeyDto.Object);
+        await apiKeyServiceFixture.Sut.UpdateKey(apiKeyServiceFixture.MockExternalServiceDto.Object);
 
         // Assert 
         apiKeyServiceFixture.MockTranslatorRepository
-            .Verify(repository => repository.Update(apiKeyServiceFixture.MockApiKey.Object), Times.AtLeastOnce);
+            .Verify(repository => repository.Update(apiKeyServiceFixture.MockExternalService.Object), Times.AtLeastOnce);
     }
     
     [Fact]
@@ -178,11 +179,11 @@ public class TestTranslatorApiKeyService(TranslatorApiKeyServiceFixture apiKeySe
         // Assemble
         apiKeyServiceFixture.ResetMockState();
         apiKeyServiceFixture.MockTranslatorRepository
-            .Setup(repository => repository.Update(apiKeyServiceFixture.MockApiKey.Object))
+            .Setup(repository => repository.Update(apiKeyServiceFixture.MockExternalService.Object))
             .Returns(false);
 
         // Act
-        var result = await apiKeyServiceFixture.Sut.UpdateKey(apiKeyServiceFixture.MockApiKeyDto.Object);
+        var result = await apiKeyServiceFixture.Sut.UpdateKey(apiKeyServiceFixture.MockExternalServiceDto.Object);
 
         // Assert 
         result.IsError.Should().BeTrue();
@@ -196,7 +197,7 @@ public class TestTranslatorApiKeyService(TranslatorApiKeyServiceFixture apiKeySe
         apiKeyServiceFixture.ResetMockState();
         
         // Act
-        await apiKeyServiceFixture.Sut.UpdateKey(apiKeyServiceFixture.MockApiKeyDto.Object);
+        await apiKeyServiceFixture.Sut.UpdateKey(apiKeyServiceFixture.MockExternalServiceDto.Object);
 
         // Assert 
         apiKeyServiceFixture.MockUnitOfWork.Verify(work => work.Save(), Times.AtLeastOnce);
@@ -212,7 +213,7 @@ public class TestTranslatorApiKeyService(TranslatorApiKeyServiceFixture apiKeySe
             .Returns(false);
 
         // Act
-        var result = await apiKeyServiceFixture.Sut.UpdateKey(apiKeyServiceFixture.MockApiKeyDto.Object);
+        var result = await apiKeyServiceFixture.Sut.UpdateKey(apiKeyServiceFixture.MockExternalServiceDto.Object);
 
         // Assert 
         result.IsError.Should().BeTrue();
@@ -226,10 +227,10 @@ public class TestTranslatorApiKeyService(TranslatorApiKeyServiceFixture apiKeySe
         apiKeyServiceFixture.ResetMockState();
         apiKeyServiceFixture.MockTranslatorRepository
             .Setup(repository => repository.Get(1).Result)
-            .Returns(It.IsAny<TranslatorApi>());
+            .Returns(It.IsAny<ExternalService>());
 
         // Act
-        var result = await apiKeyServiceFixture.Sut.UpdateKey(apiKeyServiceFixture.MockApiKeyDto.Object);
+        var result = await apiKeyServiceFixture.Sut.UpdateKey(apiKeyServiceFixture.MockExternalServiceDto.Object);
         
         // Assert
         apiKeyServiceFixture.MockTranslatorRepository.Verify(repository => repository.Get(1), Times.AtLeastOnce);

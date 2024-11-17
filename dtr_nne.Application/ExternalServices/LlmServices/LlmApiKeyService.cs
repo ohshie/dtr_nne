@@ -6,7 +6,7 @@ using dtr_nne.Domain.ExternalServices;
 
 namespace dtr_nne.Application.ExternalServices.LlmServices;
 
-public class LlmApiKeyService(ILogger<LlmApiKeyService> logger, IApiKeyMapper mapper, IExternalServiceProvider llmServiceProvider) : ILlmApiKeyService
+public class LlmApiKeyService(ILogger<LlmApiKeyService> logger, IExternalServiceMapper mapper, IExternalServiceProvider llmServiceProvider) : ILlmApiKeyService
 {
     public async Task<ErrorOr<LlmApiDto>> Add(LlmApiDto apiKey)
     {

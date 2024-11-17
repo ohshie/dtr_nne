@@ -1,13 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using dtr_nne.Domain.Enums;
 
-namespace dtr_nne.Domain.Entities;
+namespace dtr_nne.Application.DTO.ExternalService;
 
-public class ExternalService
+public class ExternalServiceDto : BaseExternalServiceDto
 {
-    public int Id { get; set; }
-    [StringLength(10, MinimumLength = 0)] 
-    public string ServiceName { get; set; } = string.Empty;
     public ExternalServiceType Type { get; set; }
     public bool InUse { get; set; }
     [StringLength(100, MinimumLength = 0)]

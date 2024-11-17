@@ -31,8 +31,7 @@ public class ExternalServiceProvider(IServiceProvider serviceProvider,
             case ExternalServiceType.Llm:
                 if (inUseService.ServiceName == Enum.GetName(typeof(LlmServiceType), type))
                 {
-                    var service = serviceProvider.GetRequiredService<IOpenAiService>();
-                    return service;
+                    return serviceProvider.GetRequiredService<IOpenAiService>();
                 }
                 break;
             case ExternalServiceType.Translator:

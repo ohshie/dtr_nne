@@ -32,8 +32,8 @@ public class TestDeeplTranslator
             .Returns(_mockHeadlines.Object.First().TranslatedHeadline);
     }
     private readonly Mock<List<Headline>> _mockHeadlines;
-    private readonly Mock<TranslatorApi> _mockTranslatorApi;
-    private readonly Mock<ITranslatorApiRepository> _mockRepository;
+    private readonly Mock<ExternalService> _mockTranslatorApi;
+    private readonly Mock<IExternalServiceProviderRepository> _mockRepository;
     private readonly Mock<DeeplTranslator> _sut;
      
     [Fact]

@@ -1,3 +1,4 @@
+using dtr_nne.Application.DTO.ExternalService;
 using dtr_nne.Application.DTO.Translator;
 using dtr_nne.Application.Extensions;
 using dtr_nne.Application.Mapper;
@@ -10,14 +11,14 @@ using dtr_nne.Domain.UnitOfWork;
 namespace dtr_nne.Application.ExternalServices.TranslatorServices;
 
 public class TranslatorApiKeyService(ITranslatorService translatorService, 
-    IApiKeyMapper apiKeyMapper,
-    ITranslatorApiRepository repository,
+    IExternalServiceMapper mapper,
+    IExternalServiceProviderRepository repository,
     IUnitOfWork<INneDbContext> unitOfWork, 
     ILogger<TranslatorApiKeyService> logger) : ITranslatorApiKeyService
 {
     private readonly List<Headline> _testHeadlines = [new Headline{OriginalHeadline = "api test"}];
     
-    public async Task<ErrorOr<TranslatorApiDto>> Add(TranslatorApiDto apiKey)
+    public async Task<ErrorOr<ExternalServiceDto>> Add(ExternalServiceDto apiKey)
     {
         logger.LogInformation("Starting Add method for API key: {ApiKey}", apiKey.ApiKey);
         
@@ -49,7 +50,7 @@ public class TranslatorApiKeyService(ITranslatorService translatorService,
         return apiKey;
     }
 
-    public async Task<ErrorOr<TranslatorApiDto>> UpdateKey(TranslatorApiDto apiKey)
+    public async Task<ErrorOr<ExternalServiceDto>> UpdateKey(ExternalServiceDto apiKey)
     {
         var currentKey = await repository.Get(1);
         if (currentKey is null)
@@ -84,9 +85,9 @@ public class TranslatorApiKeyService(ITranslatorService translatorService,
         return apiKey;
     }
     
-    private async Task<ErrorOr<TranslatorApi>> CheckApiKey(TranslatorApi apiKey)
+    private async Task<ErrorOr<ExternalService>> CheckApiKey(ExternalService service)
     {
-        var validKey = await translatorService.Translate(_testHeadlines, apiKey);
+        var validKey = await translatorService.Translate(_testHeadlines, service);
         if (validKey.IsError)
         {
             logger.LogWarning("Failed to validate API key. Error: {Error}", validKey.FirstError);
@@ -94,12 +95,12 @@ public class TranslatorApiKeyService(ITranslatorService translatorService,
         }
         
         logger.LogDebug("API key validated successfully");
-        return apiKey;
+        return service;
     }
 
-    private TranslatorApi MapApiKeys(TranslatorApiDto apiKey)
+    private ExternalService MapApiKeys(ExternalServiceDto service)
     {
-        var mappedApiKey = apiKeyMapper.MapTranslatorApiDtoToTranslatorApi(apiKey);
+        var mappedApiKey = mapper.DtoToService(service);
         logger.LogDebug("Mapped TranslatorApiDto to TranslatorApi entity");
 
         return mappedApiKey;

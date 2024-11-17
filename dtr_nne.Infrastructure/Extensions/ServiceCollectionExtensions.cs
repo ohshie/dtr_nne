@@ -33,7 +33,6 @@ public static class ServiceCollectionExtensions
         
         // Repositories
         serviceCollection.AddScoped<INewsOutletRepository, NewsOutletRepository>();
-        serviceCollection.AddScoped<ITranslatorApiRepository, TranslatorApiRepository>();
         serviceCollection.AddScoped<IExternalServiceProviderRepository, ExternalServiceProviderRepository>();
         
         // Services
