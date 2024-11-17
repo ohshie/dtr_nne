@@ -10,4 +10,6 @@ public class ExternalService
     public string ServiceName { get; set; } = string.Empty;
     public ExternalServiceType Type { get; set; }
     public bool InUse { get; set; }
+    [StringLength(100, MinimumLength = 0)]
+    public string ApiKey { get; set; } = string.Empty;
 }
