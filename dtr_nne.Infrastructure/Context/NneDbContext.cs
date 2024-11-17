@@ -10,7 +10,6 @@ namespace dtr_nne.Infrastructure.Context;
 internal class NneDbContext(DbContextOptions<NneDbContext> options) : DbContext(options), INneDbContext
 {
     internal DbSet<NewsOutlet> NewsOutlets { get; set; }
-    internal DbSet<TranslatorApi> TranslatorApis { get; set; }
     internal DbSet<ExternalService> ExternalServices { get; set; }
     
     public async Task EnsureCreatedAsync()

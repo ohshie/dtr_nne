@@ -19,6 +19,6 @@ public static class ServiceCollectionExtensions
         serviceCollection.AddTransient<INewsOutletMapper, NewsOutletMapper>();
 
         serviceCollection.AddTransient<ITranslatorApiKeyService, TranslatorApiKeyService>();
-        serviceCollection.AddTransient<IApiKeyMapper, ApiKeyMapper>();
+        serviceCollection.AddTransient<IExternalServiceMapper, ExternalServiceMapper>();
     }
 }

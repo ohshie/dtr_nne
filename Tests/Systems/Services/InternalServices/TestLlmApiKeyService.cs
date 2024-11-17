@@ -39,7 +39,7 @@ public class TestLlmApiKeyService
     private Mock<LlmApi> MockApiKey { get; }
     internal Mock<LlmApiDto> MockApiKeyDto { get; }
     internal Mock<ILlmService> MockLlmService { get; }
-    internal Mock<IApiKeyMapper> MockApiKeyMapper { get; }
+    internal Mock<IExternalServiceMapper> MockApiKeyMapper { get; }
     internal Mock<ILlmApiRepository> MockLlmApiRepository { get; }
     internal LlmApiKeyService Sut { get; }
     
