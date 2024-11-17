@@ -1,0 +1,62 @@
+name: Auto Issue Identifier
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  add-identifier:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get next identifier
+        id: get-id
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const label = context.payload.label.name.toLowerCase();
+            const prefix = {
+              'bug': 'BUG',
+              'enhancement': 'NFC',
+              'duplicate': 'EFT'
+            }[label];
+            if (!prefix) {
+              return;
+            }
+            
+            // Get all issues with this label
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: [label],
+              state: 'all',
+              per_page: 100
+            });
+            
+            // Find highest existing number
+            let maxNum = 0;
+            for (const issue of issues.data) {
+              const title = issue.title;
+              const match = title.match(new RegExp(`^${prefix}(\\d+):`));
+              if (match) {
+                maxNum = Math.max(maxNum, parseInt(match[1]));
+              }
+            }
+            
+            const newNum = (maxNum + 1).toString().padStart(3, '0');
+            const newIdentifier = `${prefix}${newNum}`;
+            
+            // Update issue title
+            const issue = context.payload.issue;
+            const newTitle = `${newIdentifier}: ${issue.title}`;
+            
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              title: newTitle
+            });
+
+permissions:
+  issues: write
+  contents: read
