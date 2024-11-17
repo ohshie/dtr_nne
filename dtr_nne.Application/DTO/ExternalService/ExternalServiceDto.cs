@@ -5,7 +5,7 @@ namespace dtr_nne.Application.DTO.ExternalService;
 
 public class ExternalServiceDto : BaseExternalServiceDto
 {
-    public ExternalServiceType Type { get; set; }
+    public required ExternalServiceType Type { get; set; }
     public bool InUse { get; set; }
     [StringLength(100, MinimumLength = 0)]
     public string ApiKey { get; set; } = string.Empty;

@@ -11,9 +11,19 @@ public static class Errors
 
     public static class ExternalServiceProvider
     {
-        public static Error InvalidRequestedServiceType => Error.Validation(
-            code: "ExternalServiceProvider.InvalidRequestedServiceType",
-            description: "Requested non existent service");
+        public static class Service
+        {
+            public static Error InvalidRequestedServiceType => Error.Validation(
+                code: "ExternalServiceProvider.InvalidRequestedServiceType",
+                description: "Requested non existent service");
+            public static Error NoSavedApiKeyFound => Error.NotFound(
+                code: "ServiceManager.Internal.NoSavedApiKeyFound",
+                description: "There is no saved api key in db currently");
+
+            public static Error BadApiKey => Error.Validation(
+                code: "ServiceManager.Api.BadApiKeyProvided",
+                description: "Provided Api Key Did Not Pass a Check");
+        }
     }
     
     public static class NewsOutlets
@@ -58,23 +68,6 @@ public static class Errors
             public static Error UpdatingFailed => Error.Failure(
                 code: "Translator.Api.UpdatingFailed",
                 description: "Failed to update Db with a new key");
-        }
-
-        public static class Service
-        {
-            public static Error NoSavedApiKeyFound => Error.NotFound(
-                code: "Translator.Service.NoSavedApiKeyFound",
-                description: "There is no saved api key in db currently");
-        }
-    }
-
-    public static class Llm
-    {
-        public static class Api
-        {
-            public static Error BadApiKey => Error.Validation(
-                code: "Llm.Api.BadApiKeyProvided",
-                description: "Provided Api Key Did Not Pass a Check");
         }
     }
 }

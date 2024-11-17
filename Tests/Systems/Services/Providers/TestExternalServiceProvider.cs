@@ -29,7 +29,7 @@ public class TestExternalServiceProvider
             .Returns(_mockOpenAiService.Object);
 
         _mockRepository
-            .Setup(repository => repository.GetByType(ExternalServiceType.Llm).Result)
+            .Setup(repository => repository.GetByType(ExternalServiceType.Llm))
             .Returns(_mockExternalServiceList.Object);
         
         _sut = new(_mockServiceProvider.Object, _mockRepository.Object);

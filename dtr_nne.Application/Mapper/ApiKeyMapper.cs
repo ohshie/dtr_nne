@@ -1,6 +1,4 @@
 using dtr_nne.Application.DTO.ExternalService;
-using dtr_nne.Application.DTO.Llm;
-using dtr_nne.Application.DTO.Translator;
 using dtr_nne.Domain.Entities;
 using Riok.Mapperly.Abstractions;
 
@@ -13,6 +11,4 @@ public partial class ExternalServiceMapper : IExternalServiceMapper
     public partial ExternalServiceDto ServiceToDto(ExternalService service);
     public partial ExternalService BaseDtoToService(BaseExternalServiceDto externalServiceDto);
     public partial ExternalServiceDto ServiceToBaseDto(ExternalService service);
-
-    public partial LlmApi MapLlmApiDtoToLlmApi(LlmApiDto llmApiDto);
 }

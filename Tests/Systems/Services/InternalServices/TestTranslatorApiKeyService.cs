@@ -235,6 +235,6 @@ public class TestTranslatorApiKeyService(TranslatorApiKeyServiceFixture apiKeySe
         // Assert
         apiKeyServiceFixture.MockTranslatorRepository.Verify(repository => repository.Get(1), Times.AtLeastOnce);
         result.IsError.Should().BeTrue();
-        result.FirstError.Should().BeEquivalentTo(Errors.Translator.Service.NoSavedApiKeyFound);
+        result.FirstError.Should().BeEquivalentTo(Errors.ExternalServiceProvider.Service.NoSavedApiKeyFound);
     }
 }

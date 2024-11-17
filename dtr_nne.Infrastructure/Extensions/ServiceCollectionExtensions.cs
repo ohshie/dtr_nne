@@ -38,7 +38,10 @@ public static class ServiceCollectionExtensions
         
         // Services
         serviceCollection.AddTransient<ITranslatorService, DeeplTranslator>();
+        
+#pragma warning disable OPENAI001
         serviceCollection.AddTransient<IOpenAiService, OpenAiService>();
+#pragma warning restore OPENAI001
         
         // Providers
         serviceCollection.AddTransient<IExternalServiceProvider, ExternalServiceProvider>();

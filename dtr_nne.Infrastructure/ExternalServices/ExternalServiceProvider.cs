@@ -13,7 +13,7 @@ public class ExternalServiceProvider(IServiceProvider serviceProvider,
 {
     public async Task<IExternalService> GetService(ExternalServiceType type)
     {
-        var requestedServices = await repository.GetByType(type) as List<ExternalService>;
+        var requestedServices = repository.GetByType(type);
         if (requestedServices is null || requestedServices.Count < 1)
         {
             throw new InvalidOperationException($"No Service of type {Enum.GetName(typeof(ExternalServiceType), type)} is Found in Db");
