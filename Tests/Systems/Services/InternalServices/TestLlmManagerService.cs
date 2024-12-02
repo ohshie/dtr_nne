@@ -7,8 +7,6 @@ using dtr_nne.Domain.Entities;
 using dtr_nne.Domain.Enums;
 using dtr_nne.Domain.ExternalServices;
 using dtr_nne.Domain.Repositories;
-using dtr_nne.Domain.UnitOfWork;
-using dtr_nne.Infrastructure.Context;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -18,14 +16,13 @@ public class TestLlmManagerService
 {
     public TestLlmManagerService()
     {
+        MockInternalAiAssistant = new();
         MockLlmService = new ();
         MockLlmServiceProvider = new();
         MockApiKeyMapper = new ();
         MockRepository = new();
         MockExternalServiceDto = new();
         MockExternalService = new();
-        MockUnitOfWork = new Mock<IUnitOfWork<NneDbContext>>();
-        MockArticle = new Mock<Article>();
         
         CreateDefaultStatus();
         
@@ -34,16 +31,14 @@ public class TestLlmManagerService
             mapper: MockApiKeyMapper.Object, 
             serviceProvider: MockLlmServiceProvider.Object);
     }
-
-    public Mock<Article> MockArticle { get; }
-    internal Mock<IUnitOfWork<NneDbContext>> MockUnitOfWork { get; }
-    internal Mock<IExternalServiceProvider> MockLlmServiceProvider { get; }
+    private Mock<IExternalServiceProvider> MockLlmServiceProvider { get; }
     private Mock<ExternalService> MockExternalService { get; }
-    internal Mock<ExternalServiceDto> MockExternalServiceDto { get; }
-    internal Mock<ILlmService> MockLlmService { get; }
-    internal Mock<IExternalServiceMapper> MockApiKeyMapper { get; }
-    internal Mock<IExternalServiceProviderRepository> MockRepository { get; }
-    internal LlmManagerService Sut { get; }
+    private Mock<ExternalServiceDto> MockExternalServiceDto { get; }
+    private Mock<InternalAiAssistant> MockInternalAiAssistant { get; }
+    private Mock<ILlmService> MockLlmService { get; }
+    private Mock<IExternalServiceMapper> MockApiKeyMapper { get; }
+    private Mock<IExternalServiceProviderRepository> MockRepository { get; }
+    private LlmManagerService Sut { get; }
 
     [Fact]
     public async Task CheckApiKey_OnGetServiceReturningNull_ShouldReturnErrorNoSavedFound()
@@ -64,7 +59,7 @@ public class TestLlmManagerService
     {
         // Assemble
         MockLlmService
-            .Setup(service => service.ProcessArticleAsync(It.IsAny<Article>(), It.IsAny<string>()).Result)
+            .Setup(service => service.ProcessArticleAsync(It.IsAny<Article>(), It.IsAny<InternalAiAssistant>()).Result)
             .Returns(Errors.ExternalServiceProvider.Service.BadApiKey);
 
         // Act
@@ -105,7 +100,7 @@ public class TestLlmManagerService
         MockApiKeyMapper
             .Verify(mapper => mapper.DtoToService(MockExternalServiceDto.Object), Times.AtLeastOnce);
         MockLlmService
-            .Verify(service => service.ProcessArticleAsync(It.IsAny<Article>(), MockExternalService.Object.ApiKey), Times.Once);
+            .Verify(service => service.ProcessArticleAsync(It.IsAny<Article>(), It.IsAny<InternalAiAssistant>()), Times.Once);
     }
 
     [Fact]
@@ -113,7 +108,7 @@ public class TestLlmManagerService
     {
         // Assemble
         MockLlmService
-            .Setup(service => service.ProcessArticleAsync(It.IsAny<Article>(), MockExternalService.Object.ApiKey).Result)
+            .Setup(service => service.ProcessArticleAsync(It.IsAny<Article>(), It.IsAny<InternalAiAssistant>()).Result)
             .Returns(ErrorOr.Error.Validation());
 
         // Act
@@ -135,7 +130,7 @@ public class TestLlmManagerService
             .Returns(MockLlmService.Object);
 
         MockLlmService
-            .Setup(service => service.ProcessArticleAsync(It.IsAny<Article>(), MockExternalService.Object.ApiKey).Result)
+            .Setup(service => service.ProcessArticleAsync(It.IsAny<Article>(), It.IsAny<InternalAiAssistant>()).Result)
             .Returns(It.IsAny<Article>());
     }
 }

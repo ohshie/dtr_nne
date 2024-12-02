@@ -50,9 +50,14 @@ public class LlmManagerService(
         {
             return Errors.ExternalServiceProvider.Service.NoSavedApiKeyFound;
         }
+
+        var aiAssistant = new InternalAiAssistant
+        {
+            ApiKey = service.ApiKey,
+        };
         
         var testArticle = new Article { OriginalBody = "test" };
-        var verifiedKey = await llmService.ProcessArticleAsync(testArticle, service.ApiKey);
+        var verifiedKey = await llmService.ProcessArticleAsync(testArticle, aiAssistant);
         if (verifiedKey.IsError)
         {
             return verifiedKey.FirstError == Errors.ExternalServiceProvider.Llm.AssistantRunError 

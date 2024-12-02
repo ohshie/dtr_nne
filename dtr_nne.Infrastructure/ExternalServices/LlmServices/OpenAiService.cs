@@ -14,23 +14,15 @@ namespace dtr_nne.Infrastructure.ExternalServices.LlmServices;
 internal class OpenAiService(ILogger<OpenAiService> logger) : IOpenAiService
 {
     private readonly List<List<MessageContent>> _messages = [["translate"],["process"]];
-        
-    private readonly Dictionary<string, string> _assistants = new()
-    {
-        { "rewrite", "asst_FwmZADIgvx1PNbpbE4jFZdIT" },
-        { "translate", "asst_uZX8vrFAa7Cs6rxpewtXjcZS" },
-        { "header", "asst_mNcZNCvZBrTGHC0CFgCQSUFt" },
-        { "subheader", "asst_4tGc3wgCipY1blaiqQpA8oSR" }
-    };
 
     readonly List<string> _processingSteps = ["rewrite", "translate", "header", "subheader"];
     
-    public async Task<ErrorOr<Article>> ProcessArticleAsync(Article article, string apiKey)
+    public async Task<ErrorOr<Article>> ProcessArticleAsync(Article article, InternalAiAssistant internalAiAssistant)
     {
         logger.LogInformation("Starting article processing article");
         var editedArticle = new EditedArticle();    
 
-        var client = new OpenAIClient(apiKey);
+        var client = new OpenAIClient(internalAiAssistant.ApiKey);
         var assistantClient = client.GetAssistantClient();
         
         logger.LogDebug("Creating thread for article with body length: {BodyLength}", article.Body.Length);
@@ -40,7 +32,7 @@ internal class OpenAiService(ILogger<OpenAiService> logger) : IOpenAiService
         {
             logger.LogInformation("Processing step: {Step}", step);
             
-            var assistant = await GetAssistantByPurpose(assistantClient, step);
+            var assistant = await GetAssistantByPurpose(assistantClient, internalAiAssistant.Assistants, step);
             if (assistant.IsError)
             {
                 logger.LogError("Failed to get assistant for step {Step}: {Error}", step, assistant.FirstError.Code);
@@ -99,16 +91,17 @@ internal class OpenAiService(ILogger<OpenAiService> logger) : IOpenAiService
         return thread;
     }
     
-    private async Task<ErrorOr<Assistant>> GetAssistantByPurpose(AssistantClient client, string purpose)
+    private async Task<ErrorOr<Assistant>> GetAssistantByPurpose(AssistantClient client,  List<OpenAiAssistant> assistantsCollection, string purpose)
     {
-        if (!_assistants.TryGetValue(purpose, out var assistantId))
+        var assistant = assistantsCollection.FirstOrDefault(assistant => assistant.Role == purpose);
+        if (assistant is null)
         {
             logger.LogError("Invalid assistant purpose requested: {Purpose}", purpose);
             return Errors.ExternalServiceProvider.Llm.InvalidAssistantRequested;
         }
         
-        logger.LogDebug("Retrieving assistant with ID: {AssistantId}", assistantId);
-        var clientResult = await client.GetAssistantAsync(assistantId);
+        logger.LogDebug("Retrieving assistant with ID: {AssistantId}", assistant.AssistantId);
+        var clientResult = await client.GetAssistantAsync(assistant.AssistantId);
         return clientResult.Value;
     }
 
@@ -129,8 +122,9 @@ internal class OpenAiService(ILogger<OpenAiService> logger) : IOpenAiService
             logger.LogDebug("Run completed successfully with ID: {RunId}", completion); 
             return completion;
         }
-        catch (TimeoutException e)
+        catch (Exception e)
         {
+            logger.LogError(e, "Failed to run assistant on thread {ThreadId}", threadId);
             return string.Empty;
         }
     }

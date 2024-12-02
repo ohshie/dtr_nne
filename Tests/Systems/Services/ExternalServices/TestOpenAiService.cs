@@ -8,20 +8,4 @@ namespace Tests.Systems.Services.ExternalServices;
 
 public class TestOpenAiService
 {
-    [Fact]
-    [Experimental("OPENAI001")]
-    public async Task METHOD()
-    {
-        // Assemble
-        var mockLogger = new Mock<ILogger<OpenAiService>>();
-        var sut = new OpenAiService(mockLogger.Object);
-        var mockArticle = new Article();
-        var mockKey = "";
-
-        // Act
-        var result = await sut.ProcessArticleAsync(mockArticle, mockKey);
-
-        // Assert 
-
-    }
 }
