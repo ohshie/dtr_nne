@@ -19,10 +19,19 @@ public static class Errors
             public static Error NoSavedApiKeyFound => Error.NotFound(
                 code: "ServiceManager.Internal.NoSavedApiKeyFound",
                 description: "There is no saved api key in db currently");
-
             public static Error BadApiKey => Error.Validation(
                 code: "ServiceManager.Api.BadApiKeyProvided",
                 description: "Provided Api Key Did Not Pass a Check");
+        }
+
+        public static class Llm
+        {
+            public static Error InvalidAssistantRequested => Error.NotFound(
+                code: "ExternalServiceProvider.Llm.InvalidAssistantRequested",
+                description: "Requested llm assistant not found");
+            public static Error AssistantRunError => Error.Failure(
+                code: "ExternalServiceProvider.Llm.AssistantRunError",
+                description: "Something really wrong happened when trying to run Assistant on Thread");
         }
     }
     

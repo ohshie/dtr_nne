@@ -35,8 +35,6 @@ public class LlmManagerService(
             logger.LogError("Failed to add External service to repository");
         }
         
-        
-        
         return service;
     }
 
@@ -57,7 +55,9 @@ public class LlmManagerService(
         var verifiedKey = await llmService.ProcessArticleAsync(testArticle, service.ApiKey);
         if (verifiedKey.IsError)
         {
-            return Errors.ExternalServiceProvider.Service.BadApiKey;
+            return verifiedKey.FirstError == Errors.ExternalServiceProvider.Llm.AssistantRunError 
+                ? Errors.ExternalServiceProvider.Llm.AssistantRunError 
+                : Errors.ExternalServiceProvider.Service.BadApiKey;
         }
         
         return service;
