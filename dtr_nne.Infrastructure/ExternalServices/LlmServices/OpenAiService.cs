@@ -12,7 +12,7 @@ using OpenAI.Assistants;
 namespace dtr_nne.Infrastructure.ExternalServices.LlmServices;
 
 [Experimental("OPENAI001")]
-internal class OpenAiService(ILogger<OpenAiService> logger, IRepository<OpenAiAssistant> repository) : IOpenAiService
+internal class OpenAiService(ILogger<OpenAiService> logger, IOpenAiAssistantRepository repository) : IOpenAiService
 {
     private readonly List<List<MessageContent>> _messages = [["translate"],["process"]];
 
