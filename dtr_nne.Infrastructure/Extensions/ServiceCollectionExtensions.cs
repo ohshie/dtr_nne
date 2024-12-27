@@ -35,6 +35,7 @@ public static class ServiceCollectionExtensions
         // Repositories
         serviceCollection.AddScoped<INewsOutletRepository, NewsOutletRepository>();
         serviceCollection.AddScoped<IExternalServiceProviderRepository, ExternalServiceProviderRepository>();
+        serviceCollection.AddScoped<IOpenAiAssistantRepository, OpenAiAssistantRepository>();
         
         // Services
         serviceCollection.AddTransient<ITranslatorService, DeeplTranslator>();
