@@ -16,7 +16,6 @@ public class TestLlmManagerService
 {
     public TestLlmManagerService()
     {
-        MockInternalAiAssistant = new();
         MockLlmService = new ();
         MockLlmServiceProvider = new();
         MockApiKeyMapper = new ();
@@ -34,7 +33,6 @@ public class TestLlmManagerService
     private Mock<IExternalServiceProvider> MockLlmServiceProvider { get; }
     private Mock<ExternalService> MockExternalService { get; }
     private Mock<ExternalServiceDto> MockExternalServiceDto { get; }
-    private Mock<InternalAiAssistant> MockInternalAiAssistant { get; }
     private Mock<ILlmService> MockLlmService { get; }
     private Mock<IExternalServiceMapper> MockApiKeyMapper { get; }
     private Mock<IExternalServiceProviderRepository> MockRepository { get; }
