@@ -1,5 +1,6 @@
 using dtr_nne.Application.DTO.ExternalService;
 using dtr_nne.Application.ExternalServices.LlmServices;
+using ErrorOr;
 using Microsoft.AspNetCore.Mvc;
 
 namespace dtr_nne.Controllers;
@@ -22,6 +23,8 @@ public class LlmApiController(ILlmManagerService managerService) : ControllerBas
     }
     
     [HttpPatch("Patch", Name = "Update LlmapiKey")]
+    [ProducesResponseType<ExternalServiceDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<Error>(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> UpdateKey(ExternalServiceDto service)
     {
         var success = await managerService.UpdateKey(service);

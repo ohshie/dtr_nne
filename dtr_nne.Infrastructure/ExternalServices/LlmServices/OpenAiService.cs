@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using dtr_nne.Application.Extensions;
 using dtr_nne.Domain.Entities;
 using dtr_nne.Domain.ExternalServices;
+using dtr_nne.Domain.Repositories;
 using ErrorOr;
 using Microsoft.Extensions.Logging;
 using OpenAI;
@@ -11,18 +12,19 @@ using OpenAI.Assistants;
 namespace dtr_nne.Infrastructure.ExternalServices.LlmServices;
 
 [Experimental("OPENAI001")]
-internal class OpenAiService(ILogger<OpenAiService> logger) : IOpenAiService
+internal class OpenAiService(ILogger<OpenAiService> logger, IRepository<OpenAiAssistant> repository) : IOpenAiService
 {
     private readonly List<List<MessageContent>> _messages = [["translate"],["process"]];
 
     readonly List<string> _processingSteps = ["rewrite", "translate", "header", "subheader"];
     
-    public async Task<ErrorOr<Article>> ProcessArticleAsync(Article article, InternalAiAssistant internalAiAssistant)
+    public async Task<ErrorOr<Article>> ProcessArticleAsync(Article article, string apiKey)
     {
         logger.LogInformation("Starting article processing article");
         var editedArticle = new EditedArticle();    
 
-        var client = new OpenAIClient(internalAiAssistant.ApiKey);
+        var client = new OpenAIClient(apiKey);
+        var assistantCollection = await repository.GetAll() as List<OpenAiAssistant>;
         var assistantClient = client.GetAssistantClient();
         
         logger.LogDebug("Creating thread for article with body length: {BodyLength}", article.Body.Length);
@@ -32,7 +34,7 @@ internal class OpenAiService(ILogger<OpenAiService> logger) : IOpenAiService
         {
             logger.LogInformation("Processing step: {Step}", step);
             
-            var assistant = await GetAssistantByPurpose(assistantClient, internalAiAssistant.Assistants, step);
+            var assistant = await GetAssistantByPurpose(assistantClient, assistantCollection, step);
             if (assistant.IsError)
             {
                 logger.LogError("Failed to get assistant for step {Step}: {Error}", step, assistant.FirstError.Code);

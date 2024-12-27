@@ -59,7 +59,7 @@ public class TestLlmManagerService
     {
         // Assemble
         MockLlmService
-            .Setup(service => service.ProcessArticleAsync(It.IsAny<Article>(), It.IsAny<InternalAiAssistant>()).Result)
+            .Setup(service => service.ProcessArticleAsync(It.IsAny<Article>(), It.IsAny<string>()).Result)
             .Returns(Errors.ExternalServiceProvider.Service.BadApiKey);
 
         // Act
@@ -100,7 +100,7 @@ public class TestLlmManagerService
         MockApiKeyMapper
             .Verify(mapper => mapper.DtoToService(MockExternalServiceDto.Object), Times.AtLeastOnce);
         MockLlmService
-            .Verify(service => service.ProcessArticleAsync(It.IsAny<Article>(), It.IsAny<InternalAiAssistant>()), Times.Once);
+            .Verify(service => service.ProcessArticleAsync(It.IsAny<Article>(), It.IsAny<string>()), Times.Once);
     }
 
     [Fact]
@@ -108,7 +108,7 @@ public class TestLlmManagerService
     {
         // Assemble
         MockLlmService
-            .Setup(service => service.ProcessArticleAsync(It.IsAny<Article>(), It.IsAny<InternalAiAssistant>()).Result)
+            .Setup(service => service.ProcessArticleAsync(It.IsAny<Article>(), It.IsAny<string>()).Result)
             .Returns(ErrorOr.Error.Validation());
 
         // Act
@@ -130,7 +130,7 @@ public class TestLlmManagerService
             .Returns(MockLlmService.Object);
 
         MockLlmService
-            .Setup(service => service.ProcessArticleAsync(It.IsAny<Article>(), It.IsAny<InternalAiAssistant>()).Result)
+            .Setup(service => service.ProcessArticleAsync(It.IsAny<Article>(), It.IsAny<string>()).Result)
             .Returns(It.IsAny<Article>());
     }
 }
