@@ -3,14 +3,12 @@ using dtr_nne.Application.DTO.ExternalService;
 using dtr_nne.Application.Extensions;
 using dtr_nne.Application.Mapper;
 using dtr_nne.Domain.Entities;
-using dtr_nne.Domain.Enums;
 using dtr_nne.Domain.ExternalServices;
 using dtr_nne.Domain.IContext;
 using dtr_nne.Domain.Repositories;
 using dtr_nne.Domain.UnitOfWork;
 
 [assembly: InternalsVisibleTo("Tests")]
-
 namespace dtr_nne.Application.ExternalServices.LlmServices;
 
 public class LlmManagerService(
@@ -62,7 +60,7 @@ public class LlmManagerService(
 
         var mappedIncomingService = mapper.DtoToService(serviceDto);
 
-        if (ServiceKeyUpdateRequired(mappedIncomingService, serviceToUpdate))
+        if (mappedIncomingService.ApiKey == serviceToUpdate.ApiKey)
         {
             var validKey = await CheckKeyValidity(mappedIncomingService);
             if (validKey.IsError)
@@ -105,15 +103,10 @@ public class LlmManagerService(
 
         return serviceToUpdate;
     }
-
-    internal bool ServiceKeyUpdateRequired(ExternalService incomingService, ExternalService existingService)
-    {
-        return incomingService.ApiKey == existingService.ApiKey;
-    }
-
+    
     internal async Task<ErrorOr<bool>> CheckKeyValidity(ExternalService incomingService, bool newService = false)
     {
-        var llmService = await GetLlmService(incomingService.Type, newService);
+        var llmService = serviceProvider.ProvideService(incomingService.Type) as ILlmService;
         if (llmService is null)
         {
             return Errors.ExternalServiceProvider.Service.NoSavedServiceFound;
@@ -126,21 +119,6 @@ public class LlmManagerService(
         }
 
         return success.Value;
-    }
-    
-    internal async Task<ILlmService?> GetLlmService(ExternalServiceType type, bool newService = false)
-    {
-        ILlmService? llmService;
-        if (newService)
-        {
-            llmService = await serviceProvider.ProvideService(type) as ILlmService;
-        }
-        else
-        {
-            llmService = await serviceProvider.GetExistingInUseService(type) as ILlmService;
-        }
-
-        return llmService;
     }
     
     internal async Task<ErrorOr<bool>> CheckApiKey(ILlmService llmService, string incomingApiKey)

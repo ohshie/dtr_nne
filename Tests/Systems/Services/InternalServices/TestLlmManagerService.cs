@@ -84,10 +84,6 @@ public class TestLlmManagerService
             .Setup(x => x.ProvideService(ExternalServiceType.Llm))
             .Returns(_mockLlmService.Object);
         
-        _mockServiceProvider
-            .Setup(x => x.GetExistingInUseService(ExternalServiceType.Llm))
-            .Returns(_mockLlmService.Object);
-        
         _mockRepository
             .Setup(x => x.Add(It.IsAny<ExternalService>()))
             .ReturnsAsync(true);
@@ -193,7 +189,7 @@ public class TestLlmManagerService
         result.IsError.Should().BeTrue();
         _mockServiceProvider
             .Verify(x => 
-                x.GetExistingInUseService(It.IsAny<ExternalServiceType>()), 
+                x.ProvideService(It.IsAny<ExternalServiceType>()), 
                 Times.Once);
         _mockRepository.Verify(repository => repository.Update(It.IsAny<ExternalService>()), Times.Never);
     }
@@ -313,33 +309,5 @@ public class TestLlmManagerService
         // Assert 
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(Errors.ExternalServiceProvider.Service.NoSavedServiceFound);
-    }
-    
-    [Fact]
-    public void GetLlmService_WhenNewService_CallsProvideService()
-    {
-        // Arrange
-
-        // Act
-        var result = _sut.GetLlmService(ExternalServiceType.Llm, true);
-
-        // Assert
-        result.Should().NotBeNull();
-        _mockServiceProvider.Verify(x => x.ProvideService(ExternalServiceType.Llm), Times.Once);
-        _mockServiceProvider.Verify(x => x.GetExistingInUseService(It.IsAny<ExternalServiceType>()), Times.Never);
-    }
-    
-    [Fact]
-    public void GetLlmService_WhenExistingService_CallsGetExistingInUseService()
-    {
-        // Arrange
-        
-        // Act
-        var result = _sut.GetLlmService(ExternalServiceType.Llm);
-
-        // Assert
-        result.Should().NotBeNull();
-        _mockServiceProvider.Verify(x => x.GetExistingInUseService(ExternalServiceType.Llm), Times.Once);
-        _mockServiceProvider.Verify(x => x.ProvideService(It.IsAny<ExternalServiceType>()), Times.Never);
     }
 }
