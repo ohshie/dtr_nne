@@ -5,6 +5,6 @@ namespace dtr_nne.Application.ExternalServices;
 
 public interface IExternalServiceProvider
 {
-    Task<IExternalService> GetExistingInUseService(ExternalServiceType type);
-    Task<IExternalService> ProvideService(ExternalServiceType type);
+    IExternalService GetExistingInUseService(ExternalServiceType type);
+    IExternalService ProvideService(ExternalServiceType type);
 }

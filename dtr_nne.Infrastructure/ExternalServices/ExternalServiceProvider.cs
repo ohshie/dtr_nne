@@ -9,7 +9,7 @@ namespace dtr_nne.Infrastructure.ExternalServices;
 public class ExternalServiceProvider(IServiceProvider serviceProvider, 
     IExternalServiceProviderRepository repository) : IExternalServiceProvider
 {
-    public async Task<IExternalService> GetExistingInUseService(ExternalServiceType type)
+    public IExternalService GetExistingInUseService(ExternalServiceType type)
     {
         var requestedServices = repository.GetByType(type);
         if (requestedServices is null || requestedServices.Count < 1)
@@ -45,7 +45,7 @@ public class ExternalServiceProvider(IServiceProvider serviceProvider,
         throw new InvalidOperationException($"Unsupported service type {type}.");
     }
 
-    public async Task<IExternalService> ProvideService(ExternalServiceType type)
+    public IExternalService ProvideService(ExternalServiceType type)
     {
         switch (type)
         {

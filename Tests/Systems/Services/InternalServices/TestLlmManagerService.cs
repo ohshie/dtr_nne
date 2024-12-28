@@ -6,7 +6,9 @@ using dtr_nne.Application.Mapper;
 using dtr_nne.Domain.Entities;
 using dtr_nne.Domain.Enums;
 using dtr_nne.Domain.ExternalServices;
+using dtr_nne.Domain.IContext;
 using dtr_nne.Domain.Repositories;
+using dtr_nne.Domain.UnitOfWork;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -16,119 +18,328 @@ public class TestLlmManagerService
 {
     public TestLlmManagerService()
     {
-        MockLlmService = new ();
-        MockLlmServiceProvider = new();
-        MockApiKeyMapper = new ();
-        MockRepository = new();
-        MockExternalServiceDto = new();
-        MockExternalService = new();
+        _mockRepository = new();
+        _mockUow = new();
+        _mockMapper = new();
+        _mockServiceProvider = new();
+        _mockLlmService = new();
         
-        CreateDefaultStatus();
+        var faker = new Bogus.Faker();
         
-        Sut = new(logger: new Mock<ILogger<LlmManagerService>>().Object, 
-            repository: MockRepository.Object,
-            mapper: MockApiKeyMapper.Object, 
-            serviceProvider: MockLlmServiceProvider.Object);
+        _testServiceDto = new()
+        {
+            ServiceName = Faker.Internet.UserName(),
+            Type = ExternalServiceType.Llm,
+            ApiKey = faker.Random.Guid().ToString(),
+            InUse = true
+        };
+
+        _testExistingService = new()
+        {
+            ServiceName = _testServiceDto.ServiceName,
+            Type = ExternalServiceType.Llm,
+            ApiKey = faker.Random.Guid().ToString(),
+            InUse = true
+        };
+        
+        _testService = new()
+        {
+            ServiceName = _testServiceDto.ServiceName,
+            Type = ExternalServiceType.Llm,
+            ApiKey = _testServiceDto.ApiKey,
+            InUse = true
+        };
+        
+        DefaultSetup();
+        
+        _sut = new(logger: new Mock<ILogger<LlmManagerService>>().Object, 
+            repository: _mockRepository.Object,
+            unitOfWork: _mockUow.Object,
+            mapper: _mockMapper.Object, 
+            serviceProvider: _mockServiceProvider.Object);
     }
-    private Mock<IExternalServiceProvider> MockLlmServiceProvider { get; }
-    private Mock<ExternalService> MockExternalService { get; }
-    private Mock<ExternalServiceDto> MockExternalServiceDto { get; }
-    private Mock<ILlmService> MockLlmService { get; }
-    private Mock<IExternalServiceMapper> MockApiKeyMapper { get; }
-    private Mock<IExternalServiceProviderRepository> MockRepository { get; }
-    private LlmManagerService Sut { get; }
 
-    [Fact]
-    public async Task CheckApiKey_OnGetServiceReturningNull_ShouldReturnErrorNoSavedFound()
+    private readonly LlmManagerService _sut;
+    private readonly Mock<IExternalServiceProviderRepository> _mockRepository;
+    private readonly Mock<IUnitOfWork<INneDbContext>> _mockUow;
+    private readonly Mock<IExternalServiceMapper> _mockMapper;
+    private readonly Mock<IExternalServiceProvider> _mockServiceProvider;
+    private readonly Mock<ILlmService> _mockLlmService;
+
+    private readonly ExternalServiceDto _testServiceDto;
+    private readonly ExternalService _testExistingService;
+    private readonly ExternalService _testService;
+
+    private void DefaultSetup()
     {
-        // Assemble
-        MockLlmServiceProvider.Reset();
-
-        // Act
-        var result = await Sut.CheckApiKey(MockExternalService.Object);
-
-        // Assert 
-        result.IsError.Should().BeTrue();
-        result.FirstError.Should().BeEquivalentTo(Errors.ExternalServiceProvider.Service.NoSavedApiKeyFound);
+        _mockMapper
+            .Setup(mapper => mapper.DtoToService(_testServiceDto))
+            .Returns(_testService);
+        
+        _mockLlmService
+            .Setup(x => x.ProcessArticleAsync(It.IsAny<Article>(), It.IsAny<string>()))
+            .ReturnsAsync(It.IsAny<Article>());
+        
+        _mockServiceProvider
+            .Setup(x => x.ProvideService(ExternalServiceType.Llm))
+            .Returns(_mockLlmService.Object);
+        
+        _mockServiceProvider
+            .Setup(x => x.GetExistingInUseService(ExternalServiceType.Llm))
+            .Returns(_mockLlmService.Object);
+        
+        _mockRepository
+            .Setup(x => x.Add(It.IsAny<ExternalService>()))
+            .ReturnsAsync(true);
+        
+        _mockRepository
+            .Setup(x => x.Update(It.IsAny<ExternalService>()))
+            .Returns(true);
+        
+        _mockRepository
+            .Setup(x => x.GetByType(ExternalServiceType.Llm))
+            .Returns(new List<ExternalService> { _testExistingService });
+        
+        _mockUow
+            .Setup(x => x.Save())
+            .ReturnsAsync(true);
     }
     
     [Fact]
-    public async Task CheckApiKey_OnApiKeyFailure_ShouldReturnErrorBadApiKey()
+    public async Task Add_WhenValidService_ReturnsSuccess()
     {
-        // Assemble
-        MockLlmService
-            .Setup(service => service.ProcessArticleAsync(It.IsAny<Article>(), It.IsAny<string>()).Result)
-            .Returns(Errors.ExternalServiceProvider.Service.BadApiKey);
-
-        // Act
-        var result = await Sut.CheckApiKey(MockExternalService.Object);
-
-        // Assert 
-        result.IsError.Should().BeTrue();
-        result.FirstError.Should().BeEquivalentTo(Errors.ExternalServiceProvider.Service.BadApiKey);
-    }
-    
-    [Fact]
-    public async Task Add_OnSuccess_ShouldReturnProvidedApiKey()
-    {
-        // Assemble
+        // Arrange
         
         // Act
-        var providedApiKey = await Sut.Add(MockExternalServiceDto.Object);
+        var result = await _sut.Add(_testServiceDto);
 
-        // Assert 
-        providedApiKey.IsError
-            .Should()
-            .BeFalse();
-        providedApiKey.Value.ApiKey
-            .Should()
-            .BeEquivalentTo(MockExternalServiceDto.Object.ApiKey);
+        // Assert
+        result.IsError.Should().BeFalse();
+        result.Value.Should().BeEquivalentTo(_testServiceDto);
     }
     
     [Fact]
-    public async Task Add_WhenProvidedWithKey_ShouldCallIMapperAndILlmServiceRewrite()
+    public async Task Add_WhenKeyValidationFails_ReturnsError()
     {
-        // Assemble
-
+        // Arrange
+        _mockLlmService
+            .Setup(x => x.ProcessArticleAsync(It.IsAny<Article>(), It.IsAny<string>()))
+            .ReturnsAsync(Errors.ExternalServiceProvider.Service.BadApiKey);
+        
         // Act
-        await Sut
-            .Add(MockExternalServiceDto.Object);
+        var result = await _sut.Add(_testServiceDto);
 
-        // Assert 
-        MockApiKeyMapper
-            .Verify(mapper => mapper.DtoToService(MockExternalServiceDto.Object), Times.AtLeastOnce);
-        MockLlmService
-            .Verify(service => service.ProcessArticleAsync(It.IsAny<Article>(), It.IsAny<string>()), Times.Once);
+        // Assert
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(Errors.ExternalServiceProvider.Service.BadApiKey);
     }
-
+    
     [Fact]
-    public async Task Add_OnKeyVerificationError_ShouldReturn()
+    public async Task Add_WhenRepositoryFail_ReturnsDbError()
     {
         // Assemble
-        MockLlmService
-            .Setup(service => service.ProcessArticleAsync(It.IsAny<Article>(), It.IsAny<string>()).Result)
-            .Returns(ErrorOr.Error.Validation());
+        _mockRepository
+            .Setup(repository => repository.Add(_testService).Result).
+            Returns(false);
 
         // Act
-        var result = await Sut.Add(MockExternalServiceDto.Object);
+        var result = await _sut.Add(_testServiceDto);
 
         // Assert 
         result.IsError.Should().BeTrue();
-        result.FirstError.Should().BeEquivalentTo(Errors.ExternalServiceProvider.Service.BadApiKey);
+        result.FirstError.Should().Be(Errors.DbErrors.AddingToDbFailed);
+    }
+    
+    [Fact]
+    public async Task Add_WhenUowFail_ReturnsDbError()
+    {
+        // Assemble
+        _mockUow
+            .Setup(uow => uow.Save().Result).
+            Returns(false);
+
+        // Act
+        var result = await _sut.Add(_testServiceDto);
+
+        // Assert 
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(Errors.DbErrors.UnitOfWorkSaveFailed);
+    }
+    
+    [Fact]
+    public async Task UpdateKey_WhenValidService_ReturnsSuccess()
+    {
+        // Arrange
+
+        // Act
+        var result = await _sut.UpdateKey(_testServiceDto);
+
+        // Assert
+        result.IsError.Should().BeFalse();
+        result.Value.Should().BeEquivalentTo(_testServiceDto);
     }
 
-    private void CreateDefaultStatus()
+    [Fact]
+    public async Task UpdateKey_WhenCheckKeyFail_ReturnsError()
     {
-        MockApiKeyMapper
-            .Setup(mapper => mapper.DtoToService(MockExternalServiceDto.Object))
-            .Returns(MockExternalService.Object);
+        // Assemble
+        _testExistingService.ApiKey = _testServiceDto.ApiKey;
+        _mockServiceProvider.Reset();
+        
+        // Act
+        var result = await _sut.UpdateKey(_testServiceDto);
 
-        MockLlmServiceProvider
-            .Setup(provider => provider.GetService(ExternalServiceType.Llm).Result)
-            .Returns(MockLlmService.Object);
+        // Assert 
+        result.IsError.Should().BeTrue();
+        _mockServiceProvider
+            .Verify(x => 
+                x.GetExistingInUseService(It.IsAny<ExternalServiceType>()), 
+                Times.Once);
+        _mockRepository.Verify(repository => repository.Update(It.IsAny<ExternalService>()), Times.Never);
+    }
+    
+    [Fact]
+    public async Task UpdateKey_WhenServiceNotFound_ReturnsError()
+    {
+        // Arrange
+        _mockRepository.Setup(x => x.GetByType(ExternalServiceType.Llm))
+            .Returns(new List<ExternalService>());
 
-        MockLlmService
-            .Setup(service => service.ProcessArticleAsync(It.IsAny<Article>(), It.IsAny<string>()).Result)
-            .Returns(It.IsAny<Article>());
+        // Act
+        var result = await _sut.UpdateKey(_testServiceDto);
+
+        // Assert
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(Errors.ExternalServiceProvider.Service.NoSavedServiceFound);
+    }
+    
+    [Fact]
+    public async Task Update_WhenRepositoryFail_ReturnsDbError()
+    {
+        // Assemble
+        _mockRepository
+            .Setup(repository => repository.Update(_testService)).
+            Returns(false);
+
+        // Act
+        var result = await _sut.UpdateKey(_testServiceDto);
+
+        // Assert 
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(Errors.DbErrors.AddingToDbFailed);
+    }
+    
+    [Fact]
+    public async Task Update_WhenUowFail_ReturnsDbError()
+    {
+        // Assemble
+        _mockUow
+            .Setup(uow => uow.Save().Result).
+            Returns(false);
+
+        // Act
+        var result = await _sut.UpdateKey(_testServiceDto);
+
+        // Assert 
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(Errors.DbErrors.UnitOfWorkSaveFailed);
+    }
+    
+    [Fact]
+    public async Task CheckKeyValidity_WhenValidKey_ReturnsTrue()
+    {
+        // Arrange
+
+        // Act
+        var result = await _sut.CheckKeyValidity(_testService, true);
+
+        // Assert
+        result.IsError.Should().BeFalse();
+        result.Value.Should().BeTrue();
+    }
+    
+    [Fact]
+    public async Task CheckKeyValidity_WhenAssistantRunError_ReturnsSpecificError()
+    {
+        // Arrange
+        _mockLlmService
+            .Setup(x => x.ProcessArticleAsync(It.IsAny<Article>(), It.IsAny<string>()))
+            .ReturnsAsync(Errors.ExternalServiceProvider.Llm.AssistantRunError);
+        
+        // Act
+        var result = await _sut.CheckKeyValidity(_testService, true);
+
+        // Assert
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(Errors.ExternalServiceProvider.Llm.AssistantRunError);
+    }
+
+    [Fact]
+    public async Task CheckKeyValidity_WhenNoLlmServiceFound_ReturnsSpecificError()
+    {
+        // Assemble
+        _mockServiceProvider.Reset();
+        
+        // Act
+        var result = await _sut.CheckKeyValidity(_testService);
+
+        // Assert
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(Errors.ExternalServiceProvider.Service.NoSavedServiceFound);
+    }
+    
+    [Fact]
+    public void FindRequiredExistingService_WhenServiceExists_ReturnsService()
+    {
+        // Arrange
+
+        // Act
+        var result = _sut.FindRequiredExistingService(_testServiceDto);
+
+        // Assert
+        result.IsError.Should().BeFalse();
+        result.Value.Should().BeEquivalentTo(_testExistingService);
+    }
+
+    [Fact]
+    public void FindRequiredExistingService_WhenNoServiceExists_ReturnsError()
+    {
+        // Assemble
+        _mockRepository.Reset();
+
+        // Act
+        var result = _sut.FindRequiredExistingService(_testServiceDto);
+
+        // Assert 
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(Errors.ExternalServiceProvider.Service.NoSavedServiceFound);
+    }
+    
+    [Fact]
+    public void GetLlmService_WhenNewService_CallsProvideService()
+    {
+        // Arrange
+
+        // Act
+        var result = _sut.GetLlmService(ExternalServiceType.Llm, true);
+
+        // Assert
+        result.Should().NotBeNull();
+        _mockServiceProvider.Verify(x => x.ProvideService(ExternalServiceType.Llm), Times.Once);
+        _mockServiceProvider.Verify(x => x.GetExistingInUseService(It.IsAny<ExternalServiceType>()), Times.Never);
+    }
+    
+    [Fact]
+    public void GetLlmService_WhenExistingService_CallsGetExistingInUseService()
+    {
+        // Arrange
+        
+        // Act
+        var result = _sut.GetLlmService(ExternalServiceType.Llm);
+
+        // Assert
+        result.Should().NotBeNull();
+        _mockServiceProvider.Verify(x => x.GetExistingInUseService(ExternalServiceType.Llm), Times.Once);
+        _mockServiceProvider.Verify(x => x.ProvideService(It.IsAny<ExternalServiceType>()), Times.Never);
     }
 }

@@ -3,7 +3,6 @@ using dtr_nne.Domain.Enums;
 using dtr_nne.Domain.ExternalServices;
 using dtr_nne.Domain.Repositories;
 using dtr_nne.Infrastructure.ExternalServices;
-using dtr_nne.Infrastructure.ExternalServices.LlmServices;
 using Moq;
 
 namespace Tests.Systems.Services.Providers;
@@ -42,44 +41,44 @@ public class TestExternalServiceProvider
     private readonly Mock<List<ExternalService>> _mockExternalServiceList;
 
     [Fact]
-    public async Task GetService_WhenSuccessfull_ShouldReturnRequestedService()
+    public void GetService_WhenSuccessfull_ShouldReturnRequestedService()
     {
         // Assemble
         
         // Act
-        var result = await _sut.GetService(ExternalServiceType.Llm);
+        var result = _sut.GetExistingInUseService(ExternalServiceType.Llm);
 
         // Assert
         result.Should().BeAssignableTo<ILlmService>();
     }
 
     [Fact]
-    public async Task GetService_OnInvoke_ShouldCallRepositoryForCurrenActiveService()
+    public void GetService_OnInvoke_ShouldCallRepositoryForCurrenActiveService()
     {
         // Assemble
 
         // Act
-        await _sut.GetService(ExternalServiceType.Llm);
+        _sut.GetExistingInUseService(ExternalServiceType.Llm);
 
         // Assert 
         _mockRepository.Verify(repository => repository.GetByType(ExternalServiceType.Llm), Times.Once);
     }
 
     [Fact]
-    public async Task GetService_IfNoRelevantServiceFoundInDb_ShouldThrow()
+    public void GetService_IfNoRelevantServiceFoundInDb_ShouldThrow()
     {
         // Assemble
         _mockRepository.Reset();
 
         // Act
-        Func<Task> act = async () => await _sut.GetService(ExternalServiceType.Llm);
+        var act = () => _sut.GetExistingInUseService(ExternalServiceType.Llm);
 
         // Assert 
-        await act.Should().ThrowAsync<InvalidOperationException>();
+        act.Should().Throw<InvalidOperationException>();
     }
 
     [Fact]
-    public async Task GetService_IfNoEnabledServiceFound_ShouldThrow()
+    public void GetService_IfNoEnabledServiceFound_ShouldThrow()
     {
         // Assemble
         _mockExternalServiceList.Object.Clear();
@@ -91,9 +90,9 @@ public class TestExternalServiceProvider
         });
         
         // Act
-        Func<Task> act = async () => await _sut.GetService(ExternalServiceType.Llm);
+        var act = () => _sut.GetExistingInUseService(ExternalServiceType.Llm);
 
         // Assert 
-        await act.Should().ThrowAsync<InvalidOperationException>();
+        act.Should().Throw<InvalidOperationException>();
     }
 }
