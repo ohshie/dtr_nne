@@ -28,7 +28,7 @@ internal class OpenAiService(ILogger<OpenAiService> logger, IOpenAiAssistantRepo
         var assistantClient = client.GetAssistantClient();
         
         logger.LogDebug("Creating thread for article with body length: {BodyLength}", article.Body.Length);
-        var thread = await CreateThread(assistantClient, article.Body);
+        var thread = await CreateThread(assistantClient, article.OriginalBody);
 
         foreach (var step in _processingSteps)
         {
@@ -86,7 +86,7 @@ internal class OpenAiService(ILogger<OpenAiService> logger, IOpenAiAssistantRepo
                 articleBody   
             }
         };
-        
+
         var thread = (await assistantClient.CreateThreadAsync(threadOpt)).Value;
         logger.LogDebug("Thread created successfully with ID: {ThreadId}", thread.Id);
             

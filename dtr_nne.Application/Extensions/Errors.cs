@@ -7,6 +7,14 @@ public static class Errors
         public static Error UnitOfWorkSaveFailed => Error.Failure(
             code: "DbErrors.UnitOfWorkSaveFailed",
             description: "Saving to Db Produced Error, refer to logs to get more info");
+
+        public static Error AddingToDbFailed => Error.Failure(
+            code: "DbErrors.AddingToDbFailed",
+            description: "Something went wrong when trying to add a value to database");
+        
+        public static Error UpdatingDbFailed => Error.Failure(
+            code: "DbErrors.UpdatingDbFailed",
+            description: "Something went wrong when trying to update a value in database");
     }
 
     public static class ExternalServiceProvider
@@ -15,6 +23,9 @@ public static class Errors
         {
             public static Error InvalidRequestedServiceType => Error.Validation(
                 code: "ExternalServiceProvider.InvalidRequestedServiceType",
+                description: "Requested non existent service type");
+            public static Error NoSavedServiceFound => Error.NotFound(
+                code: "ExternalServiceProvider.NoSavedServiceFound",
                 description: "Requested non existent service");
             public static Error NoSavedApiKeyFound => Error.NotFound(
                 code: "ServiceManager.Internal.NoSavedApiKeyFound",

@@ -1,6 +1,4 @@
 using dtr_nne.Application.ExternalServices;
-using dtr_nne.Application.ExternalServices.LlmServices;
-using dtr_nne.Domain.Entities;
 using dtr_nne.Domain.Enums;
 using dtr_nne.Domain.ExternalServices;
 using dtr_nne.Domain.Repositories;
@@ -11,7 +9,7 @@ namespace dtr_nne.Infrastructure.ExternalServices;
 public class ExternalServiceProvider(IServiceProvider serviceProvider, 
     IExternalServiceProviderRepository repository) : IExternalServiceProvider
 {
-    public async Task<IExternalService> GetService(ExternalServiceType type)
+    public async Task<IExternalService> GetExistingInUseService(ExternalServiceType type)
     {
         var requestedServices = repository.GetByType(type);
         if (requestedServices is null || requestedServices.Count < 1)
@@ -40,6 +38,21 @@ public class ExternalServiceProvider(IServiceProvider serviceProvider,
                     return serviceProvider.GetRequiredService<ITranslatorService>();
                 }
                 break;
+            case ExternalServiceType.Scraper:
+                throw new NotImplementedException("Scraper service is not yet implemented");
+        }
+        
+        throw new InvalidOperationException($"Unsupported service type {type}.");
+    }
+
+    public async Task<IExternalService> ProvideService(ExternalServiceType type)
+    {
+        switch (type)
+        {
+            case ExternalServiceType.Llm:
+                return serviceProvider.GetRequiredService<IOpenAiService>();
+            case ExternalServiceType.Translator:
+                return serviceProvider.GetRequiredService<ITranslatorService>();
             case ExternalServiceType.Scraper:
                 throw new NotImplementedException("Scraper service is not yet implemented");
         }
