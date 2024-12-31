@@ -27,6 +27,11 @@ public static class Errors
             public static Error NoSavedServiceFound => Error.NotFound(
                 code: "ExternalServiceProvider.NoSavedServiceFound",
                 description: "Requested non existent service");
+            public static Error NoActiveServiceFound => Error.NotFound(
+                code: "ExternalServiceProvider.NoActiveServiceFound",
+                description:
+                "No active service found on request, please double check that " +
+                "at least one of external services of that type is set as inUse = true");
             public static Error NoSavedApiKeyFound => Error.NotFound(
                 code: "ServiceManager.Internal.NoSavedApiKeyFound",
                 description: "There is no saved api key in db currently");

@@ -81,7 +81,7 @@ public class TestLlmManagerService
             .ReturnsAsync(It.IsAny<Article>());
         
         _mockServiceProvider
-            .Setup(x => x.ProvideService(ExternalServiceType.Llm))
+            .Setup(x => x.Provide(ExternalServiceType.Llm, ""))
             .Returns(_mockLlmService.Object);
         
         _mockRepository
@@ -189,7 +189,7 @@ public class TestLlmManagerService
         result.IsError.Should().BeTrue();
         _mockServiceProvider
             .Verify(x => 
-                x.ProvideService(It.IsAny<ExternalServiceType>()), 
+                x.Provide(It.IsAny<ExternalServiceType>(), ""), 
                 Times.Once);
         _mockRepository.Verify(repository => repository.Update(It.IsAny<ExternalService>()), Times.Never);
     }

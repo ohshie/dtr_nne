@@ -5,6 +5,5 @@ namespace dtr_nne.Application.ExternalServices;
 
 public interface IExternalServiceProvider
 {
-    IExternalService GetExistingInUseService(ExternalServiceType type);
-    IExternalService ProvideService(ExternalServiceType type);
+    IExternalService Provide(ExternalServiceType type, string apiKey = "");
 }

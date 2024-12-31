@@ -1,12 +1,16 @@
+using System.Diagnostics.CodeAnalysis;
+using dtr_nne.Application.ExternalServices;
 using dtr_nne.Domain.Entities;
 using dtr_nne.Domain.Enums;
 using dtr_nne.Domain.ExternalServices;
 using dtr_nne.Domain.Repositories;
 using dtr_nne.Infrastructure.ExternalServices;
+using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Tests.Systems.Services.Providers;
 
+[Experimental("OPENAI001")]
 public class TestExternalServiceProvider
 {
     public TestExternalServiceProvider()
@@ -15,6 +19,7 @@ public class TestExternalServiceProvider
         _mockOpenAiService = new();
         _mockRepository = new();
         _mockExternalServiceList = new();
+        _mockServiceFactory = new();
         
         _mockExternalServiceList.Object.Add(new ExternalService
         {
@@ -31,13 +36,14 @@ public class TestExternalServiceProvider
             .Setup(repository => repository.GetByType(ExternalServiceType.Llm))
             .Returns(_mockExternalServiceList.Object);
         
-        _sut = new(_mockServiceProvider.Object, _mockRepository.Object);
+        _sut = new(new Mock<ILogger<ExternalServiceProvider>>().Object, _mockServiceProvider.Object, _mockRepository.Object, _mockServiceFactory.Object);
     }
 
     private readonly ExternalServiceProvider _sut;
     private readonly Mock<IOpenAiService> _mockOpenAiService;
     private readonly Mock<IServiceProvider> _mockServiceProvider;
     private readonly Mock<IExternalServiceProviderRepository> _mockRepository;
+    private readonly Mock<IExternalServiceFactory> _mockServiceFactory;
     private readonly Mock<List<ExternalService>> _mockExternalServiceList;
 
     [Fact]
@@ -46,7 +52,7 @@ public class TestExternalServiceProvider
         // Assemble
         
         // Act
-        var result = _sut.GetExistingInUseService(ExternalServiceType.Llm);
+        var result = _sut.Provide(ExternalServiceType.Llm);
 
         // Assert
         result.Should().BeAssignableTo<ILlmService>();
@@ -58,7 +64,7 @@ public class TestExternalServiceProvider
         // Assemble
 
         // Act
-        _sut.GetExistingInUseService(ExternalServiceType.Llm);
+        _sut.Provide(ExternalServiceType.Llm);
 
         // Assert 
         _mockRepository.Verify(repository => repository.GetByType(ExternalServiceType.Llm), Times.Once);
@@ -71,7 +77,7 @@ public class TestExternalServiceProvider
         _mockRepository.Reset();
 
         // Act
-        var act = () => _sut.GetExistingInUseService(ExternalServiceType.Llm);
+        var act = () => _sut.Provide(ExternalServiceType.Llm);
 
         // Assert 
         act.Should().Throw<InvalidOperationException>();
@@ -90,7 +96,7 @@ public class TestExternalServiceProvider
         });
         
         // Act
-        var act = () => _sut.GetExistingInUseService(ExternalServiceType.Llm);
+        var act = () => _sut.Provide(ExternalServiceType.Llm);
 
         // Assert 
         act.Should().Throw<InvalidOperationException>();

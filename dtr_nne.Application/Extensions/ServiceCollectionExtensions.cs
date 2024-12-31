@@ -1,6 +1,8 @@
+using dtr_nne.Application.ExternalServices;
 using dtr_nne.Application.ExternalServices.LlmServices;
 using dtr_nne.Application.ExternalServices.TranslatorServices;
 using dtr_nne.Application.Mapper;
+using dtr_nne.Application.NewsEditor;
 using dtr_nne.Application.Services.NewsOutletServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,10 +20,12 @@ public static class ServiceCollectionExtensions
         serviceCollection.AddTransient<IDeleteNewsOutletService, DeleteNewsOutletService>();
         
         serviceCollection.AddTransient<INewsOutletMapper, NewsOutletMapper>();
+        serviceCollection.AddTransient<IExternalServiceMapper, ExternalServiceMapper>();
+        serviceCollection.AddTransient<IArticleMapper, ArticleMapper>();
 
         serviceCollection.AddTransient<ITranslatorApiKeyService, TranslatorApiKeyService>();
         serviceCollection.AddTransient<ILlmManagerService, LlmManagerService>();
-        
-        serviceCollection.AddTransient<IExternalServiceMapper, ExternalServiceMapper>();
+
+        serviceCollection.AddTransient<INewsRewriter, NewsRewriter>();
     }
 }

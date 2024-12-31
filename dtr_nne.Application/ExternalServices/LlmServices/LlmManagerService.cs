@@ -106,7 +106,7 @@ public class LlmManagerService(
     
     internal async Task<ErrorOr<bool>> CheckKeyValidity(ExternalService incomingService, bool newService = false)
     {
-        var llmService = serviceProvider.ProvideService(incomingService.Type) as ILlmService;
+        var llmService = serviceProvider.Provide(incomingService.Type, incomingService.ApiKey) as ILlmService;
         if (llmService is null)
         {
             return Errors.ExternalServiceProvider.Service.NoSavedServiceFound;

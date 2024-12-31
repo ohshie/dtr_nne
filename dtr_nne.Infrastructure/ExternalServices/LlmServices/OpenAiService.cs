@@ -12,39 +12,62 @@ using OpenAI.Assistants;
 namespace dtr_nne.Infrastructure.ExternalServices.LlmServices;
 
 [Experimental("OPENAI001")]
-internal class OpenAiService(ILogger<OpenAiService> logger, IOpenAiAssistantRepository repository) : IOpenAiService
+internal class OpenAiService : IOpenAiService
 {
+    private readonly ILogger<OpenAiService> _logger;
+    private readonly IOpenAiAssistantRepository _repository;
+    
+    internal OpenAiService(ILogger<OpenAiService> logger, 
+        IOpenAiAssistantRepository repository, ExternalService? service = null)
+    {
+        _logger = logger;
+        _repository = repository;
+        Service = service;
+    }
+    
     private readonly List<List<MessageContent>> _messages = [["translate"],["process"]];
 
     readonly List<string> _processingSteps = ["rewrite", "translate", "header", "subheader"];
-    
-    public async Task<ErrorOr<Article>> ProcessArticleAsync(Article article, string apiKey)
-    {
-        logger.LogInformation("Starting article processing article");
-        var editedArticle = new EditedArticle();    
 
+    public ExternalService? Service { get; }
+
+    public async Task<ErrorOr<Article>> ProcessArticleAsync(Article article, string apiKey = "")
+    {
+        _logger.LogInformation("Starting article processing article");
+        var editedArticle = new EditedArticle();
+        
+        if (string.IsNullOrEmpty(apiKey))
+        {
+            if (Service is null || string.IsNullOrEmpty(Service.ApiKey))
+            {
+                return Errors.ExternalServiceProvider.Service.BadApiKey;
+            }
+
+            apiKey = Service.ApiKey;
+        }
+        
         var client = new OpenAIClient(apiKey);
-        var assistantCollection = await repository.GetAll() as List<OpenAiAssistant>;
+        var assistantCollection = await _repository.GetAll() as List<OpenAiAssistant>;
         var assistantClient = client.GetAssistantClient();
         
-        logger.LogDebug("Creating thread for article with body length: {BodyLength}", article.Body.Length);
+        _logger.LogDebug("Creating thread for article with body length: {BodyLength}", article.Body.Length);
         var thread = await CreateThread(assistantClient, article.OriginalBody);
 
         foreach (var step in _processingSteps)
         {
-            logger.LogInformation("Processing step: {Step}", step);
+            _logger.LogInformation("Processing step: {Step}", step);
             
             var assistant = await GetAssistantByPurpose(assistantClient, assistantCollection, step);
             if (assistant.IsError)
             {
-                logger.LogError("Failed to get assistant for step {Step}: {Error}", step, assistant.FirstError.Code);
+                _logger.LogError("Failed to get assistant for step {Step}: {Error}", step, assistant.FirstError.Code);
                 return assistant.FirstError;
             }
             
             string runId;
             if (_processingSteps[0] == step)
             {
-                logger.LogDebug("Running initial assistant step: {Step}", step);
+                _logger.LogDebug("Running initial assistant step: {Step}", step);
                 runId = await RunAssistantOnThreadAsync(thread.Value.Id, 
                     assistantClient, 
                     assistant.Value, 
@@ -57,22 +80,22 @@ internal class OpenAiService(ILogger<OpenAiService> logger, IOpenAiAssistantRepo
 
             if (string.IsNullOrEmpty(runId))
             {
-                logger.LogError("Assistant run failed for step {Step}", step);
+                _logger.LogError("Assistant run failed for step {Step}", step);
                 return Errors.ExternalServiceProvider.Llm.AssistantRunError;
             }
             
-            logger.LogDebug("Writing run ID {RunId} for step {Step}", runId, step);
+            _logger.LogDebug("Writing run ID {RunId} for step {Step}", runId, step);
             WriteRunIdsToEditedArticle(editedArticle, step, runId);
         }
         
-        logger.LogInformation("Retrieving messages from thread {ThreadId}", thread.Value.Id);
+        _logger.LogInformation("Retrieving messages from thread {ThreadId}", thread.Value.Id);
         var messages = assistantClient.GetMessages(thread.Value.Id,
             new MessageCollectionOptions { Order = MessageCollectionOrder.Descending });
         
         UpdateEditedArticle(editedArticle, messages);
         
         article.EditedArticle = editedArticle;
-        logger.LogInformation("Article processing completed successfully");
+        _logger.LogInformation("Article processing completed successfully");
 
         return article;
     }
@@ -88,7 +111,7 @@ internal class OpenAiService(ILogger<OpenAiService> logger, IOpenAiAssistantRepo
         };
 
         var thread = (await assistantClient.CreateThreadAsync(threadOpt)).Value;
-        logger.LogDebug("Thread created successfully with ID: {ThreadId}", thread.Id);
+        _logger.LogDebug("Thread created successfully with ID: {ThreadId}", thread.Id);
             
         return thread;
     }
@@ -98,11 +121,11 @@ internal class OpenAiService(ILogger<OpenAiService> logger, IOpenAiAssistantRepo
         var assistant = assistantsCollection.FirstOrDefault(assistant => assistant.Role == purpose);
         if (assistant is null)
         {
-            logger.LogError("Invalid assistant purpose requested: {Purpose}", purpose);
+            _logger.LogError("Invalid assistant purpose requested: {Purpose}", purpose);
             return Errors.ExternalServiceProvider.Llm.InvalidAssistantRequested;
         }
         
-        logger.LogDebug("Retrieving assistant with ID: {AssistantId}", assistant.AssistantId);
+        _logger.LogDebug("Retrieving assistant with ID: {AssistantId}", assistant.AssistantId);
         var clientResult = await client.GetAssistantAsync(assistant.AssistantId);
         return clientResult.Value;
     }
@@ -111,29 +134,29 @@ internal class OpenAiService(ILogger<OpenAiService> logger, IOpenAiAssistantRepo
     {
         if (!initialMessage)
         {
-            logger.LogDebug("Creating user message in thread {ThreadId}", threadId);
+            _logger.LogDebug("Creating user message in thread {ThreadId}", threadId);
             await assistantClient.CreateMessageAsync(threadId, MessageRole.User, _messages[0]);
         }
       
-        logger.LogDebug("Creating run for assistant {AssistantId} in thread {ThreadId}", assistant.Id, threadId);
+        _logger.LogDebug("Creating run for assistant {AssistantId} in thread {ThreadId}", assistant.Id, threadId);
         var threadRun = await assistantClient.CreateRunAsync(threadId, assistant.Id);
 
         try
         {
             var completion = await PollForRunCompletionAsync(threadId, threadRun.Value.Id, assistantClient);
-            logger.LogDebug("Run completed successfully with ID: {RunId}", completion); 
+            _logger.LogDebug("Run completed successfully with ID: {RunId}", completion); 
             return completion;
         }
         catch (Exception e)
         {
-            logger.LogError(e, "Failed to run assistant on thread {ThreadId}", threadId);
+            _logger.LogError(e, "Failed to run assistant on thread {ThreadId}", threadId);
             return string.Empty;
         }
     }
 
     private async Task<string> PollForRunCompletionAsync(string threadId, string runId, AssistantClient assistantClient, int maxAttempts = 100, int delayMilliSeconds = 500)
     {
-        logger.LogDebug("Starting to poll for run completion. ThreadId: {ThreadId}, RunId: {RunId}", threadId, runId);
+        _logger.LogDebug("Starting to poll for run completion. ThreadId: {ThreadId}, RunId: {RunId}", threadId, runId);
         for (var attempt = 0; attempt < maxAttempts; attempt++)
         {
             await Task.Delay(delayMilliSeconds);
@@ -141,18 +164,18 @@ internal class OpenAiService(ILogger<OpenAiService> logger, IOpenAiAssistantRepo
 
             if (threadRun.Value.Status.IsTerminal)
             {
-                logger.LogDebug("Run completed after {Attempts} attempts", attempt + 1);
+                _logger.LogDebug("Run completed after {Attempts} attempts", attempt + 1);
                 return runId;
             }
         }
         
-        logger.LogWarning("Run polling timed out after {MaxAttempts} attempts", maxAttempts);
+        _logger.LogWarning("Run polling timed out after {MaxAttempts} attempts", maxAttempts);
         throw new TimeoutException("Assistant run did not complete in time.");
     }
     
     private void WriteRunIdsToEditedArticle(EditedArticle editedArticle, string step, string runId)
     {
-        logger.LogDebug("Writing run ID for step {Step}: {RunId}", step, runId);
+        _logger.LogDebug("Writing run ID for step {Step}: {RunId}", step, runId);
         
         switch (step)
         {
@@ -173,32 +196,32 @@ internal class OpenAiService(ILogger<OpenAiService> logger, IOpenAiAssistantRepo
 
     private void UpdateEditedArticle(EditedArticle editedArticle, CollectionResult<ThreadMessage> messages)
     {
-        logger.LogDebug("Updating edited article with message content");
+        _logger.LogDebug("Updating edited article with message content");
         
         foreach (var message in messages)
         {
             if (message.RunId == editedArticle.EditedBodyRunId)
             {
                 editedArticle.EditedBody = message.Content.Last().Text;
-                logger.LogDebug("Updated edited body from run {RunId}", message.RunId);
+                _logger.LogDebug("Updated edited body from run {RunId}", message.RunId);
                 continue;
             }
             if (message.RunId == editedArticle.TranslatedBodyRunId)
             {
                 editedArticle.TranslatedBody = message.Content.Last().Text;
-                logger.LogDebug("Updated translated body from run {RunId}", message.RunId);
+                _logger.LogDebug("Updated translated body from run {RunId}", message.RunId);
                 continue;
             }
             if (message.RunId == editedArticle.HeaderRunId)
             {
                 editedArticle.Header = message.Content.Last().Text;
-                logger.LogDebug("Updated header from run {RunId}", message.RunId);
+                _logger.LogDebug("Updated header from run {RunId}", message.RunId);
                 continue;
             }
             if (message.RunId == editedArticle.SubheaderRunId)
             {
                 editedArticle.Subheader = message.Content.Last().Text;
-                logger.LogDebug("Updated subheader from run {RunId}", message.RunId);
+                _logger.LogDebug("Updated subheader from run {RunId}", message.RunId);
             }
         }
     }
