@@ -2,7 +2,6 @@ using dtr_nne.Application.Extensions;
 using dtr_nne.Domain.Extensions;
 using dtr_nne.Domain.IContext;
 using dtr_nne.Infrastructure.Extensions;
-using Microsoft.OpenApi.Models;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
