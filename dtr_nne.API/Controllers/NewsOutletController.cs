@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace dtr_nne.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class NewsOutletController(IGetNewsOutletService getNewsOutletService, 
     IAddNewsOutletService addNewsOutletService, 
     IUpdateNewsOutletService updateNewsOutletService, 

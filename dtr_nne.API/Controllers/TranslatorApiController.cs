@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace dtr_nne.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class TranslatorApiController(ITranslatorApiKeyService translatorApiKeyService) : ControllerBase
 {
     [HttpPost("Add", Name = "Add TranslatorApiKey")]
