@@ -1,7 +1,6 @@
 using dtr_nne.Application.DTO.Article;
 using dtr_nne.Application.NewsEditor;
 using ErrorOr;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace dtr_nne.Controllers;
