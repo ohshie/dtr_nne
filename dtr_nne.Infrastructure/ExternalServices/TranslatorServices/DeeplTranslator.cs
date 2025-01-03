@@ -27,7 +27,7 @@ public class DeeplTranslator(IExternalServiceProviderRepository repository, ILog
         if (translator is null || string.IsNullOrEmpty(translator.ApiKey))
         {
             logger.LogError("No valid API key found");
-            return Errors.Translator.Service.NoSavedApiKeyFound;
+            return Errors.ExternalServiceProvider.Service.NoSavedApiKeyFound;
         }
         
         logger.LogDebug("Using API key from service: {ExternalServiceName}", translator.ServiceName);

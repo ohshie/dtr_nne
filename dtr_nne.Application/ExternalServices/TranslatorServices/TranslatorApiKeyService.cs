@@ -1,5 +1,4 @@
 using dtr_nne.Application.DTO.ExternalService;
-using dtr_nne.Application.DTO.Translator;
 using dtr_nne.Application.Extensions;
 using dtr_nne.Application.Mapper;
 using dtr_nne.Domain.Entities;
@@ -18,11 +17,11 @@ public class TranslatorApiKeyService(ITranslatorService translatorService,
 {
     private readonly List<Headline> _testHeadlines = [new Headline{OriginalHeadline = "api test"}];
     
-    public async Task<ErrorOr<ExternalServiceDto>> Add(ExternalServiceDto apiKey)
+    public async Task<ErrorOr<ExternalServiceDto>> Add(ExternalServiceDto service)
     {
-        logger.LogInformation("Starting Add method for API key: {ApiKey}", apiKey.ApiKey);
+        logger.LogInformation("Starting Add method for service: {Service}", service.ApiKey);
         
-        var mappedApiKey = MapApiKeys(apiKey);
+        var mappedApiKey = MapApiKeys(service);
         var verifiedKey = await CheckApiKey(mappedApiKey);
         if (verifiedKey.IsError)
         { 
@@ -47,7 +46,7 @@ public class TranslatorApiKeyService(ITranslatorService translatorService,
         
         logger.LogInformation("API key added and saved successfully");
         
-        return apiKey;
+        return service;
     }
 
     public async Task<ErrorOr<ExternalServiceDto>> UpdateKey(ExternalServiceDto apiKey)
@@ -56,7 +55,7 @@ public class TranslatorApiKeyService(ITranslatorService translatorService,
         if (currentKey is null)
         {
             logger.LogError("No current key found in Db, cannot update key");
-            return Errors.Translator.Service.NoSavedApiKeyFound;
+            return Errors.ExternalServiceProvider.Service.NoSavedApiKeyFound;
         }
         
         var mappedApiKey = MapApiKeys(apiKey);

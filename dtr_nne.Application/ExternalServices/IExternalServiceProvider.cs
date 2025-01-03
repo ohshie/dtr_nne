@@ -5,5 +5,5 @@ namespace dtr_nne.Application.ExternalServices;
 
 public interface IExternalServiceProvider
 {
-    Task<IExternalService> GetService(ExternalServiceType type);
+    IExternalService Provide(ExternalServiceType type, string apiKey = "");
 }

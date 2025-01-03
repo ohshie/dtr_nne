@@ -1,13 +1,16 @@
+using System.Diagnostics.CodeAnalysis;
+using dtr_nne.Application.ExternalServices;
 using dtr_nne.Domain.Entities;
 using dtr_nne.Domain.Enums;
 using dtr_nne.Domain.ExternalServices;
 using dtr_nne.Domain.Repositories;
 using dtr_nne.Infrastructure.ExternalServices;
-using dtr_nne.Infrastructure.ExternalServices.LlmServices;
+using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Tests.Systems.Services.Providers;
 
+[Experimental("OPENAI001")]
 public class TestExternalServiceProvider
 {
     public TestExternalServiceProvider()
@@ -16,6 +19,7 @@ public class TestExternalServiceProvider
         _mockOpenAiService = new();
         _mockRepository = new();
         _mockExternalServiceList = new();
+        _mockServiceFactory = new();
         
         _mockExternalServiceList.Object.Add(new ExternalService
         {
@@ -28,58 +32,63 @@ public class TestExternalServiceProvider
             .Setup(provider => provider.GetService(typeof(IOpenAiService)))
             .Returns(_mockOpenAiService.Object);
 
+        _mockServiceFactory
+            .Setup(factory => factory.CreateOpenAiService(It.IsAny<ExternalService>()))
+            .Returns(_mockOpenAiService.Object);
+
         _mockRepository
-            .Setup(repository => repository.GetByType(ExternalServiceType.Llm).Result)
+            .Setup(repository => repository.GetByType(ExternalServiceType.Llm))
             .Returns(_mockExternalServiceList.Object);
         
-        _sut = new(_mockServiceProvider.Object, _mockRepository.Object);
+        _sut = new(new Mock<ILogger<ExternalServiceProvider>>().Object, _mockServiceProvider.Object, _mockRepository.Object, _mockServiceFactory.Object);
     }
 
     private readonly ExternalServiceProvider _sut;
     private readonly Mock<IOpenAiService> _mockOpenAiService;
     private readonly Mock<IServiceProvider> _mockServiceProvider;
     private readonly Mock<IExternalServiceProviderRepository> _mockRepository;
+    private readonly Mock<IExternalServiceFactory> _mockServiceFactory;
     private readonly Mock<List<ExternalService>> _mockExternalServiceList;
 
     [Fact]
-    public async Task GetService_WhenSuccessfull_ShouldReturnRequestedService()
+    public void GetService_WhenSuccessfull_ShouldReturnRequestedService()
     {
         // Assemble
         
         // Act
-        var result = await _sut.GetService(ExternalServiceType.Llm);
+        var result = _sut.Provide(ExternalServiceType.Llm, "test");
 
         // Assert
         result.Should().BeAssignableTo<ILlmService>();
     }
 
     [Fact]
-    public async Task GetService_OnInvoke_ShouldCallRepositoryForCurrenActiveService()
+    public void GetService_OnInvoke_ShouldCallRepositoryForCurrenActiveService()
     {
         // Assemble
 
         // Act
-        await _sut.GetService(ExternalServiceType.Llm);
+        _sut.Provide(ExternalServiceType.Llm);
 
         // Assert 
         _mockRepository.Verify(repository => repository.GetByType(ExternalServiceType.Llm), Times.Once);
     }
 
     [Fact]
-    public async Task GetService_IfNoRelevantServiceFoundInDb_ShouldThrow()
+    public void GetService_IfNoRelevantServiceFoundInDb_ShouldThrow()
     {
         // Assemble
         _mockRepository.Reset();
 
         // Act
-        Func<Task> act = async () => await _sut.GetService(ExternalServiceType.Llm);
+        var act = () => _sut.Provide(ExternalServiceType.Llm);
 
         // Assert 
-        await act.Should().ThrowAsync<InvalidOperationException>();
+        act.Should().Throw<InvalidOperationException>();
     }
 
     [Fact]
-    public async Task GetService_IfNoEnabledServiceFound_ShouldThrow()
+    public void GetService_IfNoEnabledServiceFound_ShouldThrow()
     {
         // Assemble
         _mockExternalServiceList.Object.Clear();
@@ -91,9 +100,9 @@ public class TestExternalServiceProvider
         });
         
         // Act
-        Func<Task> act = async () => await _sut.GetService(ExternalServiceType.Llm);
+        var act = () => _sut.Provide(ExternalServiceType.Llm);
 
         // Assert 
-        await act.Should().ThrowAsync<InvalidOperationException>();
+        act.Should().Throw<InvalidOperationException>();
     }
 }

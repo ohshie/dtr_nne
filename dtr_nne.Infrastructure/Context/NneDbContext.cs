@@ -11,6 +11,7 @@ internal class NneDbContext(DbContextOptions<NneDbContext> options) : DbContext(
 {
     internal DbSet<NewsOutlet> NewsOutlets { get; set; }
     internal DbSet<ExternalService> ExternalServices { get; set; }
+    internal DbSet<OpenAiAssistant> OpenAiAssistants { get; set; }
     
     public async Task EnsureCreatedAsync()
     {

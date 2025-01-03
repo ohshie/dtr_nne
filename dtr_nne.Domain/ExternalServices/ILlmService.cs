@@ -5,5 +5,5 @@ namespace dtr_nne.Domain.ExternalServices;
 
 public interface ILlmService : IExternalService
 {
-    public Task<ErrorOr<Article>> RewriteAsync(Article article, LlmApi apiKey);
+    public Task<ErrorOr<Article>> ProcessArticleAsync(Article article, string apiKey = "");
 }

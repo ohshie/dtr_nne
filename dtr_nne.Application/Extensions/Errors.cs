@@ -7,13 +7,48 @@ public static class Errors
         public static Error UnitOfWorkSaveFailed => Error.Failure(
             code: "DbErrors.UnitOfWorkSaveFailed",
             description: "Saving to Db Produced Error, refer to logs to get more info");
+
+        public static Error AddingToDbFailed => Error.Failure(
+            code: "DbErrors.AddingToDbFailed",
+            description: "Something went wrong when trying to add a value to database");
+        
+        public static Error UpdatingDbFailed => Error.Failure(
+            code: "DbErrors.UpdatingDbFailed",
+            description: "Something went wrong when trying to update a value in database");
     }
 
     public static class ExternalServiceProvider
     {
-        public static Error InvalidRequestedServiceType => Error.Validation(
-            code: "ExternalServiceProvider.InvalidRequestedServiceType",
-            description: "Requested non existent service");
+        public static class Service
+        {
+            public static Error InvalidRequestedServiceType => Error.Validation(
+                code: "ExternalServiceProvider.InvalidRequestedServiceType",
+                description: "Requested non existent service type");
+            public static Error NoSavedServiceFound => Error.NotFound(
+                code: "ExternalServiceProvider.NoSavedServiceFound",
+                description: "Requested non existent service");
+            public static Error NoActiveServiceFound => Error.NotFound(
+                code: "ExternalServiceProvider.NoActiveServiceFound",
+                description:
+                "No active service found on request, please double check that " +
+                "at least one of external services of that type is set as inUse = true");
+            public static Error NoSavedApiKeyFound => Error.NotFound(
+                code: "ServiceManager.Internal.NoSavedApiKeyFound",
+                description: "There is no saved api key in db currently");
+            public static Error BadApiKey => Error.Validation(
+                code: "ServiceManager.Api.BadApiKeyProvided",
+                description: "Provided Api Key Did Not Pass a Check");
+        }
+
+        public static class Llm
+        {
+            public static Error InvalidAssistantRequested => Error.NotFound(
+                code: "ExternalServiceProvider.Llm.InvalidAssistantRequested",
+                description: "Requested llm assistant not found");
+            public static Error AssistantRunError => Error.Failure(
+                code: "ExternalServiceProvider.Llm.AssistantRunError",
+                description: "Something really wrong happened when trying to run Assistant on Thread");
+        }
     }
     
     public static class NewsOutlets
@@ -58,23 +93,6 @@ public static class Errors
             public static Error UpdatingFailed => Error.Failure(
                 code: "Translator.Api.UpdatingFailed",
                 description: "Failed to update Db with a new key");
-        }
-
-        public static class Service
-        {
-            public static Error NoSavedApiKeyFound => Error.NotFound(
-                code: "Translator.Service.NoSavedApiKeyFound",
-                description: "There is no saved api key in db currently");
-        }
-    }
-
-    public static class Llm
-    {
-        public static class Api
-        {
-            public static Error BadApiKey => Error.Validation(
-                code: "Llm.Api.BadApiKeyProvided",
-                description: "Provided Api Key Did Not Pass a Check");
         }
     }
 }

@@ -33,9 +33,7 @@ public class TestNewsOutletRepository : IClassFixture<GenericDatabaseFixture<New
     {
         // Assemble
         var newsOutletToBeAdded = newsOutlets.First();
-        _genericDatabaseFixture.Context.ChangeTracker.Clear();
-        await _genericDatabaseFixture.Context.Database.EnsureDeletedAsync();
-        await _genericDatabaseFixture.Context.Database.EnsureCreatedAsync();
+        await CleanUp();
         
         // Act
         await _genericDatabaseFixture.Repository.Add(newsOutletToBeAdded);
@@ -51,9 +49,7 @@ public class TestNewsOutletRepository : IClassFixture<GenericDatabaseFixture<New
     public async Task AddRange_WhenInvoked_AddsMultipleOutlets(List<NewsOutlet> newsOutlets)
     {
         // Assemble
-        _genericDatabaseFixture.Context.ChangeTracker.Clear();
-        await _genericDatabaseFixture.Context.Database.EnsureDeletedAsync();
-        await _genericDatabaseFixture.Context.Database.EnsureCreatedAsync();
+        await CleanUp();
         
         // Act
         await _genericDatabaseFixture.Repository.AddRange(newsOutlets);
@@ -69,9 +65,7 @@ public class TestNewsOutletRepository : IClassFixture<GenericDatabaseFixture<New
     public async Task GetAll_WhenInvoked_ReturnsExpectedListOfNewsOutlets(List<NewsOutlet> newsOutlets)
     {
         // Assemble
-        _genericDatabaseFixture.Context.ChangeTracker.Clear();
-        await _genericDatabaseFixture.Context.Database.EnsureDeletedAsync();
-        await _genericDatabaseFixture.Context.Database.EnsureCreatedAsync();
+        await CleanUp();
         
         await _genericDatabaseFixture.Repository.AddRange(newsOutlets);
         await _genericDatabaseFixture.Context.SaveChangesAsync();
@@ -89,9 +83,7 @@ public class TestNewsOutletRepository : IClassFixture<GenericDatabaseFixture<New
     public async Task AddRange_WhenInvoked_ReturnsTrue(List<NewsOutlet> newsOutlets)
     {
         // Assemble
-        _genericDatabaseFixture.Context.ChangeTracker.Clear();
-        await _genericDatabaseFixture.Context.Database.EnsureDeletedAsync();
-        await _genericDatabaseFixture.Context.Database.EnsureCreatedAsync();
+        await CleanUp();
         
         // Act
         var success = await _genericDatabaseFixture.Repository.AddRange(newsOutlets);
@@ -139,9 +131,7 @@ public class TestNewsOutletRepository : IClassFixture<GenericDatabaseFixture<New
     public async Task UpdateRange_WhenInvokedWithProperList_ReturnsTrue(List<NewsOutlet> newsOutlets)
     {
         // Assemble
-        _genericDatabaseFixture.Context.ChangeTracker.Clear();
-        await _genericDatabaseFixture.Context.Database.EnsureDeletedAsync();
-        await _genericDatabaseFixture.Context.Database.EnsureCreatedAsync();
+        await CleanUp();
         await _genericDatabaseFixture.Context.AddRangeAsync(newsOutlets);
         await _genericDatabaseFixture.Context.SaveChangesAsync();
         
@@ -165,9 +155,7 @@ public class TestNewsOutletRepository : IClassFixture<GenericDatabaseFixture<New
     public async Task DeleteRange_WhenInvokedProperly_ShouldReturnTrue(List<NewsOutlet> newsOutlets)
     {
         // Assemble
-        _genericDatabaseFixture.Context.ChangeTracker.Clear();
-        await _genericDatabaseFixture.Context.Database.EnsureDeletedAsync();
-        await _genericDatabaseFixture.Context.Database.EnsureCreatedAsync();
+        await CleanUp();
         await _genericDatabaseFixture.Context.AddRangeAsync(newsOutlets);
         await _genericDatabaseFixture.Context.SaveChangesAsync();
         
@@ -189,5 +177,12 @@ public class TestNewsOutletRepository : IClassFixture<GenericDatabaseFixture<New
         
         // Assert 
         act.Should().Throw<NullReferenceException>();
+    }
+
+    private async Task CleanUp()
+    {
+        _genericDatabaseFixture.Context.ChangeTracker.Clear();
+        await _genericDatabaseFixture.Context.Database.EnsureDeletedAsync();
+        await _genericDatabaseFixture.Context.Database.EnsureCreatedAsync();
     }
 }
