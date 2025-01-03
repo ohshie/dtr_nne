@@ -2,7 +2,6 @@ using dtr_nne.Application.Extensions;
 using dtr_nne.Domain.Extensions;
 using dtr_nne.Domain.IContext;
 using dtr_nne.Infrastructure.Extensions;
-using Microsoft.OpenApi.Models;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,42 +19,23 @@ builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
 
-builder.Services.AddSwaggerGen(s =>
-{
-    s.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Name = "Authorization",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer"
-    });
-    s.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                },
-            },
-            Array.Empty<string>()
-        }
-    });
-});
+builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapOpenApi();
+
 app.UseHttpsRedirection();
 
 app.UseSerilogRequestLogging();
 
-app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/openapi/v1.json", "v1");
+});
 
 app.MapControllers();
 

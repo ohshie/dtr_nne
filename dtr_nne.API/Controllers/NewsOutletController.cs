@@ -6,13 +6,15 @@ using Microsoft.AspNetCore.Mvc;
 namespace dtr_nne.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class NewsOutletController(IGetNewsOutletService getNewsOutletService, 
     IAddNewsOutletService addNewsOutletService, 
     IUpdateNewsOutletService updateNewsOutletService, 
     IDeleteNewsOutletService deleteNewsOutletService) : ControllerBase
 {
     [HttpGet("Get", Name = "Get")]
+    [ProducesResponseType<NewsOutletDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<Error>(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> Get()
     {
         var newsOutlets = await getNewsOutletService.GetAllNewsOutlets();
@@ -26,6 +28,8 @@ public class NewsOutletController(IGetNewsOutletService getNewsOutletService,
     }
 
     [HttpPost("Add", Name = "Add Outlet")]
+    [ProducesResponseType<NewsOutletDto>(StatusCodes.Status201Created)]
+    [ProducesResponseType<Error>(StatusCodes.Status422UnprocessableEntity)]
     public async Task<ActionResult> Add(List<NewsOutletDto> newsOutletDtos)
     {
         var addedNewsOutletDtos = await addNewsOutletService.AddNewsOutlets(newsOutletDtos);
@@ -39,6 +43,10 @@ public class NewsOutletController(IGetNewsOutletService getNewsOutletService,
     }
 
     [HttpPut("Update", Name = "Update")]
+    [ProducesResponseType<NewsOutletDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<NewsOutletDto>(StatusCodes.Status206PartialContent)]
+    [ProducesResponseType<Error>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<Error>(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> Update(List<NewsOutletDto> newsOutletDtos)
     {
         var resultOfUpdate = await updateNewsOutletService.UpdateNewsOutlets(newsOutletDtos);
@@ -61,6 +69,10 @@ public class NewsOutletController(IGetNewsOutletService getNewsOutletService,
     }
 
     [HttpDelete("Delete", Name = "Delete")]
+    [ProducesResponseType<NewsOutletDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<NewsOutletDto>(StatusCodes.Status206PartialContent)]
+    [ProducesResponseType<Error>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<Error>(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> Delete(List<BaseNewsOutletsDto> newsOutletDtos)
     {
         var resultOfDeletion = await deleteNewsOutletService.DeleteNewsOutlets(newsOutletDtos);
