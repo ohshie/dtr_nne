@@ -13,49 +13,51 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            const fs = require('fs');
             const label = context.payload.label.name.toLowerCase();
             const prefix = {
               'bug': 'BUG',
               'enhancement': 'NFC',
               'duplicate': 'EFT'
             }[label];
-            if (!prefix) {
-              return;
-            }
+            if (!prefix) return;
             
-            // Get current counter from repository secret
-            let counter;
+            let counter = {};
             try {
-              counter = JSON.parse(process.env[`ISSUE_COUNTERS`] || '{}');
-            } catch (e) {
-              counter = {};
-            }
+              if (fs.existsSync('.github/issue-counters.json')) {
+                counter = JSON.parse(fs.readFileSync('.github/issue-counters.json'));
+              }
+            } catch (e) {}
             
-            // Initialize or increment counter for this prefix
             counter[prefix] = (counter[prefix] || 0) + 1;
             const newNum = counter[prefix].toString().padStart(3, '0');
-            const newIdentifier = `${prefix}${newNum}`;
             
-            // Save updated counter
-            await github.rest.actions.createOrUpdateRepoSecret({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              secret_name: 'ISSUE_COUNTERS',
-              encrypted_value: Buffer.from(JSON.stringify(counter)).toString('base64')
-            });
-            
-            // Update issue title
-            const issue = context.payload.issue;
-            const newTitle = `${newIdentifier}: ${issue.title}`;
+            if (!fs.existsSync('.github')) {
+              fs.mkdirSync('.github');
+            }
+            fs.writeFileSync('.github/issue-counters.json', JSON.stringify(counter));
             
             await github.rest.issues.update({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: issue.number,
-              title: newTitle
+              issue_number: context.payload.issue.number,
+              title: `${prefix}${newNum}: ${context.payload.issue.title}`
+            });
+            
+            // Commit counter file
+            const { repo, owner } = context.repo;
+            await github.rest.repos.createOrUpdateFileContents({
+              owner,
+              repo,
+              path: '.github/issue-counters.json',
+              message: `Update issue counters [skip ci]`,
+              content: Buffer.from(JSON.stringify(counter)).toString('base64'),
+              committer: {
+                name: 'GitHub Action',
+                email: 'action@github.com'
+              }
             });
 
 permissions:
   issues: write
-  contents: read
-  actions: write
+  contents: write
