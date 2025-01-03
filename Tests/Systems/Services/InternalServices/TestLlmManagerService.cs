@@ -105,6 +105,9 @@ public class TestLlmManagerService
     public async Task Add_WhenValidService_ReturnsSuccess()
     {
         // Arrange
+        _mockServiceProvider
+            .Setup(x => x.Provide(ExternalServiceType.Llm, _testService.ApiKey))
+            .Returns(_mockLlmService.Object);
         
         // Act
         var result = await _sut.Add(_testServiceDto);
@@ -118,6 +121,10 @@ public class TestLlmManagerService
     public async Task Add_WhenKeyValidationFails_ReturnsError()
     {
         // Arrange
+        _mockServiceProvider
+            .Setup(x => x.Provide(ExternalServiceType.Llm, _testService.ApiKey))
+            .Returns(_mockLlmService.Object);
+        
         _mockLlmService
             .Setup(x => x.ProcessArticleAsync(It.IsAny<Article>(), It.IsAny<string>()))
             .ReturnsAsync(Errors.ExternalServiceProvider.Service.BadApiKey);
@@ -134,6 +141,10 @@ public class TestLlmManagerService
     public async Task Add_WhenRepositoryFail_ReturnsDbError()
     {
         // Assemble
+        _mockServiceProvider
+            .Setup(x => x.Provide(ExternalServiceType.Llm, _testService.ApiKey))
+            .Returns(_mockLlmService.Object);
+        
         _mockRepository
             .Setup(repository => repository.Add(_testService).Result).
             Returns(false);
@@ -150,6 +161,10 @@ public class TestLlmManagerService
     public async Task Add_WhenUowFail_ReturnsDbError()
     {
         // Assemble
+        _mockServiceProvider
+            .Setup(x => x.Provide(ExternalServiceType.Llm, _testService.ApiKey))
+            .Returns(_mockLlmService.Object);
+        
         _mockUow
             .Setup(uow => uow.Save().Result).
             Returns(false);
@@ -189,7 +204,7 @@ public class TestLlmManagerService
         result.IsError.Should().BeTrue();
         _mockServiceProvider
             .Verify(x => 
-                x.Provide(It.IsAny<ExternalServiceType>(), ""), 
+                x.Provide(ExternalServiceType.Llm, _testService.ApiKey), 
                 Times.Once);
         _mockRepository.Verify(repository => repository.Update(It.IsAny<ExternalService>()), Times.Never);
     }
@@ -229,6 +244,10 @@ public class TestLlmManagerService
     public async Task Update_WhenUowFail_ReturnsDbError()
     {
         // Assemble
+        _mockServiceProvider
+            .Setup(x => x.Provide(ExternalServiceType.Llm, _testService.ApiKey))
+            .Returns(_mockLlmService.Object);
+        
         _mockUow
             .Setup(uow => uow.Save().Result).
             Returns(false);
@@ -245,6 +264,9 @@ public class TestLlmManagerService
     public async Task CheckKeyValidity_WhenValidKey_ReturnsTrue()
     {
         // Arrange
+        _mockServiceProvider
+            .Setup(x => x.Provide(ExternalServiceType.Llm, _testService.ApiKey))
+            .Returns(_mockLlmService.Object);
 
         // Act
         var result = await _sut.CheckKeyValidity(_testService, true);
@@ -258,6 +280,10 @@ public class TestLlmManagerService
     public async Task CheckKeyValidity_WhenAssistantRunError_ReturnsSpecificError()
     {
         // Arrange
+        _mockServiceProvider
+            .Setup(x => x.Provide(ExternalServiceType.Llm, _testService.ApiKey))
+            .Returns(_mockLlmService.Object);
+        
         _mockLlmService
             .Setup(x => x.ProcessArticleAsync(It.IsAny<Article>(), It.IsAny<string>()))
             .ReturnsAsync(Errors.ExternalServiceProvider.Llm.AssistantRunError);

@@ -32,6 +32,10 @@ public class TestExternalServiceProvider
             .Setup(provider => provider.GetService(typeof(IOpenAiService)))
             .Returns(_mockOpenAiService.Object);
 
+        _mockServiceFactory
+            .Setup(factory => factory.CreateOpenAiService(It.IsAny<ExternalService>()))
+            .Returns(_mockOpenAiService.Object);
+
         _mockRepository
             .Setup(repository => repository.GetByType(ExternalServiceType.Llm))
             .Returns(_mockExternalServiceList.Object);
@@ -52,7 +56,7 @@ public class TestExternalServiceProvider
         // Assemble
         
         // Act
-        var result = _sut.Provide(ExternalServiceType.Llm);
+        var result = _sut.Provide(ExternalServiceType.Llm, "test");
 
         // Assert
         result.Should().BeAssignableTo<ILlmService>();

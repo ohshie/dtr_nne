@@ -11,12 +11,12 @@ public class BaseTestNewsController
     internal readonly NewsController Sut;
     internal readonly Mock<INewsRewriter> MockNewsRewriter;
 
-    internal readonly ArticleDto _testArticleDto = new()
+    internal readonly ArticleDto TestArticleDto = new()
     {
         Body = "test"
     };
     
-    internal readonly ArticleDto _testProcessedArticleDto = new()
+    internal readonly ArticleDto TestProcessedArticleDto = new()
     {
         Body = "rewriten test"
     };
@@ -25,6 +25,8 @@ public class BaseTestNewsController
     {
         MockNewsRewriter = new();
         
+        BaseSetup();
+        
         Sut = new NewsController(new Mock<ILogger<NewsController>>().Object,
             MockNewsRewriter.Object);
     }
@@ -32,7 +34,7 @@ public class BaseTestNewsController
     private void BaseSetup()
     {
         MockNewsRewriter
-            .Setup(rewriter => rewriter.Rewrite(_testArticleDto).Result)
-            .Returns(_testProcessedArticleDto);
+            .Setup(rewriter => rewriter.Rewrite(TestArticleDto).Result)
+            .Returns(TestProcessedArticleDto);
     }
 }

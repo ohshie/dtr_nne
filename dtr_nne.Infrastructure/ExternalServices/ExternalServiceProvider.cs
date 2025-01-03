@@ -24,19 +24,11 @@ public class ExternalServiceProvider(ILogger<ExternalServiceProvider> logger,
         switch (type)
         {
             case ExternalServiceType.Llm:
-                if (service.ServiceName == Enum.GetName(typeof(LlmServiceType), type))
-                {
                     logger.LogDebug("Creating OpenAI service");
                     return serviceFactory.CreateOpenAiService(service);
-                }
-                break;
             case ExternalServiceType.Translator:
-                if (service.ServiceName == Enum.GetName(typeof(TranslatorType), type))
-                {
                     logger.LogDebug("Creating translator service");
                     return serviceProvider.GetRequiredService<ITranslatorService>();
-                }
-                break;
             case ExternalServiceType.Scraper:
                 logger.LogWarning("Scraper service requested but not implemented");
                 throw new NotImplementedException("Scraper service is not yet implemented");

@@ -1,3 +1,4 @@
+using dtr_nne.Application.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Tests.Systems.Controllers.TestNewsController;
@@ -10,11 +11,28 @@ public class TestRewriteNewsController : BaseTestNewsController
         // Arrange
 
         // Act
-        var result = await Sut.RewriteNews(_testArticleDto);
+        var result = await Sut.RewriteNews(TestArticleDto);
 
         // Assert
         result.Should().BeOfType<OkObjectResult>();
         var objectResult = (OkObjectResult)result;
         objectResult.StatusCode.Should().Be(200);
+    }
+
+    [Fact]
+    public async Task RewriteNews_OnError_Returns400()
+    {
+        // Assemble
+        MockNewsRewriter
+            .Setup(rewriter => rewriter.Rewrite(TestArticleDto).Result)
+            .Returns(Errors.ExternalServiceProvider.Service.NoActiveServiceFound);
+
+        // Act
+        var result = await Sut.RewriteNews(TestArticleDto);
+
+        // Assert
+        result.Should().BeOfType<BadRequestObjectResult>();
+        var objectResult = (BadRequestObjectResult)result;
+        objectResult.StatusCode.Should().Be(400);
     }
 }
