@@ -1,15 +1,14 @@
 name: Auto Issue Identifier
-
 on:
   issues:
     types: [labeled]
-
 jobs:
   add-identifier:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Get next identifier
+      
+      - name: Get and update identifier
         id: get-id
         uses: actions/github-script@v7
         with:
@@ -24,27 +23,26 @@ jobs:
               return;
             }
             
-            // Get all issues with this label
-            const issues = await github.rest.issues.listForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              labels: [label],
-              state: 'all',
-              per_page: 100
-            });
-            
-            // Find highest existing number
-            let maxNum = 0;
-            for (const issue of issues.data) {
-              const title = issue.title;
-              const match = title.match(new RegExp(`^${prefix}(\\d+):`));
-              if (match) {
-                maxNum = Math.max(maxNum, parseInt(match[1]));
-              }
+            // Get current counter from repository secret
+            let counter;
+            try {
+              counter = JSON.parse(process.env[`ISSUE_COUNTERS`] || '{}');
+            } catch (e) {
+              counter = {};
             }
             
-            const newNum = (maxNum + 1).toString().padStart(3, '0');
+            // Initialize or increment counter for this prefix
+            counter[prefix] = (counter[prefix] || 0) + 1;
+            const newNum = counter[prefix].toString().padStart(3, '0');
             const newIdentifier = `${prefix}${newNum}`;
+            
+            // Save updated counter
+            await github.rest.actions.createOrUpdateRepoSecret({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              secret_name: 'ISSUE_COUNTERS',
+              encrypted_value: Buffer.from(JSON.stringify(counter)).toString('base64')
+            });
             
             // Update issue title
             const issue = context.payload.issue;
@@ -60,3 +58,4 @@ jobs:
 permissions:
   issues: write
   contents: read
+  actions: write
