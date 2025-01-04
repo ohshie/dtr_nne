@@ -51,6 +51,20 @@ jobs:
               issue_number: context.payload.issue.number,
               title: `${identifier}: ${context.payload.issue.title}`
             });
+
+            // Commit counter file
+            const { repo, owner } = context.repo;
+            const contentParams = {
+              owner,
+              repo,
+              path: '.github/issue-counters.json',
+              message: `Update issue counters [skip ci]`,
+              content: Buffer.from(JSON.stringify(counter)).toString('base64'),
+              committer: {
+                name: 'GitHub Action',
+                email: 'action@github.com'
+              }
+            };
             
             // Create branch
             const defaultBranch = await github.rest.repos.get({
@@ -78,20 +92,6 @@ jobs:
               issue_number: context.payload.issue.number,
               body: `Branch \`${branchName}\` has been created for this issue.`
             });
-            
-            // Commit counter file
-            const { repo, owner } = context.repo;
-            const contentParams = {
-              owner,
-              repo,
-              path: '.github/issue-counters.json',
-              message: `Update issue counters [skip ci]`,
-              content: Buffer.from(JSON.stringify(counter)).toString('base64'),
-              committer: {
-                name: 'GitHub Action',
-                email: 'action@github.com'
-              }
-            };
             
             // Add SHA if file exists
             if (fileSha) {
