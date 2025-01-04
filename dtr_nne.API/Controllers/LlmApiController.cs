@@ -1,5 +1,5 @@
 using dtr_nne.Application.DTO.ExternalService;
-using dtr_nne.Application.ExternalServices.LlmServices;
+using dtr_nne.Application.ExternalServices;
 using ErrorOr;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,14 +7,14 @@ namespace dtr_nne.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class LlmApiController(ILlmManagerService managerService) : ControllerBase
+public class LlmApiController(IExternalServiceManager serviceManager) : ControllerBase
 {
     [HttpPost("Add", Name = "Add LlmApiKey")]
     [ProducesResponseType<ExternalServiceDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<Error>(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> Add(ExternalServiceDto service)
     {
-        var success = await managerService.Add(service);
+        var success = await serviceManager.Add(service);
 
         if (success.IsError)
         {
@@ -29,7 +29,7 @@ public class LlmApiController(ILlmManagerService managerService) : ControllerBas
     [ProducesResponseType<Error>(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> UpdateKey(ExternalServiceDto service)
     {
-        var success = await managerService.UpdateKey(service);
+        var success = await serviceManager.Update(service);
         
         if (success.IsError)
         {

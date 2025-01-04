@@ -1,5 +1,5 @@
 using dtr_nne.Application.DTO.ExternalService;
-using dtr_nne.Application.ExternalServices.TranslatorServices;
+using dtr_nne.Application.ExternalServices;
 using dtr_nne.Domain.Entities;
 using ErrorOr;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +8,7 @@ namespace dtr_nne.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class TranslatorApiController(ITranslatorApiKeyService translatorApiKeyService) : ControllerBase
+public class TranslatorApiController(IExternalServiceManager serviceManager) : ControllerBase
 {
     [HttpPost("Add", Name = "Add TranslatorApiKey")]
     [ProducesResponseType<ExternalService>(StatusCodes.Status200OK)]
@@ -16,7 +16,7 @@ public class TranslatorApiController(ITranslatorApiKeyService translatorApiKeySe
     [ProducesResponseType<Error>(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> Add(ExternalServiceDto apiKey)
     {
-        var success = await translatorApiKeyService.Add(apiKey);
+        var success = await serviceManager.Add(apiKey);
 
         if (success.IsError)
         {
@@ -32,7 +32,7 @@ public class TranslatorApiController(ITranslatorApiKeyService translatorApiKeySe
     [ProducesResponseType<Error>(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> UpdateKey(ExternalServiceDto translatorApiDto)
     {
-        var success = await translatorApiKeyService.UpdateKey(translatorApiDto);
+        var success = await serviceManager.Update(translatorApiDto);
         
         if (success.IsError)
         {
