@@ -1,22 +1,20 @@
-using System.Runtime.CompilerServices;
 using dtr_nne.Application.DTO.ExternalService;
 using dtr_nne.Application.Extensions;
 using dtr_nne.Application.Mapper;
 using dtr_nne.Domain.Entities;
+using dtr_nne.Domain.Enums;
 using dtr_nne.Domain.ExternalServices;
 using dtr_nne.Domain.IContext;
 using dtr_nne.Domain.Repositories;
 using dtr_nne.Domain.UnitOfWork;
 
-[assembly: InternalsVisibleTo("Tests")]
-namespace dtr_nne.Application.ExternalServices.LlmServices;
+namespace dtr_nne.Application.ExternalServices;
 
-public class LlmManagerService(
-    ILogger<LlmManagerService> logger,
+public class ExternalServiceManager(ILogger<ExternalServiceManager> logger,
     IExternalServiceProviderRepository repository,
     IUnitOfWork<INneDbContext> unitOfWork,
     IExternalServiceMapper mapper,
-    IExternalServiceProvider serviceProvider) : ILlmManagerService
+    IExternalServiceProvider serviceProvider) : IExternalServiceManager
 {
     public async Task<ErrorOr<ExternalServiceDto>> Add(ExternalServiceDto serviceDto)
     {
@@ -24,7 +22,7 @@ public class LlmManagerService(
 
         var mappedIncomingService = mapper.DtoToService(serviceDto);
         
-        var validService = await CheckKeyValidity(mappedIncomingService, newService: true);
+        var validService = await CheckKeyValidity(mappedIncomingService);
         if (validService.IsError)
         {
             return validService.FirstError;
@@ -47,7 +45,7 @@ public class LlmManagerService(
         return serviceDto;
     }
 
-    public async Task<ErrorOr<ExternalServiceDto>> UpdateKey(ExternalServiceDto serviceDto)
+    public async Task<ErrorOr<ExternalServiceDto>> Update(ExternalServiceDto serviceDto)
     {
         logger.LogInformation("Starting Update method for service {Service}", serviceDto.ServiceName);
         var requiredServiceExist = FindRequiredExistingService(serviceDto);
@@ -55,11 +53,11 @@ public class LlmManagerService(
         {
             return requiredServiceExist.FirstError;
         }
-
+        
         var serviceToUpdate = requiredServiceExist.Value;
-
+        
         var mappedIncomingService = mapper.DtoToService(serviceDto);
-
+        
         if (mappedIncomingService.ApiKey == serviceToUpdate.ApiKey)
         {
             var validKey = await CheckKeyValidity(mappedIncomingService);
@@ -88,7 +86,7 @@ public class LlmManagerService(
 
         return serviceDto;
     }
-
+    
     internal ErrorOr<ExternalService> FindRequiredExistingService(ExternalServiceDto serviceDto)
     {
         if (repository.GetByType(serviceDto.Type) is not { } currentServices)
@@ -104,24 +102,38 @@ public class LlmManagerService(
         return serviceToUpdate;
     }
     
-    internal async Task<ErrorOr<bool>> CheckKeyValidity(ExternalService incomingService, bool newService = false)
+    internal async Task<ErrorOr<bool>> CheckKeyValidity(ExternalService incomingService)
     {
-        var llmService = serviceProvider.Provide(incomingService.Type, incomingService.ApiKey) as ILlmService;
-        if (llmService is null)
+        if (serviceProvider.Provide(incomingService.Type, incomingService.ApiKey) is not { } externalService)
         {
             return Errors.ExternalServiceProvider.Service.NoSavedServiceFound;
         }
 
-        var success = await CheckApiKey(llmService, incomingService.ApiKey);
-        if (success.IsError)
+        ErrorOr<bool> success;
+        switch (incomingService.Type)
         {
-            return success.FirstError;
+            case ExternalServiceType.Llm:
+                success = await CheckLlmApiKey((externalService as ILlmService)!, incomingService.ApiKey);
+                if (success.IsError)
+                {
+                    return success.FirstError;
+                }
+                break;
+            case ExternalServiceType.Translator:
+                success = await CheckTranslatorKey((externalService as ITranslatorService)!, incomingService.ApiKey);
+                if (success.IsError)
+                {
+                    return success.FirstError;
+                }
+                break;
+            default:
+                return Errors.ExternalServiceProvider.Service.NoSavedServiceFound;
         }
-
+        
         return success.Value;
     }
     
-    internal async Task<ErrorOr<bool>> CheckApiKey(ILlmService llmService, string incomingApiKey)
+    internal async Task<ErrorOr<bool>> CheckLlmApiKey(ILlmService llmService, string incomingApiKey)
     {
         var testArticle = new Article { OriginalBody = "test" };
         var validKey = await llmService.ProcessArticleAsync(testArticle, incomingApiKey);
@@ -132,6 +144,20 @@ public class LlmManagerService(
                 : Errors.ExternalServiceProvider.Service.BadApiKey;
         }
         
+        return true;
+    }
+    
+    internal async Task<ErrorOr<bool>> CheckTranslatorKey(ITranslatorService service, string incomingApiKey)
+    {
+        List<Headline> testHeadlines = [new Headline{OriginalHeadline = "api test"}];
+        var validKey = await service.Translate(testHeadlines);
+        if (validKey.IsError)
+        {
+            logger.LogWarning("Failed to validate API key. Error: {Error}", validKey.FirstError);
+            return validKey.FirstError;
+        }
+        
+        logger.LogDebug("API key validated successfully");
         return true;
     }
 }

@@ -1,6 +1,6 @@
 using dtr_nne.Application.DTO.ExternalService;
 using dtr_nne.Application.Extensions;
-using dtr_nne.Application.ExternalServices.LlmServices;
+using dtr_nne.Application.ExternalServices;
 using dtr_nne.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -15,7 +15,7 @@ public class TestLlmApiController
         _sut = new(_mockLlmApiKeyService.Object);
     }
 
-    private readonly Mock<ILlmManagerService> _mockLlmApiKeyService;
+    private readonly Mock<IExternalServiceManager> _mockLlmApiKeyService;
     private readonly LlmApiController _sut;
     private readonly Mock<ExternalServiceDto> _mockExternalServiceDto = new();
 
@@ -82,13 +82,13 @@ public class TestLlmApiController
     {
         // Assemble
         _mockLlmApiKeyService.Setup(
-            service => service.UpdateKey(_mockExternalServiceDto.Object).Result).Returns(_mockExternalServiceDto.Object);
+            service => service.Update(_mockExternalServiceDto.Object).Result).Returns(_mockExternalServiceDto.Object);
 
         // Act
         await _sut.UpdateKey(_mockExternalServiceDto.Object);
 
         // Assert 
-        _mockLlmApiKeyService.Verify(service => service.UpdateKey(_mockExternalServiceDto.Object), Times.AtLeastOnce);
+        _mockLlmApiKeyService.Verify(service => service.Update(_mockExternalServiceDto.Object), Times.AtLeastOnce);
     }
 
     [Fact]
@@ -96,7 +96,7 @@ public class TestLlmApiController
     {
         // Assemble
         _mockLlmApiKeyService.Setup(
-            service => service.UpdateKey(_mockExternalServiceDto.Object).Result).Returns(Errors.Translator.Api.BadApiKey);
+            service => service.Update(_mockExternalServiceDto.Object).Result).Returns(Errors.Translator.Api.BadApiKey);
 
         // Act
         var result = await _sut.UpdateKey(_mockExternalServiceDto.Object);

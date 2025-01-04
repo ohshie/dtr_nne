@@ -1,9 +1,7 @@
 using dtr_nne.Application.DTO.ExternalService;
-using dtr_nne.Application.DTO.Translator;
 using dtr_nne.Application.Extensions;
-using dtr_nne.Application.ExternalServices.TranslatorServices;
+using dtr_nne.Application.ExternalServices;
 using dtr_nne.Controllers;
-using dtr_nne.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 
@@ -11,7 +9,7 @@ namespace Tests.Systems.Controllers;
 
 public class TestTranslatorApiController
 {
-    private readonly Mock<ITranslatorApiKeyService> _mockTranslatorApiService;
+    private readonly Mock<IExternalServiceManager> _mockTranslatorApiService;
     private readonly TranslatorApiController _sut;
     private readonly Mock<ExternalServiceDto> _mockService = new();
 
@@ -85,13 +83,13 @@ public class TestTranslatorApiController
     {
         // Assemble
         _mockTranslatorApiService.Setup(
-            service => service.UpdateKey(_mockService.Object).Result).Returns(_mockService.Object);
+            service => service.Update(_mockService.Object).Result).Returns(_mockService.Object);
 
         // Act
         await _sut.UpdateKey(_mockService.Object);
 
         // Assert 
-        _mockTranslatorApiService.Verify(service => service.UpdateKey(_mockService.Object), Times.AtLeastOnce);
+        _mockTranslatorApiService.Verify(service => service.Update(_mockService.Object), Times.AtLeastOnce);
     }
 
     [Fact]
@@ -99,7 +97,7 @@ public class TestTranslatorApiController
     {
         // Assemble
         _mockTranslatorApiService.Setup(
-            service => service.UpdateKey(_mockService.Object).Result).Returns(Errors.Translator.Api.BadApiKey);
+            service => service.Update(_mockService.Object).Result).Returns(Errors.Translator.Api.BadApiKey);
 
         // Act
         var result = await _sut.UpdateKey(_mockService.Object);
