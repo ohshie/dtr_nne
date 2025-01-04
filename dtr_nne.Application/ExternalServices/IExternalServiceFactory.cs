@@ -6,5 +6,5 @@ namespace dtr_nne.Application.ExternalServices;
 public interface IExternalServiceFactory
 {
     ILlmService CreateOpenAiService(ExternalService? service);
-    ITranslatorService CreateTranslatorService(ExternalService service);
+    ITranslatorService CreateDeeplService(ExternalService service);
 }

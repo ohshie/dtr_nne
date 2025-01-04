@@ -9,26 +9,28 @@ using dtr_nne.Domain.UnitOfWork;
 
 namespace dtr_nne.Application.ExternalServices.TranslatorServices;
 
-public class TranslatorApiKeyService(ITranslatorService translatorService, 
+public class TranslatorApiKeyService( 
     IExternalServiceMapper mapper,
+    IExternalServiceProvider provider,
     IExternalServiceProviderRepository repository,
     IUnitOfWork<INneDbContext> unitOfWork, 
     ILogger<TranslatorApiKeyService> logger) : ITranslatorApiKeyService
 {
     private readonly List<Headline> _testHeadlines = [new Headline{OriginalHeadline = "api test"}];
     
-    public async Task<ErrorOr<ExternalServiceDto>> Add(ExternalServiceDto service)
+    public async Task<ErrorOr<ExternalServiceDto>> Add(ExternalServiceDto serviceDto)
     {
-        logger.LogInformation("Starting Add method for service: {Service}", service.ApiKey);
+        logger.LogInformation("Starting Add method for service: {Service}", serviceDto.ApiKey);
         
-        var mappedApiKey = MapApiKeys(service);
-        var verifiedKey = await CheckApiKey(mappedApiKey);
-        if (verifiedKey.IsError)
-        { 
-            return verifiedKey.FirstError;
+        var mappedApiKey = MapApiKeys(serviceDto);
+        
+        var validKey = await CheckKeyValidity(mappedApiKey);
+        if (validKey.IsError)
+        {
+            return validKey.FirstError;
         }
         
-        var success = await repository.Add(verifiedKey.Value);
+        var success = await repository.Add(mappedApiKey);
         if (!success)
         {
             logger.LogError("Failed to add API key to repository");
@@ -46,47 +48,60 @@ public class TranslatorApiKeyService(ITranslatorService translatorService,
         
         logger.LogInformation("API key added and saved successfully");
         
-        return service;
+        return serviceDto;
     }
 
-    public async Task<ErrorOr<ExternalServiceDto>> UpdateKey(ExternalServiceDto apiKey)
+    public async Task<ErrorOr<ExternalServiceDto>> UpdateKey(ExternalServiceDto serviceDto)
     {
-        var currentKey = await repository.Get(1);
-        if (currentKey is null)
+        logger.LogInformation("Starting Update method for service {Service}", serviceDto.ServiceName);
+        var requiredServiceExist = FindRequiredExistingService(serviceDto);
+        if (requiredServiceExist.IsError)
         {
-            logger.LogError("No current key found in Db, cannot update key");
-            return Errors.ExternalServiceProvider.Service.NoSavedApiKeyFound;
+            return requiredServiceExist.FirstError;
         }
         
-        var mappedApiKey = MapApiKeys(apiKey);
-        var verifiedKey = await CheckApiKey(mappedApiKey);
-        if (verifiedKey.IsError)
-        { 
-            return verifiedKey.FirstError;
-        }
-
-        currentKey.ApiKey = verifiedKey.Value.ApiKey;
+        var serviceToUpdate = requiredServiceExist.Value;
         
-        var success = repository.Update(currentKey);
+        var mappedIncomingService = mapper.DtoToService(serviceDto);
+        
+        if (mappedIncomingService.ApiKey == serviceToUpdate.ApiKey)
+        {
+            var validKey = await CheckKeyValidity(mappedIncomingService);
+            if (validKey.IsError)
+            {
+                return validKey.FirstError;
+            }
+        }
+        
+        mappedIncomingService.Id = serviceToUpdate.Id;
+        serviceToUpdate = mappedIncomingService;
+        
+        var success = repository.Update(serviceToUpdate);
         if (!success)
         {
-            logger.LogError("Failed to update API key");
-            return Errors.Translator.Api.UpdatingFailed;
+            logger.LogError("Failed to update External service in repository");
+            return Errors.DbErrors.AddingToDbFailed;
         }
         
-        var keySaved = await unitOfWork.Save();
-        if (!keySaved)
+        success = await unitOfWork.Save();
+        if (!success)
         {
-            logger.LogError("Failed to save changes to Db");
+            logger.LogError("Failed to save API key in unit of work");
             return Errors.DbErrors.UnitOfWorkSaveFailed;
         }
-        
-        return apiKey;
+
+        return serviceDto;
     }
-    
-    private async Task<ErrorOr<ExternalService>> CheckApiKey(ExternalService service)
+
+    internal async Task<ErrorOr<bool>> CheckKeyValidity(ExternalService incomingService)
     {
-        var validKey = await translatorService.Translate(_testHeadlines, service);
+        var translatorService = provider.Provide(incomingService.Type, incomingService.ApiKey) as ITranslatorService;
+        if (translatorService is null)
+        {
+            return Errors.ExternalServiceProvider.Service.NoSavedServiceFound;
+        }
+        
+        var validKey = await translatorService.Translate(_testHeadlines);
         if (validKey.IsError)
         {
             logger.LogWarning("Failed to validate API key. Error: {Error}", validKey.FirstError);
@@ -94,10 +109,25 @@ public class TranslatorApiKeyService(ITranslatorService translatorService,
         }
         
         logger.LogDebug("API key validated successfully");
-        return service;
+        return true;
     }
+    
+    internal ErrorOr<ExternalService> FindRequiredExistingService(ExternalServiceDto serviceDto)
+    {
+        if (repository.GetByType(serviceDto.Type) is not { } currentServices)
+        {
+            return Errors.ExternalServiceProvider.Service.NoSavedServiceFound;
+        }
 
-    private ExternalService MapApiKeys(ExternalServiceDto service)
+        if (currentServices.Find(s => s.ServiceName == serviceDto.ServiceName) is not { } serviceToUpdate)
+        {
+            return Errors.ExternalServiceProvider.Service.NoSavedServiceFound;
+        }
+
+        return serviceToUpdate;
+    }
+        
+    internal ExternalService MapApiKeys(ExternalServiceDto service)
     {
         var mappedApiKey = mapper.DtoToService(service);
         logger.LogDebug("Mapped TranslatorApiDto to TranslatorApi entity");

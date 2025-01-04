@@ -76,6 +76,12 @@ public static class Errors
 
     public static class Translator
     {
+        public static class Service
+        {
+            public static Error NoHeadlineProvided => Error.NotFound(
+                code: "Translator.Service.NoHeadlineProvided",
+                description: "No headlines were provided for translation");
+        }
         public static class Api
         {
             public static Error BadApiKey => Error.Validation(

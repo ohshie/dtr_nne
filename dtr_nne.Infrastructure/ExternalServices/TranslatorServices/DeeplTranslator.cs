@@ -3,7 +3,6 @@ using DeepL;
 using dtr_nne.Application.Extensions;
 using dtr_nne.Domain.Entities;
 using dtr_nne.Domain.ExternalServices;
-using dtr_nne.Domain.Repositories;
 using ErrorOr;
 using Microsoft.Extensions.Logging;
 
@@ -11,28 +10,21 @@ using Microsoft.Extensions.Logging;
 
 namespace dtr_nne.Infrastructure.ExternalServices.TranslatorServices;
 
-public class DeeplTranslator(IExternalServiceProviderRepository repository, ILogger<DeeplTranslator> logger) : ITranslatorService
+public class DeeplTranslator(ILogger<DeeplTranslator> logger, ExternalService service) : IDeeplService
 {
-    public async Task<ErrorOr<List<Headline>>> Translate(List<Headline> headlines, ExternalService? translator = null)
+    public async Task<ErrorOr<List<Headline>>> Translate(List<Headline> headlines)
     {
         logger.LogInformation("Starting translation process for {HeadlineCount} headlines", headlines.Count);
         
         if (headlines.Count < 1)
         {
             logger.LogWarning("No headlines provided for translation");
-            return new List<Headline>();
-        }
-
-        translator ??= await repository.Get(1);
-        if (translator is null || string.IsNullOrEmpty(translator.ApiKey))
-        {
-            logger.LogError("No valid API key found");
-            return Errors.ExternalServiceProvider.Service.NoSavedApiKeyFound;
+            return Errors.Translator.Service.NoHeadlineProvided;
         }
         
-        logger.LogDebug("Using API key from service: {ExternalServiceName}", translator.ServiceName);
+        logger.LogDebug("Using API key from service: {ExternalServiceName}", service.ServiceName);
         
-        var translatedHeadlines = await TranslateHeadlines(headlines, translator.ApiKey);
+        var translatedHeadlines = await TranslateHeadlines(headlines, service.ApiKey);
         if (translatedHeadlines.IsError)
         {
             logger.LogError("Failed to process Headlines. {Error}", translatedHeadlines.FirstError.Description);
@@ -74,21 +66,20 @@ public class DeeplTranslator(IExternalServiceProviderRepository repository, ILog
                 }
                 catch(Exception exception)
                 {
-                    if (exception is AuthorizationException)
+                    switch (exception)
                     {
-                        logger.LogError("Invalid API key provided for translation");
-                        headline.TranslatedHeadline = $"Provided ApiKey is not Valid!";
-                        return Errors.Translator.Api.BadApiKey;
+                        case AuthorizationException:
+                            logger.LogError("Invalid API key provided for translation");
+                            headline.TranslatedHeadline = $"Provided ApiKey is not Valid!";
+                            return Errors.Translator.Api.BadApiKey;
+                        case QuotaExceededException:
+                            logger.LogError("API quota exceeded during translation");
+                            headline.TranslatedHeadline = $"Api Quota Exceeded!";
+                            return Errors.Translator.Api.QuotaExceeded;
+                        default:
+                            logger.LogError(exception, "An unexpected error occurred during translation");
+                            throw;
                     }
-                    if (exception is QuotaExceededException)
-                    {
-                        logger.LogError("API quota exceeded during translation");
-                        headline.TranslatedHeadline = $"Api Quota Exceeded!";
-                        return Errors.Translator.Api.QuotaExceeded;
-                    }
-                    
-                    logger.LogError(exception, "An unexpected error occurred during translation");
-                    throw;
                 }
                 finally
                 {

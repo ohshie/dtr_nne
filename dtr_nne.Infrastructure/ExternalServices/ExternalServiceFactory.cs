@@ -4,6 +4,7 @@ using dtr_nne.Domain.Entities;
 using dtr_nne.Domain.ExternalServices;
 using dtr_nne.Domain.Repositories;
 using dtr_nne.Infrastructure.ExternalServices.LlmServices;
+using dtr_nne.Infrastructure.ExternalServices.TranslatorServices;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -22,8 +23,10 @@ public class ExternalServiceFactory(IServiceProvider provider) : IExternalServic
             service: service);
     }
 
-    public ITranslatorService CreateTranslatorService(ExternalService service)
+    public ITranslatorService CreateDeeplService(ExternalService service)
     {
-        throw new NotImplementedException();
+        var logger = provider.GetRequiredService<ILogger<DeeplTranslator>>();
+
+        return new DeeplTranslator(logger: logger, service: service);
     }
 }
