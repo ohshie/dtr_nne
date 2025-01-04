@@ -15,43 +15,56 @@ public class TestExternalServiceProvider
 {
     public TestExternalServiceProvider()
     {
-        _mockServiceProvider = new();
         _mockOpenAiService = new();
+        _mockDeeplService = new();
         _mockRepository = new();
-        _mockExternalServiceList = new();
+        _mockExternalServiceLlmList = new();
         _mockServiceFactory = new();
+        _mockExternalServiceTranslatorList = new();
         
-        _mockExternalServiceList.Object.Add(new ExternalService
+        _mockExternalServiceLlmList.Object.Add(new ExternalService
         {
             InUse = true,
             ServiceName = Enum.GetName(typeof(LlmServiceType), LlmServiceType.OpenAi)!,
             Type = ExternalServiceType.Llm,
         });
-
-        _mockServiceProvider
-            .Setup(provider => provider.GetService(typeof(IOpenAiService)))
-            .Returns(_mockOpenAiService.Object);
-
+        
+        _mockExternalServiceTranslatorList.Object.Add(new ExternalService
+        {
+            InUse = true,
+            ServiceName = Enum.GetName(typeof(TranslatorServiceType), TranslatorServiceType.Deepl)!,
+            Type = ExternalServiceType.Translator
+        });
+        
         _mockServiceFactory
             .Setup(factory => factory.CreateOpenAiService(It.IsAny<ExternalService>()))
             .Returns(_mockOpenAiService.Object);
+        
+        _mockServiceFactory
+            .Setup(factory => factory.CreateDeeplService(It.IsAny<ExternalService>()))
+            .Returns(_mockDeeplService.Object);
 
         _mockRepository
             .Setup(repository => repository.GetByType(ExternalServiceType.Llm))
-            .Returns(_mockExternalServiceList.Object);
+            .Returns(_mockExternalServiceLlmList.Object);
         
-        _sut = new(new Mock<ILogger<ExternalServiceProvider>>().Object, _mockServiceProvider.Object, _mockRepository.Object, _mockServiceFactory.Object);
+        _mockRepository
+            .Setup(repository => repository.GetByType(ExternalServiceType.Translator))
+            .Returns(_mockExternalServiceTranslatorList.Object);
+        
+        _sut = new(new Mock<ILogger<ExternalServiceProvider>>().Object, _mockRepository.Object, _mockServiceFactory.Object);
     }
 
     private readonly ExternalServiceProvider _sut;
     private readonly Mock<IOpenAiService> _mockOpenAiService;
-    private readonly Mock<IServiceProvider> _mockServiceProvider;
+    private readonly Mock<IDeeplService> _mockDeeplService;
     private readonly Mock<IExternalServiceProviderRepository> _mockRepository;
     private readonly Mock<IExternalServiceFactory> _mockServiceFactory;
-    private readonly Mock<List<ExternalService>> _mockExternalServiceList;
+    private readonly Mock<List<ExternalService>> _mockExternalServiceLlmList;
+    private readonly Mock<List<ExternalService>> _mockExternalServiceTranslatorList;
 
     [Fact]
-    public void GetService_WhenSuccessfull_ShouldReturnRequestedService()
+    public void GetService_Llm_WhenSuccess_ShouldReturnRequestedService()
     {
         // Assemble
         
@@ -60,6 +73,18 @@ public class TestExternalServiceProvider
 
         // Assert
         result.Should().BeAssignableTo<ILlmService>();
+    }
+    
+    [Fact]
+    public void GetService_Translator_WhenSuccess_ShouldReturnRequestedService()
+    {
+        // Assemble
+        
+        // Act
+        var result = _sut.Provide(ExternalServiceType.Translator, "test");
+
+        // Assert
+        result.Should().BeAssignableTo<ITranslatorService>();
     }
 
     [Fact]
@@ -91,8 +116,8 @@ public class TestExternalServiceProvider
     public void GetService_IfNoEnabledServiceFound_ShouldThrow()
     {
         // Assemble
-        _mockExternalServiceList.Object.Clear();
-        _mockExternalServiceList.Object.Add(new ExternalService
+        _mockExternalServiceLlmList.Object.Clear();
+        _mockExternalServiceLlmList.Object.Add(new ExternalService
         {
             InUse = false,
             ServiceName = Enum.GetName(typeof(LlmServiceType), LlmServiceType.OpenAi)!,

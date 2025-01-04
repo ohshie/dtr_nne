@@ -4,13 +4,11 @@ using dtr_nne.Domain.Entities;
 using dtr_nne.Domain.Enums;
 using dtr_nne.Domain.ExternalServices;
 using dtr_nne.Domain.Repositories;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace dtr_nne.Infrastructure.ExternalServices;
 
 public class ExternalServiceProvider(ILogger<ExternalServiceProvider> logger, 
-    IServiceProvider serviceProvider, 
     IExternalServiceProviderRepository repository, 
     IExternalServiceFactory serviceFactory) : IExternalServiceProvider
 {
@@ -28,7 +26,7 @@ public class ExternalServiceProvider(ILogger<ExternalServiceProvider> logger,
                     return serviceFactory.CreateOpenAiService(service);
             case ExternalServiceType.Translator:
                     logger.LogDebug("Creating translator service");
-                    return serviceProvider.GetRequiredService<ITranslatorService>();
+                    return serviceFactory.CreateDeeplService(service);
             case ExternalServiceType.Scraper:
                 logger.LogWarning("Scraper service requested but not implemented");
                 throw new NotImplementedException("Scraper service is not yet implemented");

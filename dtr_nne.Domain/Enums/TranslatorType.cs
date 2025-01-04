@@ -1,6 +1,6 @@
 namespace dtr_nne.Domain.Enums;
 
-public enum TranslatorType
+public enum TranslatorServiceType
 {
     Deepl
 }

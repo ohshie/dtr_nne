@@ -1,10 +1,8 @@
 using DeepL;
 using dtr_nne.Application.Extensions;
 using dtr_nne.Domain.Entities;
-using dtr_nne.Domain.Repositories;
-using dtr_nne.Infrastructure.ExternalServices;
+using dtr_nne.Domain.Enums;
 using dtr_nne.Infrastructure.ExternalServices.TranslatorServices;
-using ErrorOr;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -14,167 +12,155 @@ public class TestDeeplTranslator
 {
     public TestDeeplTranslator()
     {
-        _mockHeadlines = new();
-        _mockTranslatorApi = new();
-        _mockRepository = new();
+        var faker = new Bogus.Faker();
         
-        _mockHeadlines.Object.Add(new Headline{OriginalHeadline = Faker.Lorem.GetFirstWord(), TranslatedHeadline = Faker.Name.First()});
-        _mockTranslatorApi.Object.ApiKey = Faker.Lorem.GetFirstWord();
+        _testExternalService = new ExternalService
+        {
+            ServiceName = Enum.GetName(typeof(TranslatorServiceType), TranslatorServiceType.Deepl)!,
+            InUse = true,
+            ApiKey = faker.Lorem.Slug(3),
+            Type = ExternalServiceType.Translator
+        };
         
-        _mockRepository.Setup(repository => repository.Get(1).Result).Returns(_mockTranslatorApi.Object);
+        _testHeadlines = new List<Headline>(
+            [
+                new Headline
+                {
+                    OriginalHeadline = faker.Lorem.Slug(1)
+                }
+            ]);
         
-        _sut = new(_mockRepository.Object, new Mock<ILogger<DeeplTranslator>>().Object){CallBase = true};
-        
-        _sut.Setup(sut => sut.TranslateHeadlines(_mockHeadlines.Object, _mockTranslatorApi.Object.ApiKey).Result)
-            .Returns(It.IsAny<ErrorOr<List<Headline>>>());
-        
-        _sut.Setup(sut => sut.PerformRequest(It.IsAny<string>(), It.IsAny<string>()).Result)
-            .Returns(_mockHeadlines.Object.First().TranslatedHeadline);
+        _sut = new Mock<DeeplTranslator>(new Mock<ILogger<DeeplTranslator>>().Object, _testExternalService) {CallBase = true};
+
+        _sut
+            .Setup(translator => 
+                translator.PerformRequest(It.IsAny<string>(), It.IsAny<string>()).Result)
+            .Returns("Translated");
     }
-    private readonly Mock<List<Headline>> _mockHeadlines;
-    private readonly Mock<ExternalService> _mockTranslatorApi;
-    private readonly Mock<IExternalServiceProviderRepository> _mockRepository;
+
     private readonly Mock<DeeplTranslator> _sut;
-     
-    [Fact]
-    public async Task Translate_WhenInvoked_ShouldreturnErrorOrListHeadline()
-    {
-        // Assemble
-        
-        // Act
-        var result = await _sut.Object.Translate(_mockHeadlines.Object, _mockTranslatorApi.Object);
-
-        // Assert 
-        result.Should().BeOfType<ErrorOr<List<Headline>>>();
-    }
+    private readonly List<Headline> _testHeadlines;
+    private readonly ExternalService _testExternalService;
 
     [Fact]
-    public async Task Translate_WhenInvoked_WithEmptyHeadlines_ShouldReturnEmptyHeadlineList()
+    public async Task Translate_WhenNoHeadlines_ShouldReturnError()
     {
         // Assemble
-        _mockHeadlines.Object.Clear();
-        
-        // Act
-        var result = await _sut.Object.Translate([]);
-
-        // Assert 
-        result.IsError.Should().BeFalse();
-        result.Value.Should().BeOfType<List<Headline>>();
-        result.Value.Should().BeEmpty();
-    }
-
-    [Fact]
-    public async Task Translate_WhenInvokedWith_ShouldSkipRepositoryCallAndGoToTransleHeadlinesMethod()
-    {
-        // Assemble
-        
-        // Act
-        await _sut.Object.Translate(_mockHeadlines.Object, _mockTranslatorApi.Object);
-
-        // Assert 
-        _mockRepository.Verify(repository => repository.Get(1), Times.Never);
-        _sut.Verify(sut => sut.TranslateHeadlines(_mockHeadlines.Object, _mockTranslatorApi.Object.ApiKey), Times.AtLeastOnce);
-    }
-
-    [Fact]
-    public async Task Translate_WhenInvokedWithoutProvidingKey_ShouldCallingRepository()
-    {
-        // Assemble
-        
-        // Act
-        await _sut.Object.Translate(_mockHeadlines.Object);
-
-        // Assert 
-        _mockRepository.Verify(repository => repository.Get(1), Times.AtLeastOnce);
-    }
-
-    [Fact]
-    public async Task Translate_WhenInvokedWithoutProvidingKeyAndNoSavedKeyInDb_ShouldReturnError()
-    {
-        // Assemble
-        _mockRepository.Reset();
+        _testHeadlines.Clear();
 
         // Act
-        var result = await _sut.Object.Translate(_mockHeadlines.Object);
-        
-        // Assert 
-        result.IsError.Should().BeTrue();
-        result.FirstError.Should().BeEquivalentTo(Errors.ExternalServiceProvider.Service.NoSavedApiKeyFound);
-    }
-
-    [Fact]
-    public async Task TranslateHeadlines_WhenInvoked_ShouldReturnErrorOrListHeadline()
-    {
-        // Assemble
-        
-        // Act
-        var result = await _sut.Object.TranslateHeadlines(_mockHeadlines.Object, _mockTranslatorApi.Object.ApiKey);
-        
-        // Assert 
-        result.Should().BeOfType<ErrorOr<List<Headline>>>();
-    }
-
-    [Fact]
-    public async Task TranslateHeadlines_WhenInvokedWithHeadlineThatIsEmpty_ShouldReturnEmptyTranslatedHeadline()
-    {
-        // Assemble
-        _sut.Reset();
-        _sut.Setup(sut => sut.PerformRequest(It.IsAny<string>(), It.IsAny<string>()).Result)
-            .Returns(_mockHeadlines.Object.First().TranslatedHeadline);
-        _mockHeadlines.Object.First().OriginalHeadline = string.Empty;
-        
-        // Act  
-        var result = await _sut.Object.TranslateHeadlines(_mockHeadlines.Object, _mockTranslatorApi.Object.ApiKey);
-
-        // Assert 
-        result.IsError.Should().BeFalse();
-        result.Value.First().TranslatedHeadline.Should().BeEquivalentTo(string.Empty);
-    }
-
-    [Fact]
-    public async Task TranslateHeadlines_WhenInvokedProperly_ShouldCallPerformRequest()
-    {
-        // Assemble
-        _sut.Reset();
-        _sut.Setup(sut => sut.PerformRequest(It.IsAny<string>(), It.IsAny<string>()).Result)
-            .Returns(_mockHeadlines.Object.First().TranslatedHeadline);
-
-        // Act
-        await _sut.Object.TranslateHeadlines(_mockHeadlines.Object, _mockTranslatorApi.Object.ApiKey);
-
-        // Assert 
-        _sut.Verify(sut => sut.PerformRequest(It.IsAny<string>(),It.IsAny<string>()), Times.AtLeastOnce);
-    }
-
-    [Fact]
-    public async Task TranslateHeadlines_WhenDeeplProducesAuthException_ShouldWriteExceptionInTranslatedHeadline()
-    {
-        // Assemble
-        _sut.Reset();
-        _sut.Setup(sut => sut.PerformRequest(It.IsAny<string>(), It.IsAny<string>()).Result)
-            .Throws(new AuthorizationException("Authorization failure, check AuthKey"));
-
-        // Act
-        var result = await _sut.Object.TranslateHeadlines(_mockHeadlines.Object, _mockTranslatorApi.Object.ApiKey);
+        var result = await _sut.Object.Translate(_testHeadlines);
 
         // Assert 
         result.IsError.Should().BeTrue();
-        result.FirstError.Should().BeEquivalentTo(Errors.Translator.Api.BadApiKey);
+        result.FirstError.Should().Be(Errors.Translator.Service.NoHeadlineProvided);
+    }
+
+    [Fact]
+    public async Task Translate_WhenHeadlinesProvided_ShouldCallTranslateHeadlines()
+    {
+        // Assemble
+
+        // Act
+        await _sut.Object.Translate(_testHeadlines);
+
+        // Assert 
+        _sut.Verify(x => x.TranslateHeadlines(
+                _testHeadlines, 
+                _testExternalService.ApiKey), 
+            Times.Once);
     }
     
     [Fact]
-    public async Task TranslateHeadlines_WhenDeeplProducesQuotaException_ShouldWriteExceptionInTranslatedHeadline()
+    public async Task TranslateHeadlines_WhenEmptyOriginalHeadline_ShouldReturnEmptyTranslation()
+    {
+        // Assemble
+        _testHeadlines[0].OriginalHeadline = "";
+
+        // Act
+        var result = await _sut.Object.TranslateHeadlines(_testHeadlines, _testExternalService.ApiKey);
+
+        // Assert
+        result.IsError.Should().BeFalse();
+        result.Value.First().TranslatedHeadline.Should().BeEmpty();
+    }
+    
+    [Fact]
+    public async Task TranslateHeadlines_WhenBadApiKey_ShouldReturnError()
     {
         // Assemble
         _sut.Reset();
-        _sut.Setup(sut => sut.PerformRequest(It.IsAny<string>(), It.IsAny<string>()).Result)
-            .Throws(new QuotaExceededException("Quota for this billing period has been exceeded"));
+        
+        // Act
+        var result = await _sut.Object.TranslateHeadlines(_testHeadlines, _testExternalService.ApiKey);
+
+        // Assert
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(Errors.Translator.Api.BadApiKey);
+    }
+    
+    [Fact]
+    public async Task TranslateHeadlines_WhenQuotaExceeded_ShouldReturnError()
+    {
+        // Assemble
+        _sut.Setup(x => x.PerformRequest(It.IsAny<string>(), It.IsAny<string>()))
+            .ThrowsAsync(new QuotaExceededException("Quota exceeded"));
 
         // Act
-        var result = await _sut.Object.TranslateHeadlines(_mockHeadlines.Object, _mockTranslatorApi.Object.ApiKey);
+        var result = await _sut.Object.TranslateHeadlines(_testHeadlines, _testExternalService.ApiKey);
 
-        // Assert 
+        // Assert
         result.IsError.Should().BeTrue();
-        result.FirstError.Should().BeEquivalentTo(Errors.Translator.Api.QuotaExceeded);
+        result.FirstError.Should().Be(Errors.Translator.Api.QuotaExceeded);
+    }
+    
+    [Fact]
+    public async Task TranslateHeadlines_WhenSuccess_ShouldReturnTranslatedHeadlines()
+    {
+        // Assemble
+        
+        // Act
+        var result = await _sut.Object.TranslateHeadlines(_testHeadlines, _testExternalService.ApiKey);
+
+        // Assert
+        result.IsError.Should().BeFalse();
+        result.Value.Should().HaveCount(1);
+        result.Value.All(h => h.TranslatedHeadline == "Translated").Should().BeTrue();
+    }
+    
+    [Fact]
+    public async Task TranslateHeadlines_WhenMultipleHeadlines_ShouldUseSemaphore()
+    {
+        // Assemble
+        var headlines = Enumerable.Range(0, 10)
+            .Select(i => new Headline { OriginalHeadline = $"Test{i}" })
+            .ToList();
+
+        var processingCount = 0;
+        var maxConcurrent = 0;
+        var lockObj = new object();
+
+        _sut.Setup(x => x.PerformRequest(It.IsAny<string>(), _testExternalService.ApiKey).Result)
+            .Returns((string headline, string key) =>
+            {
+                lock (lockObj)
+                {
+                    processingCount++;
+                    maxConcurrent = Math.Max(maxConcurrent, processingCount);
+                }
+                Thread.Sleep(100);
+                lock (lockObj)
+                {
+                    processingCount--;
+                }
+                return "Translated";
+            });
+
+        // Act
+        var result = await _sut.Object.TranslateHeadlines(headlines, _testExternalService.ApiKey);
+
+        // Assert
+        result.IsError.Should().BeFalse();
+        maxConcurrent.Should().BeLessOrEqualTo(5);
     }
 }
