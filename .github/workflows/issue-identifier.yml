@@ -23,29 +23,35 @@ jobs:
             if (!prefix) return;
             
             let counter = {};
+            let fileSha = '';
+            
+            // Try to get existing file and its SHA
             try {
-              if (fs.existsSync('.github/issue-counters.json')) {
-                counter = JSON.parse(fs.readFileSync('.github/issue-counters.json'));
-              }
-            } catch (e) {}
+              const { data: fileData } = await github.rest.repos.getContent({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                path: '.github/issue-counters.json'
+              });
+              
+              counter = JSON.parse(Buffer.from(fileData.content, 'base64').toString());
+              fileSha = fileData.sha;
+            } catch (e) {
+              // File doesn't exist yet, that's okay
+            }
             
             counter[prefix] = (counter[prefix] || 0) + 1;
             const newNum = counter[prefix].toString().padStart(3, '0');
             const identifier = `${prefix}${newNum}`;
             const branchName = identifier.toLowerCase();
             
-            if (!fs.existsSync('.github')) {
-              fs.mkdirSync('.github');
-            }
-            fs.writeFileSync('.github/issue-counters.json', JSON.stringify(counter));
-            
+            // Update issue title
             await github.rest.issues.update({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.payload.issue.number,
-              title: `${prefix}${newNum}: ${context.payload.issue.title}`
+              title: `${identifier}: ${context.payload.issue.title}`
             });
-
+            
             // Create branch
             const defaultBranch = await github.rest.repos.get({
               owner: context.repo.owner,
@@ -75,7 +81,7 @@ jobs:
             
             // Commit counter file
             const { repo, owner } = context.repo;
-            await github.rest.repos.createOrUpdateFileContents({
+            const contentParams = {
               owner,
               repo,
               path: '.github/issue-counters.json',
@@ -85,8 +91,14 @@ jobs:
                 name: 'GitHub Action',
                 email: 'action@github.com'
               }
-            });
-
+            };
+            
+            // Add SHA if file exists
+            if (fileSha) {
+              contentParams.sha = fileSha;
+            }
+            
+            await github.rest.repos.createOrUpdateFileContents(contentParams);
 permissions:
   issues: write
   contents: write
