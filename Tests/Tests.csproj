@@ -35,5 +35,4 @@
     <ItemGroup>
       <ProjectReference Include="..\dtr_nne.API\dtr_nne.API.csproj" />
     </ItemGroup>
-
 </Project>

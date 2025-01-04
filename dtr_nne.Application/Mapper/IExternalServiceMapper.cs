@@ -7,6 +7,4 @@ public interface IExternalServiceMapper
 {
     public ExternalService DtoToService(ExternalServiceDto externalServiceDto);
     public ExternalServiceDto ServiceToDto(ExternalService service);
-    public ExternalService BaseDtoToService(BaseExternalServiceDto externalServiceDto);
-    public ExternalServiceDto ServiceToBaseDto(ExternalService service);
 }

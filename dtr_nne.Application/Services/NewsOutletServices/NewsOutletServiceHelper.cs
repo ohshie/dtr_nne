@@ -35,8 +35,6 @@ internal class NewsOutletServiceHelper(ILogger<NewsOutletServiceHelper> logger, 
         
         return (matchedNewsOutlets, notMatchedNewsOutlets);
     }
-    
-    
 }
 
 public interface INewsOutletServiceHelper
