@@ -1,73 +1,91 @@
-const fs = require('fs');
-const label = context.payload.label.name.toLowerCase();
-const prefix = {
-  'bug': 'BUG',
-  'enhancement': 'NFC',
-  'duplicate': 'EFT'
-}[label];
-if (!prefix) return;
-
-let counter = {};
-try {
-  if (fs.existsSync('.github/issue-counters.json')) {
-    counter = JSON.parse(fs.readFileSync('.github/issue-counters.json'));
-  }
-} catch (e) {}
-
-counter[prefix] = (counter[prefix] || 0) + 1;
-const newNum = counter[prefix].toString().padStart(3, '0');
-const identifier = `${prefix}${newNum}`;
-const branchName = identifier.toLowerCase();
-
-if (!fs.existsSync('.github')) {
-  fs.mkdirSync('.github');
-}
-fs.writeFileSync('.github/issue-counters.json', JSON.stringify(counter));
-
-await github.rest.issues.update({
-  owner: context.repo.owner,
-  repo: context.repo.repo,
-  issue_number: context.payload.issue.number,
-  title: `${identifier}: ${context.payload.issue.title}`
-});
-
-// Create branch
-const defaultBranch = await github.rest.repos.get({
-  owner: context.repo.owner,
-  repo: context.repo.repo
-}).then(res => res.data.default_branch);
-
-const sha = await github.rest.git.getRef({
-  owner: context.repo.owner,
-  repo: context.repo.repo,
-  ref: `heads/${defaultBranch}`
-}).then(res => res.data.object.sha);
-
-await github.rest.git.createRef({
-  owner: context.repo.owner,
-  repo: context.repo.repo,
-  ref: `refs/heads/${branchName}`,
-  sha: sha
-});
-
-// Add branch reference to issue
-await github.rest.issues.createComment({
-  owner: context.repo.owner,
-  repo: context.repo.repo,
-  issue_number: context.payload.issue.number,
-  body: `Branch \`${branchName}\` has been created for this issue.`
-});
-
-// Commit counter file
-const { repo, owner } = context.repo;
-await github.rest.repos.createOrUpdateFileContents({
-  owner,
-  repo,
-  path: '.github/issue-counters.json',
-  message: `Update issue counters [skip ci]`,
-  content: Buffer.from(JSON.stringify(counter)).toString('base64'),
-  committer: {
-    name: 'GitHub Action',
-    email: 'action@github.com'
-  }
-});
+name: Auto Issue Identifier
+on:
+  issues:
+    types: [labeled]
+jobs:
+  add-identifier:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Get and update identifier
+        id: get-id
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const label = context.payload.label.name.toLowerCase();
+            const prefix = {
+              'bug': 'BUG',
+              'enhancement': 'NFC',
+              'duplicate': 'EFT'
+            }[label];
+            if (!prefix) return;
+            
+            let counter = {};
+            try {
+              if (fs.existsSync('.github/issue-counters.json')) {
+                counter = JSON.parse(fs.readFileSync('.github/issue-counters.json'));
+              }
+            } catch (e) {}
+            
+            counter[prefix] = (counter[prefix] || 0) + 1;
+            const newNum = counter[prefix].toString().padStart(3, '0');
+            const identifier = `${prefix}${newNum}`;
+            const branchName = identifier.toLowerCase();
+            
+            if (!fs.existsSync('.github')) {
+              fs.mkdirSync('.github');
+            }
+            fs.writeFileSync('.github/issue-counters.json', JSON.stringify(counter));
+            
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.issue.number,
+              title: `${identifier}: ${context.payload.issue.title}`
+            });
+            
+            // Create branch
+            const defaultBranch = await github.rest.repos.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            }).then(res => res.data.default_branch);
+            
+            const sha = await github.rest.git.getRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `heads/${defaultBranch}`
+            }).then(res => res.data.object.sha);
+            
+            await github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `refs/heads/${branchName}`,
+              sha: sha
+            });
+            
+            // Add branch reference to issue
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.issue.number,
+              body: `Branch \`${branchName}\` has been created for this issue.`
+            });
+            
+            // Commit counter file
+            const { repo, owner } = context.repo;
+            await github.rest.repos.createOrUpdateFileContents({
+              owner,
+              repo,
+              path: '.github/issue-counters.json',
+              message: `Update issue counters [skip ci]`,
+              content: Buffer.from(JSON.stringify(counter)).toString('base64'),
+              committer: {
+                name: 'GitHub Action',
+                email: 'action@github.com'
+              }
+            });
+permissions:
+  issues: write
+  contents: write
