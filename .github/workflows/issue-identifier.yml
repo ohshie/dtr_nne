@@ -43,6 +43,33 @@ jobs:
               issue_number: context.payload.issue.number,
               title: `${prefix}${newNum}: ${context.payload.issue.title}`
             });
+
+            // Create branch
+            const defaultBranch = await github.rest.repos.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            }).then(res => res.data.default_branch);
+            
+            const sha = await github.rest.git.getRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `heads/${defaultBranch}`
+            }).then(res => res.data.object.sha);
+            
+            await github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `refs/heads/${branchName}`,
+              sha: sha
+            });
+            
+            // Add branch reference to issue
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.issue.number,
+              body: `Branch \`${branchName}\` has been created for this issue.`
+            });
             
             // Commit counter file
             const { repo, owner } = context.repo;
