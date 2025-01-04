@@ -16,7 +16,6 @@ internal class GenericRepository<TEntity, TContext>(
     where TContext : DbContext
 {
     private readonly DbSet<TEntity> _dbSet = unitOfWork.Context.Set<TEntity>();
-    private readonly ILogger<GenericRepository<TEntity, TContext>> Logger = logger;
     
     public Task<TEntity?> Get(int id)
     {
@@ -53,7 +52,7 @@ internal class GenericRepository<TEntity, TContext>(
         }
         catch (Exception e)
         {
-            Logger.LogError("Something went really wrong when trying to AddRange to Db {Exception}, \n {ExceptionTrace} \n {ExceptionInnerException}", 
+            logger.LogError("Something went really wrong when trying to AddRange to Db {Exception}, \n {ExceptionTrace} \n {ExceptionInnerException}", 
                 e.Message, 
                 e.StackTrace, 
                 e.InnerException?.Message ?? "No Inner Exception");
@@ -70,7 +69,7 @@ internal class GenericRepository<TEntity, TContext>(
         }
         catch (Exception e)
         {
-            Logger.LogError("Something went really wrong when trying to Perform Update in Db {Exception}, \n {ExceptionTrace} \n {ExceptionInnerException}", 
+            logger.LogError("Something went really wrong when trying to Perform Update in Db {Exception}, \n {ExceptionTrace} \n {ExceptionInnerException}", 
                 e.Message, 
                 e.StackTrace, 
                 e.InnerException?.Message ?? "No Inner Exception");

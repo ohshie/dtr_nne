@@ -8,7 +8,7 @@ namespace dtr_nne.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class NewsController(ILogger<NewsController> logger, INewsRewriter rewriter) : ControllerBase
+public class NewsController(INewsRewriter rewriter) : ControllerBase
 {
     [HttpPost("RewriteNews", Name = "RewriteNews")]
     [ProducesResponseType<ArticleDto>(StatusCodes.Status200OK)]

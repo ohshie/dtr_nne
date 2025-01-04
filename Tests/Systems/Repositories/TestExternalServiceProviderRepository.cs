@@ -14,7 +14,6 @@ public class TestExternalServiceProviderRepository : IClassFixture<GenericDataba
     public TestExternalServiceProviderRepository(GenericDatabaseFixture<ExternalService> genericDatabaseFixture)
     {
         _genericDatabaseFixture = genericDatabaseFixture;
-        _mockExternalServiceCollection = new();
         _mockExternalService = new();
         
         var logger = new Mock<ILogger<ExternalServiceProviderRepository>>();
@@ -29,7 +28,6 @@ public class TestExternalServiceProviderRepository : IClassFixture<GenericDataba
 
     private readonly ExternalServiceProviderRepository _sut;
     private readonly GenericDatabaseFixture<ExternalService> _genericDatabaseFixture;
-    private readonly Mock<IEnumerable<ExternalService>> _mockExternalServiceCollection;
     private readonly Mock<ExternalService> _mockExternalService;
 
     [Fact]

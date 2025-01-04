@@ -36,6 +36,21 @@ public class TestExternalServiceProvider
             Type = ExternalServiceType.Translator
         });
         
+        BasicSetup();
+        
+        _sut = new(new Mock<ILogger<ExternalServiceProvider>>().Object, _mockRepository.Object, _mockServiceFactory.Object);
+    }
+
+    private readonly ExternalServiceProvider _sut;
+    private readonly Mock<IOpenAiService> _mockOpenAiService;
+    private readonly Mock<IDeeplService> _mockDeeplService;
+    private readonly Mock<IExternalServiceProviderRepository> _mockRepository;
+    private readonly Mock<IExternalServiceFactory> _mockServiceFactory;
+    private readonly Mock<List<ExternalService>> _mockExternalServiceLlmList;
+    private readonly Mock<List<ExternalService>> _mockExternalServiceTranslatorList;
+
+    private void BasicSetup()
+    {
         _mockServiceFactory
             .Setup(factory => factory.CreateOpenAiService(It.IsAny<ExternalService>()))
             .Returns(_mockOpenAiService.Object);
@@ -51,18 +66,8 @@ public class TestExternalServiceProvider
         _mockRepository
             .Setup(repository => repository.GetByType(ExternalServiceType.Translator))
             .Returns(_mockExternalServiceTranslatorList.Object);
-        
-        _sut = new(new Mock<ILogger<ExternalServiceProvider>>().Object, _mockRepository.Object, _mockServiceFactory.Object);
     }
-
-    private readonly ExternalServiceProvider _sut;
-    private readonly Mock<IOpenAiService> _mockOpenAiService;
-    private readonly Mock<IDeeplService> _mockDeeplService;
-    private readonly Mock<IExternalServiceProviderRepository> _mockRepository;
-    private readonly Mock<IExternalServiceFactory> _mockServiceFactory;
-    private readonly Mock<List<ExternalService>> _mockExternalServiceLlmList;
-    private readonly Mock<List<ExternalService>> _mockExternalServiceTranslatorList;
-
+    
     [Fact]
     public void GetService_Llm_WhenSuccess_ShouldReturnRequestedService()
     {

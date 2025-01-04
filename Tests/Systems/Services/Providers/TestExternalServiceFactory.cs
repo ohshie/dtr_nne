@@ -23,7 +23,21 @@ public class TestExternalServiceFactory
         {
             InUse = true
         };
+
+        BasicSetup();
         
+        _sut = new(_mockServiceProvider.Object);
+    }
+    
+    private readonly ExternalServiceFactory _sut;
+    private readonly Mock<IServiceProvider> _mockServiceProvider;
+    private readonly Mock<ILogger<OpenAiService>> _mockLogger;
+    private readonly Mock<IOpenAiAssistantRepository> _mockOpenAiRepository;
+    private readonly Mock<ILogger<DeeplTranslator>> _mockTranslatorLogger;
+    private readonly ExternalService _mockExternalService;
+
+    private void BasicSetup()
+    {
         _mockServiceProvider
             .Setup(provider => provider.GetService(typeof(ILogger<OpenAiService>)))
             .Returns(_mockLogger.Object);
@@ -35,16 +49,7 @@ public class TestExternalServiceFactory
         _mockServiceProvider
             .Setup(provider => provider.GetService(typeof(ILogger<DeeplTranslator>)))
             .Returns(_mockTranslatorLogger.Object);
-        
-        _sut = new(_mockServiceProvider.Object);
     }
-    
-    private readonly ExternalServiceFactory _sut;
-    private readonly Mock<IServiceProvider> _mockServiceProvider;
-    private readonly Mock<ILogger<OpenAiService>> _mockLogger;
-    private readonly Mock<IOpenAiAssistantRepository> _mockOpenAiRepository;
-    private readonly Mock<ILogger<DeeplTranslator>> _mockTranslatorLogger;
-    private readonly ExternalService _mockExternalService;
     
     [Fact]
     public void CreateOpenAiService_WhenCalled_ShouldReturnOpenAiService()

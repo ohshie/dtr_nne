@@ -48,6 +48,11 @@ internal class OpenAiService : IOpenAiService
         
         var client = new OpenAIClient(apiKey);
         var assistantCollection = await _repository.GetAll() as List<OpenAiAssistant>;
+        if (assistantCollection is null)
+        {
+            return Errors.ExternalServiceProvider.Llm.InvalidAssistantRequested;
+        }
+        
         var assistantClient = client.GetAssistantClient();
         
         _logger.LogDebug("Creating thread for article with body length: {BodyLength}", article.Body.Length);

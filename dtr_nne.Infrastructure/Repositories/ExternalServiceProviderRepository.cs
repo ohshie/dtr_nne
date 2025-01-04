@@ -13,11 +13,13 @@ internal class ExternalServiceProviderRepository(ILogger<ExternalServiceProvider
     GenericRepository<ExternalService, NneDbContext>(logger, unitOfWork), 
     IExternalServiceProviderRepository
 {
+    private readonly IUnitOfWork<NneDbContext> _unitOfWork = unitOfWork;
+
     public List<ExternalService>? GetByType(ExternalServiceType type)
     {
         try
         {
-            var service = unitOfWork.Context.ExternalServices
+            var service = _unitOfWork.Context.ExternalServices
                 .Where(s => s.Type == type)
                 .AsNoTracking()
                 .ToList();
