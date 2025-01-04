@@ -9,18 +9,17 @@ public class TestExternalServiceManagerTranslator : TestExternalServiceManagerBa
 {
     public TestExternalServiceManagerTranslator()
     {
-        var faker = new Bogus.Faker();
         _testTranslatorService = new()
         {
             ServiceName = Enum.GetName(typeof(TranslatorServiceType), TranslatorServiceType.Deepl)!,
             Type = ExternalServiceType.Translator,
-            ApiKey = _testServiceDto.ApiKey,
+            ApiKey = TestServiceDto.ApiKey,
             InUse = true
         };
         
-        _mockServiceProvider
+        MockServiceProvider
             .Setup(x => x.Provide(ExternalServiceType.Translator, _testTranslatorService.ApiKey))
-            .Returns(_mockTranslatorService.Object);
+            .Returns(MockTranslatorService.Object);
     }
     
     private readonly ExternalService _testTranslatorService;
@@ -31,7 +30,7 @@ public class TestExternalServiceManagerTranslator : TestExternalServiceManagerBa
         // Arrange
 
         // Act
-        var result = await _sut.CheckKeyValidity(_testTranslatorService);
+        var result = await Sut.CheckKeyValidity(_testTranslatorService);
 
         // Assert
         result.IsError.Should().BeFalse();
@@ -42,12 +41,12 @@ public class TestExternalServiceManagerTranslator : TestExternalServiceManagerBa
     public async Task CheckKeyValidity_WhenAssistantRunError_ReturnsSpecificError()
     {
         // Arrange
-        _mockTranslatorService
+        MockTranslatorService
             .Setup(x => x.Translate(It.IsAny<List<Headline>>()))
             .ReturnsAsync(Errors.Translator.Service.NoHeadlineProvided);
         
         // Act
-        var result = await _sut.CheckKeyValidity(_testTranslatorService);
+        var result = await Sut.CheckKeyValidity(_testTranslatorService);
 
         // Assert
         result.IsError.Should().BeTrue();

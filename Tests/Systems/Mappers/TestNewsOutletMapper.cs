@@ -8,9 +8,7 @@ using NewsOutletDtoFixture = Tests.Fixtures.NewsOutletDtoFixture;
 
 namespace Tests.Systems.Mappers;
 
-public class TestNewsOutletMapper(
-    NewsOutletFixture newsOutletFixture,
-    NewsOutletDtoFixture newsOutletDtoFixture)
+public class TestNewsOutletMapper
     : IClassFixture<NewsOutletFixture>, IClassFixture<NewsOutletDtoFixture>
 {
     private readonly NewsOutletMapper _sut = new();
@@ -19,11 +17,10 @@ public class TestNewsOutletMapper(
     public void Map_NewsOutletToNewsOutletDto_EnsuresSameIdAndName()
     {
         // assemble
-        var test = newsOutletFixture;
         var newsOutlet = NewsOutletFixtureBase.Outlets[0];
 
         // act
-        var newsOutletDto = _sut.EntityToDto(newsOutlet![0]);
+        var newsOutletDto = _sut.EntityToDto(newsOutlet[0]);
         
         // assert
         newsOutletDto.Should().BeOfType<NewsOutletDto>();

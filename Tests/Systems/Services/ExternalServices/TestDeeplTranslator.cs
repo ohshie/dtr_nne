@@ -18,7 +18,7 @@ public class TestDeeplTranslator
         {
             ServiceName = Enum.GetName(typeof(TranslatorServiceType), TranslatorServiceType.Deepl)!,
             InUse = true,
-            ApiKey = faker.Lorem.Slug(3),
+            ApiKey = faker.Lorem.Slug(),
             Type = ExternalServiceType.Translator
         };
         
@@ -141,7 +141,7 @@ public class TestDeeplTranslator
         var lockObj = new object();
 
         _sut.Setup(x => x.PerformRequest(It.IsAny<string>(), _testExternalService.ApiKey).Result)
-            .Returns((string headline, string key) =>
+            .Returns((string _, string _) =>
             {
                 lock (lockObj)
                 {

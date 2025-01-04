@@ -11,12 +11,12 @@ public class TestExternalServiceManagerLlm : TestExternalServiceManagerBase
     public async Task CheckKeyValidity_WhenValidLlmKey_ReturnsTrue()
     {
         // Arrange
-        _mockServiceProvider
-            .Setup(x => x.Provide(ExternalServiceType.Llm, _testService.ApiKey))
-            .Returns(_mockLlmService.Object);
+        MockServiceProvider
+            .Setup(x => x.Provide(ExternalServiceType.Llm, TestService.ApiKey))
+            .Returns(MockLlmService.Object);
 
         // Act
-        var result = await _sut.CheckKeyValidity(_testService);
+        var result = await Sut.CheckKeyValidity(TestService);
 
         // Assert
         result.IsError.Should().BeFalse();
@@ -27,16 +27,16 @@ public class TestExternalServiceManagerLlm : TestExternalServiceManagerBase
     public async Task CheckKeyValidity_WhenAssistantRunError_ReturnsSpecificError()
     {
         // Arrange
-        _mockServiceProvider
-            .Setup(x => x.Provide(ExternalServiceType.Llm, _testService.ApiKey))
-            .Returns(_mockLlmService.Object);
+        MockServiceProvider
+            .Setup(x => x.Provide(ExternalServiceType.Llm, TestService.ApiKey))
+            .Returns(MockLlmService.Object);
         
-        _mockLlmService
+        MockLlmService
             .Setup(x => x.ProcessArticleAsync(It.IsAny<Article>(), It.IsAny<string>()))
             .ReturnsAsync(Errors.ExternalServiceProvider.Llm.AssistantRunError);
         
         // Act
-        var result = await _sut.CheckKeyValidity(_testService);
+        var result = await Sut.CheckKeyValidity(TestService);
 
         // Assert
         result.IsError.Should().BeTrue();

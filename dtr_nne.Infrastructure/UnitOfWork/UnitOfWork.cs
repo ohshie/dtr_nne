@@ -1,6 +1,5 @@
 using dtr_nne.Domain.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 
 namespace dtr_nne.Infrastructure.UnitOfWork;
@@ -10,7 +9,6 @@ internal class UnitOfWork<TContext>(TContext passedContext, ILogger<UnitOfWork<T
 {
     public TContext Context { get; } = passedContext;
     private bool _disposed;
-    private IDbContextTransaction _objTran;
     
     public async Task<bool> Save()
     {

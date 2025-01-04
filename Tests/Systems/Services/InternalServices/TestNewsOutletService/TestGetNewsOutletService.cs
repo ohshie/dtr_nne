@@ -3,10 +3,8 @@ using dtr_nne.Application.Services.NewsOutletServices;
 using dtr_nne.Domain.Entities;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Tests.Fixtures;
 using Tests.Fixtures.NewsOutletDtoFixtures;
 using Tests.Fixtures.NewsOutletFixtures;
-using NewsOutletDtoFixture = Tests.Fixtures.NewsOutletDtoFixture;
 
 namespace Tests.Systems.Services.InternalServices.TestNewsOutletService;
 

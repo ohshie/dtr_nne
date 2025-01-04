@@ -6,7 +6,6 @@ using dtr_nne.Application.NewsEditor;
 using dtr_nne.Domain.Entities;
 using dtr_nne.Domain.Enums;
 using dtr_nne.Domain.ExternalServices;
-using ErrorOr;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -22,14 +21,14 @@ public class TestNewsRewriter
 
         var faker = new Bogus.Faker();
 
-        _MockArticleDto = new ArticleDto
+        _mockArticleDto = new ArticleDto
         {
             Body = faker.Lorem.Paragraph(),
         };
 
         _mockArticle = new Article
         {
-            Body = _MockArticleDto.Body
+            Body = _mockArticleDto.Body
         };
         
         BasicSetup();
@@ -37,23 +36,23 @@ public class TestNewsRewriter
         _sut = new NewsRewriter(new Mock<ILogger<NewsRewriter>>().Object, _mockArticleMapper.Object, _mockServiceProvider.Object);
     }
 
-    private NewsRewriter _sut { get; set; }
-    private Mock<IArticleMapper> _mockArticleMapper { get; set; }
-    private Mock<IExternalServiceProvider> _mockServiceProvider { get; set; }
-    private ArticleDto _MockArticleDto { get; set; }
-    private Article _mockArticle { get; set; }
-    private Mock<ILlmService> _mockLlmService { get; set; }
+    private readonly NewsRewriter _sut;
+    private readonly Mock<IArticleMapper> _mockArticleMapper;
+    private readonly Mock<IExternalServiceProvider> _mockServiceProvider;
+    private readonly ArticleDto _mockArticleDto;
+    private readonly Article _mockArticle;
+    private readonly Mock<ILlmService> _mockLlmService;
 
     private void BasicSetup()
     {
         _mockServiceProvider.Setup(provider => provider.Provide(ExternalServiceType.Llm, ""))
             .Returns(_mockLlmService.Object);
         
-        _mockArticleMapper.Setup(mapper => mapper.DtoToArticle(_MockArticleDto))
+        _mockArticleMapper.Setup(mapper => mapper.DtoToArticle(_mockArticleDto))
             .Returns(_mockArticle);
             
         _mockArticleMapper.Setup(mapper => mapper.ArticleToDto(_mockArticle))
-            .Returns(_MockArticleDto);
+            .Returns(_mockArticleDto);
         
         _mockLlmService.Setup(service => service.ProcessArticleAsync(_mockArticle, ""))
             .ReturnsAsync(_mockArticle);
@@ -65,10 +64,10 @@ public class TestNewsRewriter
         // Arrange
         _mockServiceProvider
             .Setup(provider => provider.Provide(ExternalServiceType.Llm, ""))
-            .Returns((ILlmService)null);
+            .Returns((ILlmService)null!);
 
         // Act
-        var result = await _sut.Rewrite(_MockArticleDto);
+        var result = await _sut.Rewrite(_mockArticleDto);
 
         // Assert
         result.IsError.Should().BeTrue();
@@ -84,7 +83,7 @@ public class TestNewsRewriter
             .ReturnsAsync(Errors.ExternalServiceProvider.Llm.AssistantRunError);
 
         // Act
-        var result = await _sut.Rewrite(_MockArticleDto);
+        var result = await _sut.Rewrite(_mockArticleDto);
 
         // Assert
         result.IsError.Should().BeTrue();
@@ -97,13 +96,13 @@ public class TestNewsRewriter
         // Arrange
 
         // Act
-        var result = await _sut.Rewrite(_MockArticleDto);
+        var result = await _sut.Rewrite(_mockArticleDto);
 
         // Assert
         result.IsError.Should().BeFalse();
-        result.Value.Should().BeEquivalentTo(_MockArticleDto);
+        result.Value.Should().BeEquivalentTo(_mockArticleDto);
         _mockServiceProvider.Verify(provider => provider.Provide(ExternalServiceType.Llm, ""), Times.Once);
-        _mockArticleMapper.Verify(mapper => mapper.DtoToArticle(_MockArticleDto), Times.Once);
+        _mockArticleMapper.Verify(mapper => mapper.DtoToArticle(_mockArticleDto), Times.Once);
         _mockLlmService.Verify(service => service.ProcessArticleAsync(_mockArticle,""), Times.Once);
         _mockArticleMapper.Verify(mapper => mapper.ArticleToDto(_mockArticle), Times.Once);
     }
