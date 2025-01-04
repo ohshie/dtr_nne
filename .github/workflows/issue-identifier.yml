@@ -31,6 +31,8 @@ jobs:
             
             counter[prefix] = (counter[prefix] || 0) + 1;
             const newNum = counter[prefix].toString().padStart(3, '0');
+            const identifier = `${prefix}${newNum}`;
+            const branchName = identifier.toLowerCase();
             
             if (!fs.existsSync('.github')) {
               fs.mkdirSync('.github');
