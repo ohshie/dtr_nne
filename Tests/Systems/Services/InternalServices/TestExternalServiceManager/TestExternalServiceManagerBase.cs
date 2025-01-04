@@ -1,7 +1,6 @@
 using dtr_nne.Application.DTO.ExternalService;
 using dtr_nne.Application.Extensions;
 using dtr_nne.Application.ExternalServices;
-using dtr_nne.Application.ExternalServices.LlmServices;
 using dtr_nne.Application.Mapper;
 using dtr_nne.Domain.Entities;
 using dtr_nne.Domain.Enums;
@@ -12,17 +11,18 @@ using dtr_nne.Domain.UnitOfWork;
 using Microsoft.Extensions.Logging;
 using Moq;
 
-namespace Tests.Systems.Services.InternalServices;
+namespace Tests.Systems.Services.InternalServices.TestExternalServiceManager;
 
-public class TestLlmManagerService
+public class TestExternalServiceManagerBase
 {
-    public TestLlmManagerService()
+    public TestExternalServiceManagerBase()
     {
         _mockRepository = new();
         _mockUow = new();
         _mockMapper = new();
         _mockServiceProvider = new();
         _mockLlmService = new();
+        _mockTranslatorService = new();
         
         var faker = new Bogus.Faker();
         
@@ -52,25 +52,26 @@ public class TestLlmManagerService
         
         DefaultSetup();
         
-        _sut = new(logger: new Mock<ILogger<LlmManagerService>>().Object, 
+        _sut = new(logger: new Mock<ILogger<ExternalServiceManager>>().Object, 
             repository: _mockRepository.Object,
             unitOfWork: _mockUow.Object,
             mapper: _mockMapper.Object, 
             serviceProvider: _mockServiceProvider.Object);
     }
 
-    private readonly LlmManagerService _sut;
-    private readonly Mock<IExternalServiceProviderRepository> _mockRepository;
-    private readonly Mock<IUnitOfWork<INneDbContext>> _mockUow;
-    private readonly Mock<IExternalServiceMapper> _mockMapper;
-    private readonly Mock<IExternalServiceProvider> _mockServiceProvider;
-    private readonly Mock<ILlmService> _mockLlmService;
+    internal readonly ExternalServiceManager _sut;
+    internal readonly Mock<IExternalServiceProviderRepository> _mockRepository;
+    internal readonly Mock<IUnitOfWork<INneDbContext>> _mockUow;
+    internal readonly Mock<IExternalServiceMapper> _mockMapper;
+    internal readonly Mock<IExternalServiceProvider> _mockServiceProvider;
+    internal readonly Mock<ILlmService> _mockLlmService;
+    internal readonly Mock<ITranslatorService> _mockTranslatorService;
 
-    private readonly ExternalServiceDto _testServiceDto;
-    private readonly ExternalService _testExistingService;
-    private readonly ExternalService _testService;
+    internal readonly ExternalServiceDto _testServiceDto;
+    internal readonly ExternalService _testExistingService;
+    internal readonly ExternalService _testService;
 
-    private void DefaultSetup()
+    internal void DefaultSetup()
     {
         _mockMapper
             .Setup(mapper => mapper.DtoToService(_testServiceDto))
@@ -183,7 +184,7 @@ public class TestLlmManagerService
         // Arrange
 
         // Act
-        var result = await _sut.UpdateKey(_testServiceDto);
+        var result = await _sut.Update(_testServiceDto);
 
         // Assert
         result.IsError.Should().BeFalse();
@@ -198,7 +199,7 @@ public class TestLlmManagerService
         _mockServiceProvider.Reset();
         
         // Act
-        var result = await _sut.UpdateKey(_testServiceDto);
+        var result = await _sut.Update(_testServiceDto);
 
         // Assert 
         result.IsError.Should().BeTrue();
@@ -217,7 +218,7 @@ public class TestLlmManagerService
             .Returns(new List<ExternalService>());
 
         // Act
-        var result = await _sut.UpdateKey(_testServiceDto);
+        var result = await _sut.Update(_testServiceDto);
 
         // Assert
         result.IsError.Should().BeTrue();
@@ -233,7 +234,7 @@ public class TestLlmManagerService
             Returns(false);
 
         // Act
-        var result = await _sut.UpdateKey(_testServiceDto);
+        var result = await _sut.Update(_testServiceDto);
 
         // Assert 
         result.IsError.Should().BeTrue();
@@ -253,51 +254,15 @@ public class TestLlmManagerService
             Returns(false);
 
         // Act
-        var result = await _sut.UpdateKey(_testServiceDto);
+        var result = await _sut.Update(_testServiceDto);
 
         // Assert 
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(Errors.DbErrors.UnitOfWorkSaveFailed);
     }
-    
-    [Fact]
-    public async Task CheckKeyValidity_WhenValidKey_ReturnsTrue()
-    {
-        // Arrange
-        _mockServiceProvider
-            .Setup(x => x.Provide(ExternalServiceType.Llm, _testService.ApiKey))
-            .Returns(_mockLlmService.Object);
-
-        // Act
-        var result = await _sut.CheckKeyValidity(_testService, true);
-
-        // Assert
-        result.IsError.Should().BeFalse();
-        result.Value.Should().BeTrue();
-    }
-    
-    [Fact]
-    public async Task CheckKeyValidity_WhenAssistantRunError_ReturnsSpecificError()
-    {
-        // Arrange
-        _mockServiceProvider
-            .Setup(x => x.Provide(ExternalServiceType.Llm, _testService.ApiKey))
-            .Returns(_mockLlmService.Object);
-        
-        _mockLlmService
-            .Setup(x => x.ProcessArticleAsync(It.IsAny<Article>(), It.IsAny<string>()))
-            .ReturnsAsync(Errors.ExternalServiceProvider.Llm.AssistantRunError);
-        
-        // Act
-        var result = await _sut.CheckKeyValidity(_testService, true);
-
-        // Assert
-        result.IsError.Should().BeTrue();
-        result.FirstError.Should().Be(Errors.ExternalServiceProvider.Llm.AssistantRunError);
-    }
 
     [Fact]
-    public async Task CheckKeyValidity_WhenNoLlmServiceFound_ReturnsSpecificError()
+    public async Task CheckKeyValidity_WhenNoServiceFound_ReturnsSpecificError()
     {
         // Assemble
         _mockServiceProvider.Reset();

@@ -128,7 +128,7 @@ public class ExternalServiceManager(ILogger<ExternalServiceManager> logger,
                 break;
             default:
                 return Errors.ExternalServiceProvider.Service.NoSavedServiceFound;
-        };
+        }
         
         return success.Value;
     }

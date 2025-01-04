@@ -1,6 +1,4 @@
 using dtr_nne.Application.ExternalServices;
-using dtr_nne.Application.ExternalServices.LlmServices;
-using dtr_nne.Application.ExternalServices.TranslatorServices;
 using dtr_nne.Application.Mapper;
 using dtr_nne.Application.NewsEditor;
 using dtr_nne.Application.Services.NewsOutletServices;
@@ -24,9 +22,6 @@ public static class ServiceCollectionExtensions
         serviceCollection.AddTransient<IArticleMapper, ArticleMapper>();
 
         serviceCollection.AddTransient<IExternalServiceManager, ExternalServiceManager>();
-        
-        serviceCollection.AddTransient<ITranslatorApiKeyService, TranslatorApiKeyService>();
-        serviceCollection.AddTransient<ILlmManagerService, LlmManagerService>();
 
         serviceCollection.AddTransient<INewsRewriter, NewsRewriter>();
     }
