@@ -113,7 +113,7 @@ public class ExternalServiceManager(ILogger<ExternalServiceManager> logger,
         switch (incomingService.Type)
         {
             case ExternalServiceType.Llm:
-                success = await CheckLlmApiKey((externalService as ILlmService)!, incomingService.ApiKey);
+                success = await CheckLlmApiKey((externalService as ILlmService)!);
                 if (success.IsError)
                 {
                     return success.FirstError;
@@ -133,10 +133,10 @@ public class ExternalServiceManager(ILogger<ExternalServiceManager> logger,
         return success.Value;
     }
     
-    internal async Task<ErrorOr<bool>> CheckLlmApiKey(ILlmService llmService, string incomingApiKey)
+    internal async Task<ErrorOr<bool>> CheckLlmApiKey(ILlmService llmService)
     {
         var testArticle = new Article { OriginalBody = "test" };
-        var validKey = await llmService.ProcessArticleAsync(testArticle, incomingApiKey);
+        var validKey = await llmService.ProcessArticleAsync(testArticle);
         if (validKey.IsError)
         {
             return validKey.FirstError == Errors.ExternalServiceProvider.Llm.AssistantRunError 

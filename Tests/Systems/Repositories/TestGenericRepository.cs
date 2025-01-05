@@ -109,7 +109,7 @@ public class TestGenericRepository : IClassFixture<GenericDatabaseFixture<Extern
 
         // Assert 
         result.Should().BeOfType<List<ExternalService>>();
-        result.Count().Should().BeGreaterOrEqualTo(1);
+        result.Count().Should().Be(1);
     }
     
     [Fact]
