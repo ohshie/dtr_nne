@@ -15,7 +15,7 @@ internal class GenericRepository<TEntity, TContext>(
     where TEntity : class
     where TContext : DbContext
 {
-    private readonly DbSet<TEntity> _dbSet = unitOfWork.Context.Set<TEntity>();
+    internal DbSet<TEntity> DbSet = unitOfWork.Context.Set<TEntity>();
     
     public Task<TEntity?> Get(int id)
     {
@@ -29,17 +29,17 @@ internal class GenericRepository<TEntity, TContext>(
             throw new InvalidOperationException($"Entity {typeof(TEntity).Name} does not have a primary key.");
         }
         
-        return _dbSet.FirstOrDefaultAsync(e => EF.Property<int>(e,key) == id);
+        return DbSet.FirstOrDefaultAsync(e => EF.Property<int>(e,key) == id);
     }
 
     public async Task<IEnumerable<TEntity>?> GetAll()
     {
-        return await _dbSet.AsNoTracking().ToListAsync();
+        return await DbSet.AsNoTracking().ToListAsync();
     }
 
     public async Task<bool> Add(TEntity entity)
     {
-        await _dbSet.AddAsync(entity);
+        await DbSet.AddAsync(entity);
         return true;
     }
 
@@ -47,7 +47,7 @@ internal class GenericRepository<TEntity, TContext>(
     {
         try
         {
-            await _dbSet.AddRangeAsync(entities);
+            await DbSet.AddRangeAsync(entities);
             return true;
         }
         catch (Exception e)
@@ -64,7 +64,7 @@ internal class GenericRepository<TEntity, TContext>(
     {
         try
         {
-            _dbSet.Update(entity);
+            DbSet.Update(entity);
             return true;
         }
         catch (Exception e)

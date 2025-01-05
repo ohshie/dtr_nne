@@ -11,5 +11,4 @@ internal class OpenAiAssistantRepository(
     IUnitOfWork<NneDbContext> unitOfWork)
     : GenericRepository<OpenAiAssistant, NneDbContext>(logger, unitOfWork), IOpenAiAssistantRepository
 {
-    
 }

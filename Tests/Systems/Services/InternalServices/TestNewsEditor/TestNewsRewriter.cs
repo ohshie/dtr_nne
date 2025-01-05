@@ -54,7 +54,7 @@ public class TestNewsRewriter
         _mockArticleMapper.Setup(mapper => mapper.ArticleToDto(_mockArticle))
             .Returns(_mockArticleDto);
         
-        _mockLlmService.Setup(service => service.ProcessArticleAsync(_mockArticle, ""))
+        _mockLlmService.Setup(service => service.ProcessArticleAsync(_mockArticle))
             .ReturnsAsync(_mockArticle);
     }
     
@@ -79,7 +79,7 @@ public class TestNewsRewriter
     {
         // Arrange
         _mockLlmService
-            .Setup(service => service.ProcessArticleAsync(_mockArticle, ""))
+            .Setup(service => service.ProcessArticleAsync(_mockArticle))
             .ReturnsAsync(Errors.ExternalServiceProvider.Llm.AssistantRunError);
 
         // Act
@@ -103,7 +103,7 @@ public class TestNewsRewriter
         result.Value.Should().BeEquivalentTo(_mockArticleDto);
         _mockServiceProvider.Verify(provider => provider.Provide(ExternalServiceType.Llm, ""), Times.Once);
         _mockArticleMapper.Verify(mapper => mapper.DtoToArticle(_mockArticleDto), Times.Once);
-        _mockLlmService.Verify(service => service.ProcessArticleAsync(_mockArticle,""), Times.Once);
+        _mockLlmService.Verify(service => service.ProcessArticleAsync(_mockArticle), Times.Once);
         _mockArticleMapper.Verify(mapper => mapper.ArticleToDto(_mockArticle), Times.Once);
     }
     

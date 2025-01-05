@@ -11,17 +11,22 @@
 
     <ItemGroup>
         <PackageReference Include="Bogus" Version="35.6.1" />
+        <PackageReference Include="coverlet.collector" Version="6.0.3">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="coverlet.msbuild" Version="6.0.3">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="Faker.Net" Version="2.0.163" />
-        <PackageReference Include="FluentAssertions" Version="7.0.0" />
+        <PackageReference Include="FluentAssertions" Version="8.0.0-alpha.1" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.0" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="xunit" Version="2.9.2" />
         <PackageReference Include="xunit.runner.visualstudio" Version="3.0.0-pre.49">
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-            <PrivateAssets>all</PrivateAssets>
-        </PackageReference>
-        <PackageReference Include="coverlet.collector" Version="6.0.2">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
@@ -30,5 +35,4 @@
     <ItemGroup>
       <ProjectReference Include="..\dtr_nne.API\dtr_nne.API.csproj" />
     </ItemGroup>
-
 </Project>

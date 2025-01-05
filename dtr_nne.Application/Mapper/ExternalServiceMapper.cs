@@ -9,6 +9,4 @@ public partial class ExternalServiceMapper : IExternalServiceMapper
 {
     public partial ExternalService DtoToService(ExternalServiceDto externalServiceDto);
     public partial ExternalServiceDto ServiceToDto(ExternalService service);
-    public partial ExternalService BaseDtoToService(BaseExternalServiceDto externalServiceDto);
-    public partial ExternalServiceDto ServiceToBaseDto(ExternalService service);
 }
