@@ -4,6 +4,7 @@ using dtr_nne.Domain.Entities;
 using dtr_nne.Domain.ExternalServices;
 using dtr_nne.Domain.Repositories;
 using dtr_nne.Infrastructure.ExternalServices.LlmServices;
+using dtr_nne.Infrastructure.ExternalServices.ScrapingServices;
 using dtr_nne.Infrastructure.ExternalServices.TranslatorServices;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -28,5 +29,13 @@ public class ExternalServiceFactory(IServiceProvider provider) : IExternalServic
         var logger = provider.GetRequiredService<ILogger<DeeplTranslator>>();
 
         return new DeeplTranslator(logger: logger, service: service);
+    }
+
+    public IScrapingService CreateZenrowsService(ExternalService service)
+    {
+        var logger = provider.GetRequiredService<ILogger<ZenrowsService>>();
+        var httpClient = provider.GetRequiredService<IHttpClientFactory>();
+
+        return new ZenrowsService(logger, service, httpClient);
     }
 }

@@ -7,4 +7,5 @@ public interface IExternalServiceFactory
 {
     ILlmService CreateOpenAiService(ExternalService? service);
     ITranslatorService CreateDeeplService(ExternalService service);
+    IScrapingService CreateZenrowsService(ExternalService service);
 }

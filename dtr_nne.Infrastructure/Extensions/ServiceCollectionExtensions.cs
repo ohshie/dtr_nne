@@ -37,5 +37,7 @@ public static class ServiceCollectionExtensions
         // Providers
         serviceCollection.AddTransient<IExternalServiceProvider, ExternalServiceProvider>();
         serviceCollection.AddTransient<IExternalServiceFactory, ExternalServiceFactory>();
+        
+        serviceCollection.AddHttpClient();
     }
 }

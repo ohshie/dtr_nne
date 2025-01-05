@@ -49,6 +49,13 @@ public static class Errors
                 code: "ExternalServiceProvider.Llm.AssistantRunError",
                 description: "Something really wrong happened when trying to run Assistant on Thread");
         }
+        
+        public static class Scraper
+        {
+            public static Error ScrapingRequestError(string info) => Error.Failure(
+                code: "ExternalServiceProvider.Scrapers.ScrapingRequestError",
+                description: $"While attempting to scrape uri service encountered: {info}");
+        }
     }
     
     public static class NewsOutlets

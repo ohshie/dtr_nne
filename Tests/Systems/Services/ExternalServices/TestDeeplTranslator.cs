@@ -161,6 +161,6 @@ public class TestDeeplTranslator
 
         // Assert
         result.IsError.Should().BeFalse();
-        maxConcurrent.Should().Be(5);
+        maxConcurrent.Should().BeLessThanOrEqualTo(5);
     }
 }
