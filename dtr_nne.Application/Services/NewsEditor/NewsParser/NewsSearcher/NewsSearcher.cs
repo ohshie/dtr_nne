@@ -47,7 +47,7 @@ public class NewsSearcher(ILogger<NewsSearcher> logger,
     {
         logger.LogInformation("Starting to checking parsed news list or duplicates, currently there are {NewsCount} articles", incomingArticles.Count);
         
-        List<NewsArticle> filteredList = [];
+        List<NewsArticle> filteredList;
         if (await newsArticleRepository.GetSpecificAmount(incomingArticles.Count) is List<NewsArticle> currentArticles && currentArticles.Count > 0)
         {
             filteredList = incomingArticles

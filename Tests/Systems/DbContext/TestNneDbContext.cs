@@ -51,7 +51,7 @@ public class TestNneDbContext
         // Assert
         var retrieved = await _sut.NewsOutlets.FirstOrDefaultAsync(n => n.Name == "Test News");
         retrieved.Should().NotBeNull();
-        retrieved!.Name.Should().Be(newsOutlet.Name);
+        retrieved.Name.Should().Be(newsOutlet.Name);
     }
     
     [Fact]
@@ -91,7 +91,7 @@ public class TestNneDbContext
         // Assert
         var retrieved = await _sut.OpenAiAssistants.FirstOrDefaultAsync(a => a.AssistantId == "test-id");
         retrieved.Should().NotBeNull();
-        retrieved!.Should().BeEquivalentTo(assistant, options => options
+        retrieved.Should().BeEquivalentTo(assistant, options => options
             .Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromSeconds(1)))
             .WhenTypeIs<DateTime>());
     }

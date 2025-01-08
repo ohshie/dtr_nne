@@ -14,7 +14,7 @@ namespace dtr_nne.Infrastructure.ExternalServices;
 public class ExternalServiceFactory(IServiceProvider provider) : IExternalServiceFactory
 {
     [Experimental("OPENAI001")]
-    public ILlmService CreateOpenAiService(ExternalService? service = null)
+    public ILlmService CreateOpenAiService(ExternalService service)
     {
         var logger = provider.GetRequiredService<ILogger<OpenAiService>>();
         var repository = provider.GetRequiredService<IOpenAiAssistantRepository>();
