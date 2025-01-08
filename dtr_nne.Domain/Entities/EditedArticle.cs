@@ -2,6 +2,7 @@ namespace dtr_nne.Domain.Entities;
 
 public class EditedArticle
 {
+    public int Id { get; set; }
     public string Header { get; set; } = string.Empty;
     public string HeaderRunId { get; set; } = string.Empty;
     public string Subheader { get; set; } = string.Empty;

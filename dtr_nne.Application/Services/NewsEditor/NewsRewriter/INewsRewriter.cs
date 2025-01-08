@@ -4,5 +4,5 @@ namespace dtr_nne.Application.Services.NewsEditor.NewsRewriter;
 
 public interface INewsRewriter
 {
-    Task<ErrorOr<ArticleDto>> Rewrite(ArticleDto articleDto);
+    Task<ErrorOr<ArticleContentDto>> Rewrite(ArticleContentDto articleContentDto);
 }

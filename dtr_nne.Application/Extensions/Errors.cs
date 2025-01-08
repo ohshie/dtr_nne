@@ -58,6 +58,13 @@ public static class Errors
         }
     }
     
+    public static class NewsAticles
+    {
+        public static Error NoNewNewsArticles => Error.NotFound(
+            code: "NewsArticles.NoNewNewsArticles",
+            description: "No new news articles were found since last parse");
+    }
+    
     public static class NewsOutlets
     {
         public static Error NoNewsOutletProvided => Error.Validation(

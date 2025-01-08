@@ -9,22 +9,22 @@ public class TestArticleMapper
     public TestArticleMapper()
     {
         var faker = new Bogus.Faker();
-        _testArticleDto = new()
+        _testArticleContentDto = new()
         {
             Body = faker.Lorem.Paragraph()
         };
 
         _testArticle = new()
         {
-            Body = _testArticleDto.Body
+            Body = _testArticleContentDto.Body
         };
         
         _sut = new();
     }
     
     private readonly ArticleMapper _sut;
-    private readonly ArticleDto _testArticleDto;
-    private readonly Article _testArticle;
+    private readonly ArticleContentDto _testArticleContentDto;
+    private readonly ArticleContent _testArticle;
     
     [Fact]
     public void Map_DtoToArticle_EnsuresSameIdAndName()
@@ -32,11 +32,11 @@ public class TestArticleMapper
         // assemble
 
         // act
-        var article = _sut.DtoToArticle(_testArticleDto);
+        var article = _sut.DtoToArticle(_testArticleContentDto);
         
         // assert
-        article.Should().BeOfType<Article>();
-        _testArticleDto.Body.Should().Match(body => body == _testArticleDto.Body);
+        article.Should().BeOfType<ArticleContent>();
+        _testArticleContentDto.Body.Should().Match(body => body == _testArticleContentDto.Body);
     }
     
     [Fact]
@@ -48,7 +48,7 @@ public class TestArticleMapper
         var articleDto = _sut.ArticleToDto(_testArticle);
         
         // assert
-        articleDto.Should().BeOfType<ArticleDto>();
-        _testArticleDto.Body.Should().Match(body => body == _testArticle.Body);
+        articleDto.Should().BeOfType<ArticleContentDto>();
+        _testArticleContentDto.Body.Should().Match(body => body == _testArticle.Body);
     }
 }

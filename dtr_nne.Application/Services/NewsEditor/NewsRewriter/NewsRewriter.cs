@@ -10,14 +10,14 @@ namespace dtr_nne.Application.Services.NewsEditor.NewsRewriter;
 public class NewsRewriter(ILogger<NewsRewriter> logger, IArticleMapper mapper,
     IExternalServiceProvider serviceProvider) : INewsRewriter
 {
-    public async Task<ErrorOr<ArticleDto>> Rewrite(ArticleDto articleDto)
+    public async Task<ErrorOr<ArticleContentDto>> Rewrite(ArticleContentDto articleContentDto)
     {
         if (RequestService() is not { } activeService)
         {
             return Errors.ExternalServiceProvider.Service.NoActiveServiceFound;
         }
 
-        var mappedArticle = mapper.DtoToArticle(articleDto);
+        var mappedArticle = mapper.DtoToArticle(articleContentDto);
         
         var processedArticle = await activeService.ProcessArticleAsync(mappedArticle);
         if (processedArticle.IsError)

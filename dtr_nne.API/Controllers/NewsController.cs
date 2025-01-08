@@ -11,11 +11,11 @@ namespace dtr_nne.Controllers;
 public class NewsController(INewsRewriter rewriter) : ControllerBase
 {
     [HttpPost("RewriteNews", Name = "RewriteNews")]
-    [ProducesResponseType<ArticleDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ArticleContentDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<Error>(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> RewriteNews(ArticleDto articleDto)
+    public async Task<ActionResult> RewriteNews(ArticleContentDto articleContentDto)
     {
-        var editedArticle = await rewriter.Rewrite(articleDto);
+        var editedArticle = await rewriter.Rewrite(articleContentDto);
         
         if (editedArticle.IsError)
         {

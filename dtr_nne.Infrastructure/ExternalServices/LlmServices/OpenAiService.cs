@@ -21,7 +21,7 @@ internal class OpenAiService(ILogger<OpenAiService> logger,
 
     readonly List<string> _processingSteps = ["rewrite", "translate", "header", "subheader"];
     
-    public async Task<ErrorOr<Article>> ProcessArticleAsync(Article article)
+    public async Task<ErrorOr<ArticleContent>> ProcessArticleAsync(ArticleContent article)
     {
         logger.LogInformation("Starting article processing article");
         var editedArticle = new EditedArticle();

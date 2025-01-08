@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace dtr_nne.Application.DTO.Article;
 
-public class ArticleDto
+public class ArticleContentDto
 {
     public string OriginalBody { get; set; } = string.Empty;
     [Required]

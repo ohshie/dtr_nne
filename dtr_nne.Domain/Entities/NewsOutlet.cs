@@ -14,4 +14,6 @@ public class NewsOutlet
     public string MainPagePassword { get; set; } = string.Empty;
     [StringLength(300, MinimumLength = 0)]
     public string NewsPassword { get; set; } = string.Empty;
+    
+    public List<NewsArticle>? Articles { get; set; }
 }

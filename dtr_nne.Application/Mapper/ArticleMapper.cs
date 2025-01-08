@@ -7,6 +7,6 @@ namespace dtr_nne.Application.Mapper;
 [Mapper]
 public partial class ArticleMapper : IArticleMapper
 {
-    public partial Article DtoToArticle(ArticleDto articleDto);
-    public partial ArticleDto ArticleToDto(Article article);
+    public partial ArticleContent DtoToArticle(ArticleContentDto articleContentDto);
+    public partial ArticleContentDto ArticleToDto(ArticleContent article);
 }

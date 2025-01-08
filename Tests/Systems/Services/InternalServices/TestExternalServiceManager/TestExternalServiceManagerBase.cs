@@ -78,8 +78,8 @@ public class TestExternalServiceManagerBase
             .Returns(TestService);
         
         MockLlmService
-            .Setup(x => x.ProcessArticleAsync(It.IsAny<Article>()))
-            .ReturnsAsync(It.IsAny<Article>());
+            .Setup(x => x.ProcessArticleAsync(It.IsAny<ArticleContent>()))
+            .ReturnsAsync(It.IsAny<ArticleContent>());
         
         MockServiceProvider
             .Setup(x => x.Provide(ExternalServiceType.Llm, ""))
@@ -127,7 +127,7 @@ public class TestExternalServiceManagerBase
             .Returns(MockLlmService.Object);
         
         MockLlmService
-            .Setup(x => x.ProcessArticleAsync(It.IsAny<Article>()))
+            .Setup(x => x.ProcessArticleAsync(It.IsAny<ArticleContent>()))
             .ReturnsAsync(Errors.ExternalServiceProvider.Service.BadApiKey);
         
         // Act

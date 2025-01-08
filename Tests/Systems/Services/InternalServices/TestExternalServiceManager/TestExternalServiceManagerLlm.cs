@@ -32,7 +32,7 @@ public class TestExternalServiceManagerLlm : TestExternalServiceManagerBase
             .Returns(MockLlmService.Object);
         
         MockLlmService
-            .Setup(x => x.ProcessArticleAsync(It.IsAny<Article>()))
+            .Setup(x => x.ProcessArticleAsync(It.IsAny<ArticleContent>()))
             .ReturnsAsync(Errors.ExternalServiceProvider.Llm.AssistantRunError);
         
         // Act
