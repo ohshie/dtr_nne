@@ -5,7 +5,7 @@ using dtr_nne.Application.Mapper;
 using dtr_nne.Domain.Enums;
 using dtr_nne.Domain.ExternalServices;
 
-namespace dtr_nne.Application.NewsEditor;
+namespace dtr_nne.Application.Services.NewsEditor.NewsRewriter;
 
 public class NewsRewriter(ILogger<NewsRewriter> logger, IArticleMapper mapper,
     IExternalServiceProvider serviceProvider) : INewsRewriter

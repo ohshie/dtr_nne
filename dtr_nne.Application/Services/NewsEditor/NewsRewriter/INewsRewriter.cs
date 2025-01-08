@@ -1,6 +1,6 @@
 using dtr_nne.Application.DTO.Article;
 
-namespace dtr_nne.Application.NewsEditor;
+namespace dtr_nne.Application.Services.NewsEditor.NewsRewriter;
 
 public interface INewsRewriter
 {

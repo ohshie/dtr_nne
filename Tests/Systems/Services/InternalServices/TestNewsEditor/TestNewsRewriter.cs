@@ -2,7 +2,7 @@ using dtr_nne.Application.DTO.Article;
 using dtr_nne.Application.Extensions;
 using dtr_nne.Application.ExternalServices;
 using dtr_nne.Application.Mapper;
-using dtr_nne.Application.NewsEditor;
+using dtr_nne.Application.Services.NewsEditor.NewsRewriter;
 using dtr_nne.Domain.Entities;
 using dtr_nne.Domain.Enums;
 using dtr_nne.Domain.ExternalServices;

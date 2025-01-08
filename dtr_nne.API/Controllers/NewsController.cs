@@ -1,5 +1,5 @@
 using dtr_nne.Application.DTO.Article;
-using dtr_nne.Application.NewsEditor;
+using dtr_nne.Application.Services.NewsEditor.NewsRewriter;
 using ErrorOr;
 using Microsoft.AspNetCore.Mvc;
 
