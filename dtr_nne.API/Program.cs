@@ -43,7 +43,7 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<INneDbContext>();
     
-    await dbContext.MigrateAsync();  // If you want to apply migrations
+    await dbContext.MigrateAsync();
 }
 
 app.Run();

@@ -13,7 +13,7 @@ internal class NneDbContext(DbContextOptions<NneDbContext> options) : DbContext(
     internal DbSet<NewsArticle> NewsArticles { get; set; }
     internal DbSet<ExternalService> ExternalServices { get; set; }
     internal DbSet<OpenAiAssistant> OpenAiAssistants { get; set; }
-
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<NewsOutlet>()
