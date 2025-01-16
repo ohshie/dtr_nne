@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 using dtr_nne.Application.Extensions;
 using dtr_nne.Application.Services.NewsEditor.NewsParser.ScrapingManager.MainPageScrapingResultProcessor;
 using dtr_nne.Domain.Entities;
@@ -63,7 +64,7 @@ public class ScrapingManager(ILogger<ScrapingManager> logger,
         return entity switch
         {
             NewsOutlet outlet => await ScrapeMainPage(service, outlet),
-            NewsArticle article => throw new NotImplementedException(),
+            NewsArticle article => await ScrapeNewsArticle(service, article),
             _ => throw new NotImplementedException()
         };
     }
@@ -88,16 +89,25 @@ public class ScrapingManager(ILogger<ScrapingManager> logger,
         return newsArticles;
     }
 
-    internal async Task<NewsArticle> ScrapeNewsArticle(IScrapingService service, NewsArticle article)
+    internal async Task<List<NewsArticle>> ScrapeNewsArticle(IScrapingService service, NewsArticle article)
     {
         var scrapeResult = await service.ScrapeWebsiteWithRetry(article.Uri!, 
             article.NewsOutlet!.NewsPassword);
         if (scrapeResult.IsError)
         {
             article.Error = scrapeResult.FirstError.Description;
+            return [article];
         }
-        article.ArticleContent.Body = scrapeResult.Value;
 
-        return article;
+        try
+        {
+            article.ArticleContent = JsonSerializer.Deserialize<ArticleContent>(scrapeResult.Value);
+        }
+        catch (Exception e)
+        {
+            article.Error = Errors.NewsArticles.JsonSerializationError(e.Message).Description;
+        }
+        
+        return [article];
     }
 }

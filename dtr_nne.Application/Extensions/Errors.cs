@@ -58,11 +58,15 @@ public static class Errors
         }
     }
     
-    public static class NewsAticles
+    public static class NewsArticles
     {
         public static Error NoNewNewsArticles => Error.NotFound(
             code: "NewsArticles.NoNewNewsArticles",
             description: "No new news articles were found since last parse");
+
+        public static Error JsonSerializationError(string info = "") => Error.Validation(
+            code: "NewsArticles.JsonSerializationError",
+            description: $"Encountered error while attempting to deserialize json with parse results: {info}");
     }
     
     public static class NewsOutlets

@@ -142,7 +142,7 @@ public class ExternalServiceManager(ILogger<ExternalServiceManager> logger,
     
     internal async Task<ErrorOr<bool>> CheckLlmApiKey(ILlmService llmService)
     {
-        var testArticle = new ArticleContent { OriginalBody = "test" };
+        var testArticle = new ArticleContent { Body = "test" };
         var validKey = await llmService.ProcessArticleAsync(testArticle);
         if (validKey.IsError)
         {

@@ -25,7 +25,13 @@ namespace dtr_nne.Infrastructure.Migrations
 
                     b.Property<string>("Body")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT")
+                        .HasAnnotation("Relational:JsonPropertyName", "body");
+
+                    b.PrimitiveCollection<string>("Copyright")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasAnnotation("Relational:JsonPropertyName", "copyright");
 
                     b.Property<int?>("EditedArticleId")
                         .HasColumnType("INTEGER");
@@ -33,13 +39,15 @@ namespace dtr_nne.Infrastructure.Migrations
                     b.Property<int?>("HeadlineId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("OriginalBody")
+                    b.PrimitiveCollection<string>("Images")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT")
+                        .HasAnnotation("Relational:JsonPropertyName", "images");
 
-                    b.Property<string>("Subheader")
+                    b.Property<string>("Source")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT")
+                        .HasAnnotation("Relational:JsonPropertyName", "source");
 
                     b.HasKey("Id");
 
@@ -128,7 +136,8 @@ namespace dtr_nne.Infrastructure.Migrations
 
                     b.Property<string>("OriginalHeadline")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT")
+                        .HasAnnotation("Relational:JsonPropertyName", "header");
 
                     b.Property<string>("TranslatedHeadline")
                         .IsRequired()

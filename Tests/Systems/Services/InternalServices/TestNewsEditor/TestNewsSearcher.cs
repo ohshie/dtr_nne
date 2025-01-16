@@ -114,7 +114,7 @@ public class TestNewsSearcher
 
         // Assert
         result.IsError.Should().BeTrue();
-        result.FirstError.Should().BeEquivalentTo(Errors.NewsAticles.NoNewNewsArticles);
+        result.FirstError.Should().BeEquivalentTo(Errors.NewsArticles.NoNewNewsArticles);
     }
     
     [Fact]

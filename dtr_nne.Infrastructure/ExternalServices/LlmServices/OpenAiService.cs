@@ -36,7 +36,7 @@ internal class OpenAiService(ILogger<OpenAiService> logger,
         var assistantClient = client.GetAssistantClient();
         
         logger.LogDebug("Creating thread for article with body length: {BodyLength}", article.Body.Length);
-        var thread = await CreateThread(assistantClient, article.OriginalBody);
+        var thread = await CreateThread(assistantClient, article.Body);
 
         foreach (var step in _processingSteps)
         {

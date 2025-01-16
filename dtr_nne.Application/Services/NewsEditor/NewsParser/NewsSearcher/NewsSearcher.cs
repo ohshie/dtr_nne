@@ -33,8 +33,8 @@ public class NewsSearcher(ILogger<NewsSearcher> logger,
         var filteredNews = await FilterDuplicates(news.Value);
         if (filteredNews.Count is 0)
         {
-            logger.LogWarning("No new news articles left after filtering. Returning {Error}", Errors.NewsAticles.NoNewNewsArticles);
-            return Errors.NewsAticles.NoNewNewsArticles;
+            logger.LogWarning("No new news articles left after filtering. Returning {Error}", Errors.NewsArticles.NoNewNewsArticles);
+            return Errors.NewsArticles.NoNewNewsArticles;
         }
 
         await newsArticleRepository.AddRange(filteredNews);

@@ -1,6 +1,4 @@
 using dtr_nne.Application.DTO.Article;
-using dtr_nne.Application.ExternalServices;
-using dtr_nne.Application.Services.NewsEditor.NewsParser.NewsSearcher;
 using dtr_nne.Application.Services.NewsEditor.NewsRewriter;
 using dtr_nne.Controllers;
 using Moq;
@@ -28,9 +26,7 @@ public class BaseTestNewsController
         
         BaseSetup();
         
-        Sut = new NewsController(new Mock<INewsSearcher>().Object, 
-            new Mock<IExternalServiceProvider>().Object, 
-            MockNewsRewriter.Object);
+        Sut = new NewsController(MockNewsRewriter.Object);
     }
 
     private void BaseSetup()
