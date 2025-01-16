@@ -10,7 +10,4 @@ public partial class NewsOutletMapper : INewsOutletMapper
     public partial List<NewsOutletDto> EntitiesToDtos(List<NewsOutlet> newsOutlets);
 
     public partial List<NewsOutlet> DtosToEntities(List<NewsOutletDto> newsOutlets);
-    public partial List<NewsOutlet> BaseDtosToEntities(List<BaseNewsOutletsDto> newsOutletsDtos);
-
-    public partial List<BaseNewsOutletsDto> EntitiesToBaseDtos(List<NewsOutlet> newsOutlets);
 }

@@ -14,6 +14,7 @@ public class NewsArticle
     
     public int NewsOutletId { get; set; }
     public NewsOutlet? NewsOutlet { get; set; }
-    
-    public ArticleContent ArticleContent { get; set; } = new();
+
+    public ArticleContent? ArticleContent { get; set; } = new();
+    public EditedArticle? EditedArticle { get; set; } = new();
 }

@@ -7,13 +7,14 @@ public class NewsOutlet
     public int Id { get; set; }
     public bool InUse { get; set; }
     public bool AlwaysJs { get; set; }
-    [StringLength(50, MinimumLength = 0)]
-    public string Name { get; set; } = string.Empty;
-    public Uri? Website { get; set; }
+    [StringLength(50, MinimumLength = 0)] public required string Name { get; set; } = string.Empty;
+
+    public required Uri Website { get; set; }
     [StringLength(300, MinimumLength = 0)]
-    public string MainPagePassword { get; set; } = string.Empty;
+    public required string MainPagePassword { get; set; } = string.Empty;
     [StringLength(300, MinimumLength = 0)]
-    public string NewsPassword { get; set; } = string.Empty;
-    
+    public required string NewsPassword { get; set; } = string.Empty;
+
+    public required List<string> Themes { get; set; } = [];
     public List<NewsArticle>? Articles { get; set; }
 }
