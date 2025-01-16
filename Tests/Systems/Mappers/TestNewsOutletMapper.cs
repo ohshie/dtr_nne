@@ -1,7 +1,6 @@
 using dtr_nne.Application.DTO.NewsOutlet;
 using dtr_nne.Application.Mapper;
 using dtr_nne.Domain.Entities;
-using Tests.Fixtures;
 using Tests.Fixtures.NewsOutletFixtures;
 using NewsOutletDtoFixture = Tests.Fixtures.NewsOutletDtoFixture;
 
@@ -50,46 +49,6 @@ public class TestNewsOutletMapper
             .BeEquivalentTo
             (
                 newsOutletDtos.Select(n => n.Id)
-            );
-    }
-    
-    [Theory]
-    [ClassData(typeof(NewsOutletFixture))]
-    public void Map_NewsOutletsToNewsOutletBaseDtos_EnsuresSameIdsAndName(List<NewsOutlet> newsOutlets)
-    {
-        // assemble
-
-        // act
-        var baseNewsOutletDtos = _sut.EntitiesToBaseDtos(newsOutlets);
-        
-        // assert
-        baseNewsOutletDtos.Should().BeOfType<List<BaseNewsOutletsDto>>();
-        baseNewsOutletDtos
-            .Select(no => no.Id)
-            .Should()
-            .BeEquivalentTo
-            (
-                newsOutlets.Select(n => n.Id)
-            );
-    }
-
-    [Theory]
-    [ClassData(typeof(BaseNewsOutletsDtoFixture))]
-    public void Map_DeleteNewsOutletDtosToNewsOutletList_EnsureSameIdsAndName(List<BaseNewsOutletsDto> incomingNewsOueltDtos)
-    {
-        // Assemble
-
-        // Act
-        var newsOutlets = _sut.BaseDtosToEntities(incomingNewsOueltDtos);
-
-        // Assert
-        newsOutlets.Should().BeOfType<List<NewsOutlet>>();
-        newsOutlets
-            .Select(no => no.Id)
-            .Should()
-            .BeEquivalentTo
-            (
-                incomingNewsOueltDtos.Select(no => no.Id)
             );
     }
 }

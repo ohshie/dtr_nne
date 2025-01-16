@@ -6,6 +6,7 @@ namespace Tests.Systems.DbContext;
 
 public class TestNneDbContext
 {
+    internal readonly Bogus.Faker Faker = new Bogus.Faker();
     public TestNneDbContext()
     {
         _sut = CreateContext();
@@ -41,7 +42,11 @@ public class TestNneDbContext
         // Arrange
         var newsOutlet = new NewsOutlet
         {
-            Name = "Test News",
+            Name = Faker.Name.FindName(),
+            Website = new Uri(Faker.Internet.Url()),
+            MainPagePassword = Faker.Internet.Protocol(),
+            NewsPassword = Faker.Internet.Protocol(),
+            Themes = [],
         };
 
         // Act
@@ -49,7 +54,7 @@ public class TestNneDbContext
         await _sut.SaveChangesAsync();
 
         // Assert
-        var retrieved = await _sut.NewsOutlets.FirstOrDefaultAsync(n => n.Name == "Test News");
+        var retrieved = await _sut.NewsOutlets.FirstOrDefaultAsync(n => n.Name == newsOutlet.Name);
         retrieved.Should().NotBeNull();
         retrieved.Name.Should().Be(newsOutlet.Name);
     }
@@ -60,7 +65,7 @@ public class TestNneDbContext
         // Arrange
         var service = new ExternalService
         {
-            ServiceName = "Test Service",
+            ServiceName = Faker.Name.FirstName(),
         };
 
         // Act
@@ -68,7 +73,7 @@ public class TestNneDbContext
         await _sut.SaveChangesAsync();
 
         // Assert
-        var retrieved = await _sut.ExternalServices.FirstOrDefaultAsync(s => s.ServiceName == "Test Service");
+        var retrieved = await _sut.ExternalServices.FirstOrDefaultAsync(s => s.ServiceName == service.ServiceName);
         retrieved.Should().NotBeNull();
         retrieved.Should().BeEquivalentTo(service, options => options
                 .Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromSeconds(1)))
@@ -81,7 +86,7 @@ public class TestNneDbContext
         // Arrange
         var assistant = new OpenAiAssistant
         {
-            AssistantId = "test-id",
+            AssistantId = Faker.Internet.Ipv6(),
         };
 
         // Act
@@ -89,7 +94,7 @@ public class TestNneDbContext
         await _sut.SaveChangesAsync();
 
         // Assert
-        var retrieved = await _sut.OpenAiAssistants.FirstOrDefaultAsync(a => a.AssistantId == "test-id");
+        var retrieved = await _sut.OpenAiAssistants.FirstOrDefaultAsync(a => a.AssistantId == assistant.AssistantId);
         retrieved.Should().NotBeNull();
         retrieved.Should().BeEquivalentTo(assistant, options => options
             .Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromSeconds(1)))

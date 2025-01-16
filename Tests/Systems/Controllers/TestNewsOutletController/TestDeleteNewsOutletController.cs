@@ -9,13 +9,13 @@ namespace Tests.Systems.Controllers.TestNewsOutletController;
 public class TestDeleteNewsOutletController : BaseTestNewsOutletController
 {
     [Theory]
-    [ClassData(typeof(BaseNewsOutletsDtoFixture))]
-    public async Task Delete_OnSuccess_ReturnsEmptyListOfDeletedDto(List<BaseNewsOutletsDto> incomingNewsOutletsDtos)
+    [ClassData(typeof(NewsOutletDtoFixture))]
+    public async Task Delete_OnSuccess_ReturnsEmptyListOfDeletedDto(List<NewsOutletDto> incomingNewsOutletsDtos)
     {
         // Assemble
         MockDeleteNewsOutletService
             .Setup(service => service.DeleteNewsOutlets(incomingNewsOutletsDtos).Result)
-            .Returns(new List<BaseNewsOutletsDto>{Capacity = 0});
+            .Returns(new List<NewsOutletDto>{Capacity = 0});
 
         // Act
         var result = await Sut.Delete(incomingNewsOutletsDtos);
@@ -30,14 +30,14 @@ public class TestDeleteNewsOutletController : BaseTestNewsOutletController
     {
         // Assemble
         MockDeleteNewsOutletService
-            .Setup(service => service.DeleteNewsOutlets(new List<BaseNewsOutletsDto>()).Result)
-            .Returns(new List<BaseNewsOutletsDto>());
+            .Setup(service => service.DeleteNewsOutlets(new List<NewsOutletDto>()).Result)
+            .Returns(new List<NewsOutletDto>());
 
         // Act
-        await Sut.Delete(new List<BaseNewsOutletsDto>());
+        await Sut.Delete(new List<NewsOutletDto>());
         
         // Assert 
-        MockDeleteNewsOutletService.Verify(service => service.DeleteNewsOutlets(new List<BaseNewsOutletsDto>()), Times.Once);
+        MockDeleteNewsOutletService.Verify(service => service.DeleteNewsOutlets(new List<NewsOutletDto>()), Times.Once);
     }
     
     [Fact]
@@ -45,7 +45,7 @@ public class TestDeleteNewsOutletController : BaseTestNewsOutletController
     {
         // Assemble
         MockDeleteNewsOutletService
-            .Setup(service => service.DeleteNewsOutlets(It.IsAny<List<BaseNewsOutletsDto>>()).Result)
+            .Setup(service => service.DeleteNewsOutlets(It.IsAny<List<NewsOutletDto>>()).Result)
             .Returns(Errors.NewsOutlets.NotFoundInDb);
 
         // Act

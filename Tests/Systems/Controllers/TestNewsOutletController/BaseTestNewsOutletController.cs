@@ -11,7 +11,7 @@ public abstract class BaseTestNewsOutletController
     internal readonly Mock<IUpdateNewsOutletService> MockUpdateNewsOutletService;
     internal readonly Mock<IDeleteNewsOutletService> MockDeleteNewsOutletService;
     internal readonly NewsOutletController Sut;
-
+    
     public BaseTestNewsOutletController()
     {
         MockGetNewsOutletService = new();

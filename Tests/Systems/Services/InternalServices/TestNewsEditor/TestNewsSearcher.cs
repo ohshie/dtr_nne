@@ -8,6 +8,7 @@ using dtr_nne.Domain.Repositories;
 using dtr_nne.Domain.UnitOfWork;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Tests.Fixtures.NewsOutletFixtures;
 
 namespace Tests.Systems.Services.InternalServices.TestNewsEditor;
 
@@ -15,7 +16,7 @@ public class TestNewsSearcher
 {
     public TestNewsSearcher()
     {
-        _mockLogger = new Mock<ILogger<NewsSearcher>>();
+        Mock<ILogger<NewsSearcher>> mockLogger = new();
         _mockScrapingManager = new Mock<IScrapingManager>();
         _mockNewsOutletRepository = new Mock<INewsOutletRepository>();
         _mockNewsArticleRepository = new Mock<INewsArticleRepository>();
@@ -23,12 +24,8 @@ public class TestNewsSearcher
         _mockScrapingService = new Mock<IScrapingService>();
         
         var faker = new Bogus.Faker();
-        
-        _mockOutlets = new List<NewsOutlet>
-        {
-            new() { Id = faker.Random.Number(), Name = faker.Company.CompanyName() },
-            new() { Id = faker.Random.Number(), Name = faker.Company.CompanyName() }
-        };
+
+        _mockOutlets = NewsOutletFixtureBase.Outlets[1];
         
         _mockArticles = new List<NewsArticle>
         {
@@ -39,7 +36,7 @@ public class TestNewsSearcher
         BasicSetup();
 
         _sut = new NewsSearcher(
-            _mockLogger.Object,
+            mockLogger.Object,
             _mockScrapingManager.Object,
             _mockNewsOutletRepository.Object,
             _mockNewsArticleRepository.Object,
@@ -48,7 +45,6 @@ public class TestNewsSearcher
     }
     
     private readonly NewsSearcher _sut;
-    private readonly Mock<ILogger<NewsSearcher>> _mockLogger;
     private readonly Mock<IScrapingManager> _mockScrapingManager;
     private readonly Mock<INewsOutletRepository> _mockNewsOutletRepository;
     private readonly Mock<INewsArticleRepository> _mockNewsArticleRepository;
@@ -64,7 +60,7 @@ public class TestNewsSearcher
             .ReturnsAsync(_mockOutlets);
 
         _mockScrapingManager
-            .Setup(manager => manager.ProcessMainPages(_mockScrapingService.Object, _mockOutlets))
+            .Setup(manager => manager.BatchProcess(_mockOutlets, _mockScrapingService.Object))
             .ReturnsAsync(_mockArticles);
 
         _mockNewsArticleRepository
@@ -93,7 +89,7 @@ public class TestNewsSearcher
     {
         // Arrange
         _mockScrapingManager
-            .Setup(manager => manager.ProcessMainPages(_mockScrapingService.Object, _mockOutlets))
+            .Setup(manager => manager.BatchProcess(_mockOutlets, _mockScrapingService.Object))
             .ReturnsAsync(Errors.ExternalServiceProvider.Scraper.ScrapingRequestError(""));
 
         // Act

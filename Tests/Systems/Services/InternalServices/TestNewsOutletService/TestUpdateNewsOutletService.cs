@@ -1,215 +1,193 @@
+using Bogus;
 using dtr_nne.Application.DTO.NewsOutlet;
 using dtr_nne.Application.Extensions;
+using dtr_nne.Application.Mapper;
 using dtr_nne.Application.Services.NewsOutletServices;
 using dtr_nne.Domain.Entities;
+using dtr_nne.Domain.IContext;
+using dtr_nne.Domain.Repositories;
+using dtr_nne.Domain.UnitOfWork;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Tests.Fixtures.NewsOutletDtoFixtures;
-using NewsOutletDtoFixture = Tests.Fixtures.NewsOutletDtoFixture;
+using Tests.Fixtures.NewsOutletFixtures;
 
 namespace Tests.Systems.Services.InternalServices.TestNewsOutletService;
 
-public class TestUpdateNewsOutletService : BaseTestNewsOutletService
+public class TestUpdateNewsOutletService
 {
-    private readonly UpdateNewsOutletService _sut;
-    private readonly Mock<INewsOutletServiceHelper> _mockHelpers;
-
+    private static readonly Faker Faker = new();
+    
     public TestUpdateNewsOutletService()
     {
-        ILogger<UpdateNewsOutletService> logger = new Mock<ILogger<UpdateNewsOutletService>>().Object;
+        Mock<ILogger<UpdateNewsOutletService>> mockLogger = new();
+        _mockHelper = new Mock<INewsOutletServiceHelper>();
+        _mockRepository = new Mock<INewsOutletRepository>();
+        _mockMapper = new Mock<INewsOutletMapper>();
+        _mockUnitOfWork = new Mock<IUnitOfWork<INneDbContext>>();
 
-        var newsOutletDtos = NewsOutletDtoFixtureBase.OutletDtos[0];
+        _mockNewsOutletDtos = NewsOutletDtoFixtureBase.OutletDtos[1];
         
-        _mockHelpers = new Mock<INewsOutletServiceHelper>();
-        
-        Mockrepository
-            .Setup(repository => repository.UpdateRange(It.IsAny<List<NewsOutlet>>()))
-            .Returns(true);
+        _mockNewsOutlets = NewsOutletFixtureBase.Outlets[1];
 
-        _mockHelpers
-            .Setup(helper => helper.MatchNewsOutlets(It.IsAny<List<NewsOutlet>>()).Result)
-            .Returns(([new NewsOutlet()], []));
-        
-        MockMapper.Setup(mapper => mapper.EntitiesToDtos(It.IsAny<List<NewsOutlet>>()))
-            .Returns(newsOutletDtos);
-        MockMapper
-            .Setup(mapper => mapper.DtosToEntities(It.IsAny<List<NewsOutletDto>>()))
-            .Returns([new NewsOutlet()]);
-        
-        _sut = new UpdateNewsOutletService(logger: logger, 
-            helper: _mockHelpers.Object,
-            repository: Mockrepository.Object, 
-            mapper: MockMapper.Object, unitOfWork: MockUnitOfWork.Object);
+        BasicSetup();
+
+        _sut = new UpdateNewsOutletService(
+            mockLogger.Object,
+            _mockHelper.Object,
+            _mockRepository.Object,
+            _mockMapper.Object,
+            _mockUnitOfWork.Object
+        );
     }
-    
-    [Fact]
-    public async Task IfPassedEmptyDtoList_ReturnsErrorNoOutletsProvided()
-    {
-        // Assemble
-        
-        // Act
-        var result = await _sut.UpdateNewsOutlets([]);
 
-        // Assert 
+    private readonly UpdateNewsOutletService _sut;
+    private readonly Mock<INewsOutletServiceHelper> _mockHelper;
+    private readonly Mock<INewsOutletRepository> _mockRepository;
+    private readonly Mock<INewsOutletMapper> _mockMapper;
+    private readonly Mock<IUnitOfWork<INneDbContext>> _mockUnitOfWork;
+    private readonly List<NewsOutletDto> _mockNewsOutletDtos;
+    private readonly List<NewsOutlet> _mockNewsOutlets;
+
+    private void BasicSetup()
+    {
+        _mockMapper
+            .Setup(mapper => mapper.DtosToEntities(_mockNewsOutletDtos))
+            .Returns(_mockNewsOutlets);
+
+        _mockMapper
+            .Setup(mapper => mapper.EntitiesToDtos(It.IsAny<List<NewsOutlet>>()))
+            .Returns(_mockNewsOutletDtos);
+
+        _mockHelper
+            .Setup(helper => helper.MatchNewsOutlets(_mockNewsOutlets))
+            .ReturnsAsync((_mockNewsOutlets, new List<NewsOutlet>()));
+
+        _mockRepository
+            .Setup(repo => repo.UpdateRange(It.IsAny<List<NewsOutlet>>()))
+            .Returns(true);
+    }
+
+    [Fact]
+    public async Task UpdateNewsOutlets_WhenEmptyListProvided_ReturnsError()
+    {
+        // Arrange
+        var emptyDtoList = new List<NewsOutletDto>();
+
+        // Act
+        var result = await _sut.UpdateNewsOutlets(emptyDtoList);
+
+        // Assert
         result.IsError.Should().BeTrue();
         result.FirstError.Should().BeEquivalentTo(Errors.NewsOutlets.NoNewsOutletProvided);
     }
 
-    [Theory]
-    [ClassData(typeof(NewsOutletDtoFixture))]
-    public async Task WhenInvoked_WithFilledDtos_ShouldCall_MatchNewsOutlets(List<NewsOutletDto> newsOutletsDtos)
+    [Fact]
+    public async Task UpdateNewsOutlets_WhenMatchingFails_ReturnsError()
     {
-        // Assemble
-        
-        // Act
-        await _sut.UpdateNewsOutlets(newsOutletsDtos);
-
-        // Assert 
-        MockMapper.Verify(mapper => mapper.DtosToEntities(newsOutletsDtos), Times.AtLeastOnce);
-    }
-
-    [Theory]
-    [ClassData(typeof(NewsOutletDtoFixture))]
-    public async Task WhenInvoked_WithFiledDtos_ShouldCall_MatchNewsOutlets(List<NewsOutletDto> newsOutletsDtos)
-    {
-        // Assemble
-        
-        // Act
-        await _sut.UpdateNewsOutlets(newsOutletsDtos);
-
-        // Assert 
-        _mockHelpers.Verify(helper => helper.MatchNewsOutlets(It.IsAny<List<NewsOutlet>>()), Times.AtLeastOnce);
-    }
-
-    [Theory]
-    [ClassData(typeof(NewsOutletDtoFixture))]
-    public async Task WhenInvokedProperly_IfDbIsEmpty_ShouldReturn_ErrorNotFoundInDb(List<NewsOutletDto> newsOutletsDtos)
-    {
-        // Assemble
-        _mockHelpers
-            .Setup(helper => helper.MatchNewsOutlets(It.IsAny<List<NewsOutlet>>()).Result)
-            .Returns(Errors.NewsOutlets.NotFoundInDb);
+        // Arrange
+        _mockHelper
+            .Setup(helper => helper.MatchNewsOutlets(_mockNewsOutlets))
+            .ReturnsAsync(Errors.NewsOutlets.NotFoundInDb);
 
         // Act
-        var result = await _sut.UpdateNewsOutlets(newsOutletsDtos);
-        
-        // Assert 
+        var result = await _sut.UpdateNewsOutlets(_mockNewsOutletDtos);
+
+        // Assert
         result.IsError.Should().BeTrue();
         result.FirstError.Should().BeEquivalentTo(Errors.NewsOutlets.NotFoundInDb);
     }
 
-    [Theory]
-    [ClassData(typeof(NewsOutletDtoFixture))]
-    public async Task WhenInvokedProperly_IfNoneMatched_ShouldReturn_NotMatchedList(List<NewsOutletDto> newsOutletsDtos)
+    [Fact]
+    public async Task UpdateNewsOutlets_WhenNoMatchesFound_ReturnsUnmatchedDtos()
     {
-        // Assemble
-        _mockHelpers.Setup(helper => helper.MatchNewsOutlets(It.IsAny<List<NewsOutlet>>()).Result)
-            .Returns(([], [new NewsOutlet()]));
-        MockMapper.Setup(mapper => mapper.EntitiesToDtos(It.IsAny<List<NewsOutlet>>()))
-            .Returns(newsOutletsDtos);
+        // Arrange
+        _mockHelper
+            .Setup(helper => helper.MatchNewsOutlets(_mockNewsOutlets))
+            .ReturnsAsync((new List<NewsOutlet>(), _mockNewsOutlets));
 
         // Act
-        var result = await _sut.UpdateNewsOutlets(newsOutletsDtos);
+        var result = await _sut.UpdateNewsOutlets(_mockNewsOutletDtos);
 
         // Assert
         result.IsError.Should().BeFalse();
-        result.Value.Should().BeEquivalentTo(newsOutletsDtos);
-        result.Value.Should().NotBeEmpty();
+        result.Value.Should().BeEquivalentTo(_mockNewsOutletDtos);
+        _mockRepository.Verify(repo => repo.UpdateRange(It.IsAny<List<NewsOutlet>>()), Times.Never);
+        _mockUnitOfWork.Verify(uow => uow.Save(), Times.Never);
     }
 
-    [Theory]
-    [ClassData(typeof(NewsOutletDtoFixture))]
-    public async Task NewsOutletDto_Properly_Matched_ShouldInvoke_RepositoryUpdate(List<NewsOutletDto> newsOutletsDtos)
+    [Fact]
+    public async Task UpdateNewsOutlets_WhenUpdateFails_ReturnsError()
     {
-        // Assemble
-        
-        // Act
-        await _sut.UpdateNewsOutlets(newsOutletsDtos);
-
-        // Assert
-        Mockrepository.Verify(repository => repository.UpdateRange(It.IsAny<List<NewsOutlet>>()), Times.AtLeastOnce);
-    }
-
-    [Theory]
-    [ClassData(typeof(NewsOutletDtoFixture))]
-    public async Task WhenInvokedProperly_Matched_RepositoryError_ReturnsErrorDeletionFailed(
-        List<NewsOutletDto> newsOutletsDtos)
-    {
-        // Assemble
-        Mockrepository
-            .Setup(repository => repository.UpdateRange(It.IsAny<List<NewsOutlet>>()))
+        // Arrange
+        _mockRepository
+            .Setup(repo => repo.UpdateRange(It.IsAny<List<NewsOutlet>>()))
             .Returns(false);
-        
+
         // Act
-        var result = await _sut.UpdateNewsOutlets(newsOutletsDtos);
+        var result = await _sut.UpdateNewsOutlets(_mockNewsOutletDtos);
 
         // Assert
         result.IsError.Should().BeTrue();
         result.FirstError.Should().BeEquivalentTo(Errors.NewsOutlets.UpdateFailed);
+        _mockUnitOfWork.Verify(uow => uow.Save(), Times.Never);
     }
 
-    [Theory]
-    [ClassData(typeof(NewsOutletDtoFixture))]
-    public async Task WhenInvokedProperly_Matched_RepositoryPass_ShouldCallUnitOfWorkSave(List<NewsOutletDto> newsOutletsDtos)
+    [Fact]
+    public async Task UpdateNewsOutlets_WhenAllOutletsUpdated_ReturnsEmptyList()
     {
-        // Assemble
-
         // Act
-        await _sut.UpdateNewsOutlets(newsOutletsDtos);
+        var result = await _sut.UpdateNewsOutlets(_mockNewsOutletDtos);
 
-        // Assert 
-        MockUnitOfWork.Verify(uow => uow.Save(), Times.AtLeastOnce);
-    }
-
-    [Theory]
-    [ClassData(typeof(NewsOutletDtoFixture))]
-    public async Task WhenInvokedProperly_Matched_RepositoryPass_ShouldMapNOToDto(
-        List<NewsOutletDto> newsOutletsDtos)
-    {
-        // Assemble
-        _mockHelpers
-            .Setup(helper => helper.MatchNewsOutlets(It.IsAny<List<NewsOutlet>>()).Result)
-            .Returns(([new NewsOutlet()], [new NewsOutlet()]));
-
-        // Act
-        await _sut.UpdateNewsOutlets(newsOutletsDtos);
-
-        // Assert 
-        MockMapper.Verify(mapper => mapper.EntitiesToDtos(It.IsAny<List<NewsOutlet>>()),Times.AtLeastOnce);
-    }
-    
-    [Theory]
-    [ClassData(typeof(NewsOutletDtoFixture))]
-    public async Task On_PartialSuccess_ShouldReturn_LeftoverDtos(
-        List<NewsOutletDto> newsOutletsDtos)
-    {
-        // Assemble
-        _mockHelpers
-            .Setup(helper => helper.MatchNewsOutlets(It.IsAny<List<NewsOutlet>>()).Result)
-            .Returns(([new NewsOutlet()], [new NewsOutlet()]));
-
-        // Act
-        var result = await _sut.UpdateNewsOutlets(newsOutletsDtos);
-
-        // Assert 
-        result.IsError.Should().BeFalse();
-        result.Value.Should().BeOfType<List<NewsOutletDto>>();
-        result.Value.Should().HaveCount(1);
-    }
-
-    [Theory]
-    [ClassData(typeof(NewsOutletDtoFixture))]
-    public async Task On_Success_ShouldReturn_EmptyDtos(
-        List<NewsOutletDto> newsOutletsDtos)
-    {
-        // Assemble
-        
-        // Act
-        var result = await _sut.UpdateNewsOutlets(newsOutletsDtos);
-        
         // Assert
         result.IsError.Should().BeFalse();
-        result.Value.Should().BeOfType<List<NewsOutletDto>>();
-        result.Value.Should().HaveCount(0);
+        result.Value.Should().BeEmpty();
+        _mockRepository.Verify(repo => repo.UpdateRange(_mockNewsOutlets), Times.Once);
+        _mockUnitOfWork.Verify(uow => uow.Save(), Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateNewsOutlets_WhenPartiallyUpdated_ReturnsUnmatchedDtos()
+    {
+        // Arrange
+        var matchedOutlet = _mockNewsOutlets[0];
+        var unmatchedOutlet = _mockNewsOutlets[1];
+        _mockHelper
+            .Setup(helper => helper.MatchNewsOutlets(_mockNewsOutlets))
+            .ReturnsAsync((new List<NewsOutlet> { matchedOutlet }, new List<NewsOutlet> { unmatchedOutlet }));
+        _mockMapper
+            .Setup(mapper => mapper.EntitiesToDtos(It.IsAny<List<NewsOutlet>>()))
+            .Returns(new List<NewsOutletDto>([_mockNewsOutletDtos[1]]));
+
+        // Act
+        var result = await _sut.UpdateNewsOutlets(_mockNewsOutletDtos);
+
+        // Assert
+        result.IsError.Should().BeFalse();
+        result.Value.Should().ContainSingle();
+        result.Value.Should().ContainEquivalentOf(_mockNewsOutletDtos[1]);
+        _mockRepository.Verify(repo => repo.UpdateRange(It.Is<List<NewsOutlet>>(list => 
+            list.Single().Id == matchedOutlet.Id)), Times.Once);
+        _mockUnitOfWork.Verify(uow => uow.Save(), Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateNewsOutlets_VerifyCorrectEntitiesUpdated()
+    {
+        // Arrange
+        IEnumerable<NewsOutlet> updatedEntities = new List<NewsOutlet>();
+        _mockRepository
+            .Setup(repo => repo.UpdateRange(It.IsAny<List<NewsOutlet>>()))
+            .Callback<IEnumerable<NewsOutlet>>(entities => updatedEntities = entities)
+            .Returns(true);
+
+        // Act
+       await _sut.UpdateNewsOutlets(_mockNewsOutletDtos);
+
+        // Assert
+        updatedEntities.Should().BeEquivalentTo(_mockNewsOutlets, options => 
+            options.Including(x => x.Id)
+                   .Including(x => x.Name)
+                   .Including(x => x.Website));
     }
 }

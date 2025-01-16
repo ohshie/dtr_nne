@@ -1,3 +1,4 @@
+using Bogus;
 using dtr_nne.Application.DTO.ExternalService;
 using dtr_nne.Application.Extensions;
 using dtr_nne.Application.ExternalServices;
@@ -24,11 +25,11 @@ public class TestExternalServiceManagerBase
         MockLlmService = new();
         MockTranslatorService = new();
         
-        var faker = new Bogus.Faker();
+        var faker = new Faker();
         
         TestServiceDto = new()
         {
-            ServiceName = Faker.Internet.UserName(),
+            ServiceName = faker.Internet.UserName(),
             Type = ExternalServiceType.Llm,
             ApiKey = faker.Random.Guid().ToString(),
             InUse = true

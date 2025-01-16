@@ -1,3 +1,4 @@
+using Bogus;
 using dtr_nne.Domain.Entities;
 using dtr_nne.Infrastructure.Context;
 using dtr_nne.Infrastructure.Repositories;
@@ -11,13 +12,14 @@ namespace Tests.Systems.Repositories;
 
 public class TestGenericRepository : IClassFixture<GenericDatabaseFixture<ExternalService>>
 {
+    private readonly static Faker Faker = new Faker();
     private readonly GenericDatabaseFixture<ExternalService> _genericDatabaseFixture;
     private readonly Mock<GenericRepository<ExternalService, NneDbContext>> _sut;
     private readonly Mock<DbSet<ExternalService>> _mockDbSet;
 
     private readonly ExternalService _mockService = new()
     {
-        ApiKey = Faker.Name.First()
+        ApiKey = Faker.Internet.Ipv6()
     };
 
     public TestGenericRepository(GenericDatabaseFixture<ExternalService> genericDatabaseFixture)
@@ -45,7 +47,7 @@ public class TestGenericRepository : IClassFixture<GenericDatabaseFixture<Extern
         await _genericDatabaseFixture.Context.SaveChangesAsync();
 
         var keyToUpdate = await _genericDatabaseFixture.Context.ExternalServices.FirstOrDefaultAsync();
-        keyToUpdate!.ApiKey = Faker.Name.Last();
+        keyToUpdate!.ApiKey = Faker.Internet.Ipv6();
 
         // Act
         var success = _sut.Object.Update(keyToUpdate);
