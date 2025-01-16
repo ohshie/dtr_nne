@@ -14,17 +14,17 @@ public class NewsSearcher(ILogger<NewsSearcher> logger,
     INewsArticleRepository newsArticleRepository,
     IUnitOfWork<INneDbContext> unitOfWork) : INewsSearcher
 {
-    internal async Task<ErrorOr<List<NewsArticle>>> CollectNews(IScrapingService service, string? cutOffDate = null)
+    public async Task<ErrorOr<List<NewsArticle>>> CollectNews(IScrapingService service, string? cutOffDate = null)
     {
         logger.LogInformation("Starting to collect all updates from saved outlets");
         
-        if (await newsOutletRepository.GetAll() is not { } outlets)
+        if (await newsOutletRepository.GetAll() is not { } outlets || !outlets.Any())
         {
             logger.LogWarning("there are currently no saved news outlets");
             return Errors.NewsOutlets.NotFoundInDb;
         }
 
-        var news = await scrapingManager.ProcessMainPages(service, (outlets as List<NewsOutlet>)!);
+        var news = await scrapingManager.BatchProcess((outlets as List<NewsOutlet>)!, service);
         if (news.IsError)
         {
             return news.FirstError;
@@ -33,7 +33,7 @@ public class NewsSearcher(ILogger<NewsSearcher> logger,
         var filteredNews = await FilterDuplicates(news.Value);
         if (filteredNews.Count is 0)
         {
-            logger.LogWarning("No new news articles left after filtering. Returning null");
+            logger.LogWarning("No new news articles left after filtering. Returning {Error}", Errors.NewsAticles.NoNewNewsArticles);
             return Errors.NewsAticles.NoNewNewsArticles;
         }
 

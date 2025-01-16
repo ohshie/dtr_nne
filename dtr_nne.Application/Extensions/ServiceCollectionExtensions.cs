@@ -1,5 +1,9 @@
 using dtr_nne.Application.ExternalServices;
 using dtr_nne.Application.Mapper;
+using dtr_nne.Application.Services.NewsEditor.NewsParser.ArticleProcessor;
+using dtr_nne.Application.Services.NewsEditor.NewsParser.NewsSearcher;
+using dtr_nne.Application.Services.NewsEditor.NewsParser.ScrapingManager;
+using dtr_nne.Application.Services.NewsEditor.NewsParser.ScrapingManager.MainPageScrapingResultProcessor;
 using dtr_nne.Application.Services.NewsEditor.NewsRewriter;
 using dtr_nne.Application.Services.NewsOutletServices;
 using Microsoft.Extensions.Configuration;
@@ -22,6 +26,11 @@ public static class ServiceCollectionExtensions
         serviceCollection.AddTransient<IArticleMapper, ArticleMapper>();
 
         serviceCollection.AddTransient<IExternalServiceManager, ExternalServiceManager>();
+
+        serviceCollection.AddTransient<IArticleProcessor, ArticleProcessor>();
+        serviceCollection.AddTransient<INewsSearcher, NewsSearcher>();
+        serviceCollection.AddTransient<IScrapingManager, ScrapingManager>();
+        serviceCollection.AddTransient<IMainPageScrapingResultProcessor, MainPageScrapingResultProcessor>();
 
         serviceCollection.AddTransient<INewsRewriter, NewsRewriter>();
     }
