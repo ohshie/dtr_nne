@@ -15,14 +15,23 @@ public class NewsCollector(ILogger<NewsCollector> logger,
     public async Task<ErrorOr<List<NewsArticle>>> Collect(IScrapingService scraper, 
         ITranslatorService translator, List<NewsOutlet> outlets)
     {
+        logger.LogInformation("Starting news collection for {OutletCount} outlets", outlets.Count);
+        
         var newArticlesList = await scrapingManager.BatchProcess(outlets, scraper);
-        if (newArticlesList.IsError) return newArticlesList.FirstError;
+        if (newArticlesList.IsError) {
+            logger.LogError("Batch processing failed: {Error}", newArticlesList.FirstError);
+            return newArticlesList.FirstError;
+        }
+        
+        logger.LogInformation("Successfully scraped {ArticleCount} articles from {OutletCount} outlets", 
+            newArticlesList.Value.Count, outlets.Count);
         
         var latestArticles = await FilterDuplicates(newArticlesList.Value);
 
         var finalResult = await TranslateHeadlines(translator, latestArticles);
         if (finalResult.IsError)
         {
+            logger.LogError("Translation failed: {Error}", finalResult.FirstError.Description);
             return latestArticles
                 .Select(article => 
                 {
@@ -31,6 +40,7 @@ public class NewsCollector(ILogger<NewsCollector> logger,
                 }).ToList();
         }
         
+        logger.LogDebug("Starting database operations for {Count} articles", latestArticles.Count);
         await newsArticleRepository.AddRange(latestArticles);
         await unitOfWork.Save();
 
@@ -51,9 +61,13 @@ public class NewsCollector(ILogger<NewsCollector> logger,
             filteredList = freshArticles
                 .Where(fresh => currentRegisteredNews
                     .All(registered => registered.Uri != fresh.Uri)).ToList();
+            
+            logger.LogDebug("Removed {Count} duplicate articles", 
+                freshArticles.Count - filteredList.Count);
         }
         else
         {
+            logger.LogDebug("No existing articles found in database, keeping all fresh articles");
             filteredList = freshArticles;
         }
         
@@ -63,13 +77,18 @@ public class NewsCollector(ILogger<NewsCollector> logger,
     
     internal async Task<ErrorOr<List<NewsArticle>>> TranslateHeadlines(ITranslatorService translator, List<NewsArticle> articles)
     {
+        logger.LogInformation("Starting headline translation for {Count} articles", articles.Count);
+        
         var headlines = articles
             .Select(sa => sa.ArticleContent!.Headline)
             .ToList();
         
         var translatorResult = await translator.Translate(headlines);
         if (translatorResult.IsError)
+        {
+            logger.LogError("Translation service failed: {Error}", translatorResult.FirstError);
             return translatorResult.FirstError;
+        }
 
         var finalResult = articles.Join(
             translatorResult.Value,
@@ -81,6 +100,12 @@ public class NewsCollector(ILogger<NewsCollector> logger,
                 return article;
             }
         ).ToList();
+        
+        var unmatched = articles.Count - finalResult.Count;
+        if (unmatched > 0)
+        {
+            logger.LogWarning("Failed to match translations for {Count} articles", unmatched);
+        }
 
         return finalResult;
     }
