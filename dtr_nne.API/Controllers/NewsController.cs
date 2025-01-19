@@ -1,6 +1,8 @@
 using dtr_nne.Application.DTO.Article;
-using dtr_nne.Application.NewsEditor;
+using dtr_nne.Application.Services.NewsEditor.NewsParser;
+using dtr_nne.Application.Services.NewsEditor.NewsRewriter;
 using ErrorOr;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace dtr_nne.Controllers;
@@ -8,14 +10,14 @@ namespace dtr_nne.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class NewsController(INewsRewriter rewriter) : ControllerBase
+public class NewsController(INewsParser newsParser, INewsRewriter rewriter) : ControllerBase
 {
     [HttpPost("RewriteNews", Name = "RewriteNews")]
-    [ProducesResponseType<ArticleDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ArticleContentDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<Error>(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> RewriteNews(ArticleDto articleDto)
+    public async Task<ActionResult> RewriteNews(ArticleContentDto articleContentDto)
     {
-        var editedArticle = await rewriter.Rewrite(articleDto);
+        var editedArticle = await rewriter.Rewrite(articleContentDto);
         
         if (editedArticle.IsError)
         {
@@ -23,5 +25,39 @@ public class NewsController(INewsRewriter rewriter) : ControllerBase
         }
 
         return Ok(editedArticle);
+    }
+    
+    [HttpPost("ParseNews", Name = "ParseNews")]
+    [ProducesResponseType<List<NewsArticleDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<NoContent>(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<Error>(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult> ParseNews(bool fullProcess = true)
+    {
+        var newsArticles = await newsParser.ExecuteBatchParse(true);
+        if (newsArticles.IsError)
+        {
+            return BadRequest(newsArticles.FirstError);
+        }
+
+        if (newsArticles.Value.Count < 1)
+        {
+            return NoContent();
+        }
+
+        return Ok(newsArticles.Value);
+    }
+    
+    [HttpPost("ParseArticle", Name = "ParseArticle")]
+    [ProducesResponseType<List<NewsArticleDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<Error>(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult> ParseArticle(BaseNewsArticleDto articleDto)
+    {
+        var newsArticles = await newsParser.Execute(articleDto);
+        if (newsArticles.IsError)
+        {
+            return BadRequest(newsArticles.FirstError);
+        }
+
+        return Ok(newsArticles.Value);
     }
 }

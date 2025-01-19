@@ -14,24 +14,22 @@ public class TestInfrastructureServiceCollection
 {
     public TestInfrastructureServiceCollection()
     {
-        _connection = new SqliteConnection("DataSource=:memory:");
-        _connection.Open();
+        var connection = new SqliteConnection("DataSource=:memory:");
+        connection.Open();
 
         // Create configuration with test connection string
         var configValues = new Dictionary<string, string>
         {
-            {"ConnectionStrings:DefaultConnection", _connection.ConnectionString}
+            {"ConnectionStrings:DefaultConnection", connection.ConnectionString}
         };
 
-        _configuration = new ConfigurationBuilder()
+        new ConfigurationBuilder()
             .AddInMemoryCollection(configValues!)
             .Build();
         
         _sut = CreateServiceCollection();
     }
 
-    private readonly SqliteConnection _connection;
-    private readonly IConfiguration _configuration;
     private IServiceCollection _sut;
     
     private IServiceCollection CreateServiceCollection()
@@ -74,7 +72,7 @@ public class TestInfrastructureServiceCollection
 
         // Assert
         serviceDescriptor.Should().NotBeNull();
-        serviceDescriptor!.Lifetime.Should().Be(expectedLifetime);
+        serviceDescriptor.Lifetime.Should().Be(expectedLifetime);
     }
     
     [Fact]

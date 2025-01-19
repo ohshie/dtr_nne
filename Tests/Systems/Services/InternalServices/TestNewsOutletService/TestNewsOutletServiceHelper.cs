@@ -1,96 +1,181 @@
+using Bogus;
 using dtr_nne.Application.Extensions;
 using dtr_nne.Application.Services.NewsOutletServices;
 using dtr_nne.Domain.Entities;
 using dtr_nne.Domain.Repositories;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Tests.Fixtures.NewsOutletFixtures;
 
 namespace Tests.Systems.Services.InternalServices.TestNewsOutletService;
 
 public class TestNewsOutletServiceHelper
 {
+    private static readonly Faker Faker = new();
     public TestNewsOutletServiceHelper()
     {
-        var faker = new Bogus.Faker();
-        
-        _mockRepository = new();
-        _testSavedNewsOutlets = new List<NewsOutlet>([
-            new NewsOutlet()
-            {
-                Id = 1,
-                Name = faker.Lorem.Word()
-            },
-            new NewsOutlet()
-            {
-                Id = 2,
-                Name = faker.Lorem.Word()
-            }
-        ]);
+        Mock<ILogger<NewsOutletServiceHelper>> mockLogger = new();
+        _mockRepository = new Mock<INewsOutletRepository>();
 
-        _testIncomingNewsOutlets = new List<NewsOutlet>([
-            new NewsOutlet()
-            {
-                Id = 1,
-                Name = _testSavedNewsOutlets[0].Name
-            }
-        ]);
+        _savedNewsOutlets = NewsOutletFixtureBase.Outlets[1];
 
-        _mockRepository
-            .Setup(repository => repository.GetAll().Result)
-            .Returns(_testSavedNewsOutlets);
-        
-        _sut = new(new Mock<ILogger<NewsOutletServiceHelper>>().Object, _mockRepository.Object);
+        BasicSetup();
+
+        _sut = new NewsOutletServiceHelper(
+            mockLogger.Object,
+            _mockRepository.Object
+        );
     }
+
     private readonly NewsOutletServiceHelper _sut;
     private readonly Mock<INewsOutletRepository> _mockRepository;
+    private readonly List<NewsOutlet> _savedNewsOutlets;
 
-    private List<NewsOutlet> _testSavedNewsOutlets;
-    private List<NewsOutlet> _testIncomingNewsOutlets;
-
-    [Fact]
-    public async Task MatchNewsOutlets_IfCorrect_ReturnsMatched()
+    private void BasicSetup()
     {
-        // Assemble
-
-        // Act
-        var results = await _sut.MatchNewsOutlets(_testIncomingNewsOutlets);
-
-        // Assert 
-        results.IsError.Should().BeFalse();
-        var (matchedNewsOutlets, notMatchedNewsOutlets) = results.Value;
-        matchedNewsOutlets.Count.Should().Be(1);
-        notMatchedNewsOutlets.Count.Should().Be(0);
-    }
-    
-    [Fact]
-    public async Task MatchNewsOutlets_IfNoneMatched_ReturnsNotMatched()
-    {
-        // Assemble
-        _testIncomingNewsOutlets[0].Id = 3;
-        
-        // Act
-        var results = await _sut.MatchNewsOutlets(_testIncomingNewsOutlets);
-
-        // Assert 
-        results.IsError.Should().BeFalse();
-        var (matchedNewsOutlets, notMatchedNewsOutlets) = results.Value;
-        matchedNewsOutlets.Count.Should().Be(0);
-        notMatchedNewsOutlets.Count.Should().Be(1);
-    }
-
-    [Fact]
-    public async Task MatchNewsOutlets_IfNoneInDb_ShouldReturnError()
-    {
-        // Assemble
         _mockRepository
-            .Setup(repository => repository.GetAll().Result)
-            .Returns((IEnumerable<NewsOutlet>?)null);
+            .Setup(repo => repo.GetAll())
+            .ReturnsAsync(_savedNewsOutlets);
+    }
+
+    [Fact]
+    public async Task MatchNewsOutlets_WhenNoSavedOutlets_ReturnsError()
+    {
+        // Arrange
+        _mockRepository
+            .Setup(repo => repo.GetAll())
+            .ReturnsAsync((List<NewsOutlet>)null!);
+
+        var incomingOutlets = NewsOutletFixtureBase.Outlets[0];
 
         // Act
-        var result = await _sut.MatchNewsOutlets(_testIncomingNewsOutlets);
+        var result = await _sut.MatchNewsOutlets(incomingOutlets);
 
-        // Assert 
+        // Assert
         result.IsError.Should().BeTrue();
-        result.FirstError.Should().Be(Errors.NewsOutlets.NotFoundInDb);
+        result.FirstError.Should().BeEquivalentTo(Errors.NewsOutlets.NotFoundInDb);
+    }
+
+    [Fact]
+    public async Task MatchNewsOutlets_WhenAllOutletsMatch_ReturnsAllMatchedNoUnmatched()
+    {
+        // Arrange
+
+        // Act
+        var result = await _sut.MatchNewsOutlets(_savedNewsOutlets);
+
+        // Assert
+        result.IsError.Should().BeFalse();
+        var (matched, unmatched) = result.Value;
+        matched.Should().HaveCount(3);
+        matched.Select(x => x.Id).Should().BeEquivalentTo(_savedNewsOutlets.Select(x => x.Id));
+        unmatched.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task MatchNewsOutlets_WhenNoOutletsMatch_ReturnsAllUnmatchedNoMatched()
+    {
+        // Arrange
+        var incomingOutlets = new List<NewsOutlet>
+        {
+            new()
+            {
+                Id = Faker.Random.Int(600),
+                Name = Faker.Internet.Url(),
+                Website = new Uri(Faker.Internet.Url()),
+                MainPagePassword = "{ \"links\": \"li div.left a @href\" }",
+                NewsPassword =
+                    "{ \"header\": \"h1.article-title\", \"body\": \"div.clearfix > p\", \"images\": \"img.attachment-post-thumbnail @src\", \"copyright\": \"\", \"source\": \"\" }",
+                AlwaysJs = Faker.Random.Bool(),
+                InUse = Faker.Random.Bool(),
+                Themes = []
+            },
+            new()
+            {
+                Id = Faker.Random.Int(600),
+                Name = Faker.Internet.Url(),
+                Website = new Uri(Faker.Internet.Url()),
+                MainPagePassword = "{ \"links\": \"li div.left a @href\" }",
+                NewsPassword =
+                    "{ \"header\": \"h1.article-title\", \"body\": \"div.clearfix > p\", \"images\": \"img.attachment-post-thumbnail @src\", \"copyright\": \"\", \"source\": \"\" }",
+                AlwaysJs = Faker.Random.Bool(),
+                InUse = Faker.Random.Bool(),
+                Themes = []
+            },
+        };
+
+        // Act
+        var result = await _sut.MatchNewsOutlets(incomingOutlets);
+
+        // Assert
+        result.IsError.Should().BeFalse();
+        var (matched, unmatched) = result.Value;
+        matched.Should().BeEmpty();
+        unmatched.Should().HaveCount(2);
+        unmatched.Select(x => x.Id).Should().BeEquivalentTo(incomingOutlets.Select(x => x.Id));
+    }
+
+    [Fact]
+    public async Task MatchNewsOutlets_WhenSomeOutletsMatch_ReturnsMatchedAndUnmatched()
+    {
+        // Arrange
+        var matchingId = _savedNewsOutlets[0].Id;
+        var nonMatchingId = Faker.Random.Int(600);
+        var incomingOutlets = new List<NewsOutlet>
+        {
+            new()
+            {
+                Id = matchingId,
+                Name = Faker.Internet.Url(),
+                Website = new Uri(Faker.Internet.Url()),
+                MainPagePassword = "{ \"links\": \"li div.left a @href\" }",
+                NewsPassword =
+                    "{ \"header\": \"h1.article-title\", \"body\": \"div.clearfix > p\", \"images\": \"img.attachment-post-thumbnail @src\", \"copyright\": \"\", \"source\": \"\" }",
+                AlwaysJs = Faker.Random.Bool(),
+                InUse = Faker.Random.Bool(),
+                Themes = []
+            },
+            new()
+            {
+                Id = nonMatchingId,
+                Name = Faker.Internet.Url(),
+                Website = new Uri(Faker.Internet.Url()),
+                MainPagePassword = "{ \"links\": \"li div.left a @href\" }",
+                NewsPassword =
+                    "{ \"header\": \"h1.article-title\", \"body\": \"div.clearfix > p\", \"images\": \"img.attachment-post-thumbnail @src\", \"copyright\": \"\", \"source\": \"\" }",
+                AlwaysJs = Faker.Random.Bool(),
+                InUse = Faker.Random.Bool(),
+                Themes = []
+            },
+        };
+
+        // Act
+        var result = await _sut.MatchNewsOutlets(incomingOutlets);
+
+        // Assert
+        result.IsError.Should().BeFalse();
+        var (matched, unmatched) = result.Value;
+        
+        matched.Should().ContainSingle();
+        matched.Single().Id.Should().Be(matchingId);
+        
+        unmatched.Should().ContainSingle();
+        unmatched.Single().Id.Should().Be(nonMatchingId);
+    }
+
+    [Fact]
+    public async Task MatchNewsOutlets_WithEmptyIncomingList_ReturnsEmptyMatchedAndUnmatched()
+    {
+        // Arrange
+        var incomingOutlets = new List<NewsOutlet>();
+
+        // Act
+        var result = await _sut.MatchNewsOutlets(incomingOutlets);
+
+        // Assert
+        result.IsError.Should().BeFalse();
+        var (matched, unmatched) = result.Value;
+        matched.Should().BeEmpty();
+        unmatched.Should().BeEmpty();
     }
 }

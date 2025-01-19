@@ -22,8 +22,6 @@ public class DeeplTranslator(ILogger<DeeplTranslator> logger, ExternalService se
             return Errors.Translator.Service.NoHeadlineProvided;
         }
         
-        logger.LogDebug("Using API key from service: {ExternalServiceName}", service.ServiceName);
-        
         var translatedHeadlines = await TranslateHeadlines(headlines, service.ApiKey);
         if (translatedHeadlines.IsError)
         {
@@ -39,7 +37,7 @@ public class DeeplTranslator(ILogger<DeeplTranslator> logger, ExternalService se
     
     internal virtual async Task<ErrorOr<List<Headline>>> TranslateHeadlines(List<Headline> headlines, string apiKey)
     {
-        logger.LogDebug("Starting to translate headlines with API key");
+        logger.LogDebug("Starting to translate headlines");
         
         var semaphore = new SemaphoreSlim(5);
         var tasks = new List<Task<ErrorOr<Headline>>>();
@@ -70,12 +68,12 @@ public class DeeplTranslator(ILogger<DeeplTranslator> logger, ExternalService se
                     {
                         case AuthorizationException:
                             logger.LogError("Invalid API key provided for translation");
-                            headline.TranslatedHeadline = $"Provided ApiKey is not Valid!";
-                            return Errors.Translator.Api.BadApiKey;
+                            headline.TranslatedHeadline = Errors.Translator.Api.BadApiKey.Description;
+                            return headline;
                         case QuotaExceededException:
                             logger.LogError("API quota exceeded during translation");
-                            headline.TranslatedHeadline = $"Api Quota Exceeded!";
-                            return Errors.Translator.Api.QuotaExceeded;
+                            headline.TranslatedHeadline = Errors.Translator.Api.QuotaExceeded.Description;
+                            return headline;
                         default:
                             logger.LogError(exception, "An unexpected error occurred during translation");
                             throw;
@@ -92,13 +90,13 @@ public class DeeplTranslator(ILogger<DeeplTranslator> logger, ExternalService se
         var results = await Task.WhenAll(tasks);
         
         var errors = results
-            .Where(r => r.IsError)
-            .Select(r => r.Errors.FirstOrDefault())
+            .Where(r => r.Value.TranslatedHeadline == Errors.Translator.Api.BadApiKey.Description)
+            .Select(r => r.Value.OriginalHeadline)
             .ToList();
         if (errors.Count != 0)
         {
             logger.LogError("Errors encountered during headline translation: {ErrorCount} errors", errors.Count);
-            return errors.FirstOrDefault();
+            return Errors.Translator.Api.BadApiKey;
         }
         
         logger.LogDebug("All headlines translated successfully");

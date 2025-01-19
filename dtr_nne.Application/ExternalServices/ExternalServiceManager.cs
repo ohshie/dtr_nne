@@ -126,6 +126,13 @@ public class ExternalServiceManager(ILogger<ExternalServiceManager> logger,
                     return success.FirstError;
                 }
                 break;
+            case ExternalServiceType.Scraper:
+                success = await CheckScraperKey((externalService as IScrapingService)!);
+                if (success.IsError)
+                {
+                    return success.FirstError;
+                }
+                break;
             default:
                 return Errors.ExternalServiceProvider.Service.NoSavedServiceFound;
         }
@@ -135,7 +142,7 @@ public class ExternalServiceManager(ILogger<ExternalServiceManager> logger,
     
     internal async Task<ErrorOr<bool>> CheckLlmApiKey(ILlmService llmService)
     {
-        var testArticle = new Article { OriginalBody = "test" };
+        var testArticle = new ArticleContent { Body = "test" };
         var validKey = await llmService.ProcessArticleAsync(testArticle);
         if (validKey.IsError)
         {
@@ -153,7 +160,21 @@ public class ExternalServiceManager(ILogger<ExternalServiceManager> logger,
         var validKey = await service.Translate(testHeadlines);
         if (validKey.IsError)
         {
-            logger.LogWarning("Failed to validate API key. Error: {Error}", validKey.FirstError);
+            logger.LogWarning("Failed to validate API key. Error: {Error}", validKey.FirstError.Description);
+            return validKey.FirstError;
+        }
+        
+        logger.LogDebug("API key validated successfully");
+        return true;
+    }
+
+    internal async Task<ErrorOr<bool>> CheckScraperKey(IScrapingService service)
+    {
+        var validKey = await service.ScrapeWebsiteWithRetry(new Uri("https://httpbin.io/anything"),
+            "{\n  \"links\": \"a @href\",\n  \"images\":\"img @src\"\n}");
+        if (validKey.IsError)
+        {
+            logger.LogWarning("Failed to validate API key. Error: {Error}", validKey.FirstError.Description);
             return validKey.FirstError;
         }
         

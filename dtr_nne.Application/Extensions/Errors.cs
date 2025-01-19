@@ -49,6 +49,24 @@ public static class Errors
                 code: "ExternalServiceProvider.Llm.AssistantRunError",
                 description: "Something really wrong happened when trying to run Assistant on Thread");
         }
+        
+        public static class Scraper
+        {
+            public static Error ScrapingRequestError(string info) => Error.Failure(
+                code: "ExternalServiceProvider.Scrapers.ScrapingRequestError",
+                description: $"While attempting to scrape uri service encountered: {info}");
+        }
+    }
+    
+    public static class NewsArticles
+    {
+        public static Error NoNewNewsArticles => Error.NotFound(
+            code: "NewsArticles.NoNewNewsArticles",
+            description: "No new news articles were found since last parse");
+
+        public static Error JsonSerializationError(string info = "") => Error.Validation(
+            code: "NewsArticles.JsonSerializationError",
+            description: $"Encountered error while attempting to deserialize json with parse results: {info}");
     }
     
     public static class NewsOutlets

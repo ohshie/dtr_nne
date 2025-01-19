@@ -28,8 +28,8 @@ public class ExternalServiceProvider(ILogger<ExternalServiceProvider> logger,
                     logger.LogDebug("Creating translator service");
                     return serviceFactory.CreateDeeplService(service);
             case ExternalServiceType.Scraper:
-                logger.LogWarning("Scraper service requested but not implemented");
-                throw new NotImplementedException("Scraper service is not yet implemented");
+                logger.LogDebug("Creating scraping service");
+                return serviceFactory.CreateZenrowsService(service);
         }
         
         logger.LogError("Unsupported service type: {Type}", type);

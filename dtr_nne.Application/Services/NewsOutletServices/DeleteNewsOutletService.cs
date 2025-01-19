@@ -16,7 +16,7 @@ internal class DeleteNewsOutletService(ILogger<DeleteNewsOutletService> logger,
     INewsOutletMapper mapper,
     IUnitOfWork<INneDbContext> unitOfWork) : IDeleteNewsOutletService
 {
-    public async Task<ErrorOr<List<BaseNewsOutletsDto>>> DeleteNewsOutlets(List<BaseNewsOutletsDto> incomingNewsOutletDtos)
+    public async Task<ErrorOr<List<NewsOutletDto>>> DeleteNewsOutlets(List<NewsOutletDto> incomingNewsOutletDtos)
     {
         if (incomingNewsOutletDtos.Count == 0)
         {
@@ -24,7 +24,7 @@ internal class DeleteNewsOutletService(ILogger<DeleteNewsOutletService> logger,
             return Errors.NewsOutlets.NoNewsOutletProvided;
         }
 
-        var mappedIncomingNewsOutlets = mapper.BaseDtosToEntities(incomingNewsOutletDtos);
+        var mappedIncomingNewsOutlets = mapper.DtosToEntities(incomingNewsOutletDtos);
         
         var processedOutlets = await helper.MatchNewsOutlets(mappedIncomingNewsOutlets);
         if (processedOutlets.IsError)
@@ -36,7 +36,7 @@ internal class DeleteNewsOutletService(ILogger<DeleteNewsOutletService> logger,
         if (matchedNewsOutlets.Count < 1)
         {
             logger.LogError("No provided entities found in Db, returning list back to the customer");
-            var notMatchedNewsOutletDtos = mapper.EntitiesToBaseDtos(notMatchedNewsOutlets);
+            var notMatchedNewsOutletDtos = mapper.EntitiesToDtos(notMatchedNewsOutlets);
             return notMatchedNewsOutletDtos;
         }
         
@@ -52,18 +52,18 @@ internal class DeleteNewsOutletService(ILogger<DeleteNewsOutletService> logger,
         if (notMatchedNewsOutlets.Count <  1)
         {
             logger.LogInformation("Successfully removed all provided entities from Db");
-            return new List<BaseNewsOutletsDto>{Capacity = 0};
+            return new List<NewsOutletDto>{Capacity = 0};
         }
 
         logger.LogWarning(
             "Partially removed provided entities from Db, returning {NotMatchedOutletsCount} Dtos for customer to check",
             notMatchedNewsOutlets.Count);
-        var notDeletedNewsOutletDtos = mapper.EntitiesToBaseDtos(notMatchedNewsOutlets); 
+        var notDeletedNewsOutletDtos = mapper.EntitiesToDtos(notMatchedNewsOutlets); 
         return notDeletedNewsOutletDtos;
     }
 }
 
 public interface IDeleteNewsOutletService
 {
-    Task<ErrorOr<List<BaseNewsOutletsDto>>> DeleteNewsOutlets(List<BaseNewsOutletsDto> incomingNewsOutletDtos);
+    Task<ErrorOr<List<NewsOutletDto>>> DeleteNewsOutlets(List<NewsOutletDto> incomingNewsOutletDtos);
 }

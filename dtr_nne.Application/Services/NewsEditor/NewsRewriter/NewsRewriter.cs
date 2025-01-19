@@ -5,19 +5,19 @@ using dtr_nne.Application.Mapper;
 using dtr_nne.Domain.Enums;
 using dtr_nne.Domain.ExternalServices;
 
-namespace dtr_nne.Application.NewsEditor;
+namespace dtr_nne.Application.Services.NewsEditor.NewsRewriter;
 
 public class NewsRewriter(ILogger<NewsRewriter> logger, IArticleMapper mapper,
     IExternalServiceProvider serviceProvider) : INewsRewriter
 {
-    public async Task<ErrorOr<ArticleDto>> Rewrite(ArticleDto articleDto)
+    public async Task<ErrorOr<ArticleContentDto>> Rewrite(ArticleContentDto articleContentDto)
     {
         if (RequestService() is not { } activeService)
         {
             return Errors.ExternalServiceProvider.Service.NoActiveServiceFound;
         }
 
-        var mappedArticle = mapper.DtoToArticle(articleDto);
+        var mappedArticle = mapper.DtoToArticleContent(articleContentDto);
         
         var processedArticle = await activeService.ProcessArticleAsync(mappedArticle);
         if (processedArticle.IsError)
@@ -25,7 +25,7 @@ public class NewsRewriter(ILogger<NewsRewriter> logger, IArticleMapper mapper,
             return processedArticle.FirstError;
         }
 
-        var processedArticleDto = mapper.ArticleToDto(processedArticle.Value);
+        var processedArticleDto = mapper.ArticleContentToDto(processedArticle.Value);
 
         return processedArticleDto;
     }

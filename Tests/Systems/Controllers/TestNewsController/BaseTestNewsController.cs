@@ -1,5 +1,6 @@
 using dtr_nne.Application.DTO.Article;
-using dtr_nne.Application.NewsEditor;
+using dtr_nne.Application.Services.NewsEditor.NewsParser;
+using dtr_nne.Application.Services.NewsEditor.NewsRewriter;
 using dtr_nne.Controllers;
 using Moq;
 
@@ -9,13 +10,14 @@ public class BaseTestNewsController
 {
     internal readonly NewsController Sut;
     internal readonly Mock<INewsRewriter> MockNewsRewriter;
+    internal readonly Mock<INewsParser> MockNewsParser;
 
-    internal readonly ArticleDto TestArticleDto = new()
+    internal readonly ArticleContentDto TestArticleContentDto = new()
     {
         Body = "test"
     };
     
-    internal readonly ArticleDto TestProcessedArticleDto = new()
+    internal readonly ArticleContentDto TestProcessedArticleContentDto = new()
     {
         Body = "rewriten test"
     };
@@ -23,16 +25,21 @@ public class BaseTestNewsController
     public BaseTestNewsController()
     {
         MockNewsRewriter = new();
+        MockNewsParser = new();
         
         BaseSetup();
         
-        Sut = new NewsController(MockNewsRewriter.Object);
+        Sut = new NewsController(MockNewsParser.Object, MockNewsRewriter.Object);
     }
 
     private void BaseSetup()
     {
         MockNewsRewriter
-            .Setup(rewriter => rewriter.Rewrite(TestArticleDto).Result)
-            .Returns(TestProcessedArticleDto);
+            .Setup(rewriter => rewriter.Rewrite(TestArticleContentDto).Result)
+            .Returns(TestProcessedArticleContentDto);
+
+        MockNewsParser.Setup(
+                parser => parser.ExecuteBatchParse(true, "").Result)
+            .Returns(new List<NewsArticleDto>([new NewsArticleDto()]));
     }
 }

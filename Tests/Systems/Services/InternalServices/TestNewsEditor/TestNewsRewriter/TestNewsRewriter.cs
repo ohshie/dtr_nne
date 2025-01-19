@@ -2,14 +2,14 @@ using dtr_nne.Application.DTO.Article;
 using dtr_nne.Application.Extensions;
 using dtr_nne.Application.ExternalServices;
 using dtr_nne.Application.Mapper;
-using dtr_nne.Application.NewsEditor;
+using dtr_nne.Application.Services.NewsEditor.NewsRewriter;
 using dtr_nne.Domain.Entities;
 using dtr_nne.Domain.Enums;
 using dtr_nne.Domain.ExternalServices;
 using Microsoft.Extensions.Logging;
 using Moq;
 
-namespace Tests.Systems.Services.InternalServices.TestNewsEditor;
+namespace Tests.Systems.Services.InternalServices.TestNewsEditor.TestNewsRewriter;
 
 public class TestNewsRewriter
 {
@@ -21,14 +21,14 @@ public class TestNewsRewriter
 
         var faker = new Bogus.Faker();
 
-        _mockArticleDto = new ArticleDto
+        _mockArticleContentDto = new ArticleContentDto
         {
             Body = faker.Lorem.Paragraph(),
         };
 
-        _mockArticle = new Article
+        _mockArticle = new ArticleContent
         {
-            Body = _mockArticleDto.Body
+            Body = _mockArticleContentDto.Body
         };
         
         BasicSetup();
@@ -39,8 +39,8 @@ public class TestNewsRewriter
     private readonly NewsRewriter _sut;
     private readonly Mock<IArticleMapper> _mockArticleMapper;
     private readonly Mock<IExternalServiceProvider> _mockServiceProvider;
-    private readonly ArticleDto _mockArticleDto;
-    private readonly Article _mockArticle;
+    private readonly ArticleContentDto _mockArticleContentDto;
+    private readonly ArticleContent _mockArticle;
     private readonly Mock<ILlmService> _mockLlmService;
 
     private void BasicSetup()
@@ -48,11 +48,11 @@ public class TestNewsRewriter
         _mockServiceProvider.Setup(provider => provider.Provide(ExternalServiceType.Llm, ""))
             .Returns(_mockLlmService.Object);
         
-        _mockArticleMapper.Setup(mapper => mapper.DtoToArticle(_mockArticleDto))
+        _mockArticleMapper.Setup(mapper => mapper.DtoToArticleContent(_mockArticleContentDto))
             .Returns(_mockArticle);
             
-        _mockArticleMapper.Setup(mapper => mapper.ArticleToDto(_mockArticle))
-            .Returns(_mockArticleDto);
+        _mockArticleMapper.Setup(mapper => mapper.ArticleContentToDto(_mockArticle))
+            .Returns(_mockArticleContentDto);
         
         _mockLlmService.Setup(service => service.ProcessArticleAsync(_mockArticle))
             .ReturnsAsync(_mockArticle);
@@ -67,7 +67,7 @@ public class TestNewsRewriter
             .Returns((ILlmService)null!);
 
         // Act
-        var result = await _sut.Rewrite(_mockArticleDto);
+        var result = await _sut.Rewrite(_mockArticleContentDto);
 
         // Assert
         result.IsError.Should().BeTrue();
@@ -83,7 +83,7 @@ public class TestNewsRewriter
             .ReturnsAsync(Errors.ExternalServiceProvider.Llm.AssistantRunError);
 
         // Act
-        var result = await _sut.Rewrite(_mockArticleDto);
+        var result = await _sut.Rewrite(_mockArticleContentDto);
 
         // Assert
         result.IsError.Should().BeTrue();
@@ -96,15 +96,15 @@ public class TestNewsRewriter
         // Arrange
 
         // Act
-        var result = await _sut.Rewrite(_mockArticleDto);
+        var result = await _sut.Rewrite(_mockArticleContentDto);
 
         // Assert
         result.IsError.Should().BeFalse();
-        result.Value.Should().BeEquivalentTo(_mockArticleDto);
+        result.Value.Should().BeEquivalentTo(_mockArticleContentDto);
         _mockServiceProvider.Verify(provider => provider.Provide(ExternalServiceType.Llm, ""), Times.Once);
-        _mockArticleMapper.Verify(mapper => mapper.DtoToArticle(_mockArticleDto), Times.Once);
+        _mockArticleMapper.Verify(mapper => mapper.DtoToArticleContent(_mockArticleContentDto), Times.Once);
         _mockLlmService.Verify(service => service.ProcessArticleAsync(_mockArticle), Times.Once);
-        _mockArticleMapper.Verify(mapper => mapper.ArticleToDto(_mockArticle), Times.Once);
+        _mockArticleMapper.Verify(mapper => mapper.ArticleContentToDto(_mockArticle), Times.Once);
     }
     
     [Fact]

@@ -73,7 +73,7 @@ public class NewsOutletController(IGetNewsOutletService getNewsOutletService,
     [ProducesResponseType<NewsOutletDto>(StatusCodes.Status206PartialContent)]
     [ProducesResponseType<Error>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<Error>(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> Delete(List<BaseNewsOutletsDto> newsOutletDtos)
+    public async Task<ActionResult> Delete(List<NewsOutletDto> newsOutletDtos)
     {
         var resultOfDeletion = await deleteNewsOutletService.DeleteNewsOutlets(newsOutletDtos);
 

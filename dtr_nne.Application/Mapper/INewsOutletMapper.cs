@@ -7,6 +7,4 @@ public interface INewsOutletMapper
 {
     public List<NewsOutletDto> EntitiesToDtos(List<NewsOutlet> newsOutlets);
     public List<NewsOutlet> DtosToEntities(List<NewsOutletDto> newsOutlets);
-    public List<NewsOutlet> BaseDtosToEntities(List<BaseNewsOutletsDto> newsOutletsDtos);
-    public List<BaseNewsOutletsDto> EntitiesToBaseDtos(List<NewsOutlet> newsOutlets);
 }

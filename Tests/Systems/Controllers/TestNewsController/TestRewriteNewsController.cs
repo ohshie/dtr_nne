@@ -11,7 +11,7 @@ public class TestRewriteNewsController : BaseTestNewsController
         // Arrange
 
         // Act
-        var result = await Sut.RewriteNews(TestArticleDto);
+        var result = await Sut.RewriteNews(TestArticleContentDto);
 
         // Assert
         result.Should().BeOfType<OkObjectResult>();
@@ -24,11 +24,11 @@ public class TestRewriteNewsController : BaseTestNewsController
     {
         // Assemble
         MockNewsRewriter
-            .Setup(rewriter => rewriter.Rewrite(TestArticleDto).Result)
+            .Setup(rewriter => rewriter.Rewrite(TestArticleContentDto).Result)
             .Returns(Errors.ExternalServiceProvider.Service.NoActiveServiceFound);
 
         // Act
-        var result = await Sut.RewriteNews(TestArticleDto);
+        var result = await Sut.RewriteNews(TestArticleContentDto);
 
         // Assert
         result.Should().BeOfType<BadRequestObjectResult>();

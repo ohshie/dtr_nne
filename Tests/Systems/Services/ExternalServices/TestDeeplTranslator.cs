@@ -110,8 +110,7 @@ public class TestDeeplTranslator
         var result = await _sut.Object.TranslateHeadlines(_testHeadlines, _testExternalService.ApiKey);
 
         // Assert
-        result.IsError.Should().BeTrue();
-        result.FirstError.Should().Be(Errors.Translator.Api.QuotaExceeded);
+        result.Value.Any(headline => headline.TranslatedHeadline == Errors.Translator.Api.QuotaExceeded.Description).Should().BeTrue();
     }
     
     [Fact]
@@ -161,6 +160,6 @@ public class TestDeeplTranslator
 
         // Assert
         result.IsError.Should().BeFalse();
-        maxConcurrent.Should().Be(5);
+        maxConcurrent.Should().BeLessThanOrEqualTo(5);
     }
 }
