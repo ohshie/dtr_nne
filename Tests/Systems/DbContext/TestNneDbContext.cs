@@ -56,7 +56,7 @@ public class TestNneDbContext
         // Assert
         var retrieved = await _sut.NewsOutlets.FirstOrDefaultAsync(n => n.Name == newsOutlet.Name);
         retrieved.Should().NotBeNull();
-        retrieved.Name.Should().Be(newsOutlet.Name);
+        retrieved!.Name.Should().Be(newsOutlet.Name);
     }
     
     [Fact]

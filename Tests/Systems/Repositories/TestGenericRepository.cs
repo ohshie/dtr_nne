@@ -111,7 +111,7 @@ public class TestGenericRepository : IClassFixture<GenericDatabaseFixture<Extern
 
         // Assert 
         result.Should().BeOfType<List<ExternalService>>();
-        result.Count().Should().Be(1);
+        result!.Count().Should().Be(1);
     }
     
     [Fact]
@@ -130,6 +130,6 @@ public class TestGenericRepository : IClassFixture<GenericDatabaseFixture<Extern
         // Assert 
         result.Should().NotBeNull();
         result.Should().BeOfType<ExternalService>();
-        result.Id.Should().Be(_mockService.Id);
+        result!.Id.Should().Be(_mockService.Id);
     }
 }
