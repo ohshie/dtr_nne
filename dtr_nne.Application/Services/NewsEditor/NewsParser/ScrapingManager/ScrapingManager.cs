@@ -71,8 +71,7 @@ public class ScrapingManager(ILogger<ScrapingManager> logger,
 
     internal async Task<List<NewsArticle>> ScrapeMainPage(IScrapingService service, NewsOutlet outlet)
     {
-        var scrapeResult = await service.ScrapeWebsiteWithRetry(outlet.Website, 
-            outlet.MainPagePassword);
+        var scrapeResult = await service.ScrapeWebsiteWithRetry(outlet.Website);
         if (scrapeResult.IsError)
         {
             return

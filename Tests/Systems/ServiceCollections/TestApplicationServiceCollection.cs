@@ -1,6 +1,7 @@
 using dtr_nne.Application.Extensions;
 using dtr_nne.Application.ExternalServices;
 using dtr_nne.Application.Mapper;
+using dtr_nne.Application.Services.NewsEditor.NewsParser;
 using dtr_nne.Application.Services.NewsEditor.NewsRewriter;
 using dtr_nne.Application.Services.NewsOutletServices;
 using Microsoft.Extensions.Configuration;
@@ -36,6 +37,7 @@ public class TestApplicationServiceCollection
     [InlineData(typeof(IArticleMapper), typeof(ArticleMapper))]
     [InlineData(typeof(IExternalServiceManager), typeof(ExternalServiceManager))]
     [InlineData(typeof(INewsRewriter), typeof(NewsRewriter))]
+    [InlineData(typeof(INewsParser), typeof(NewsParser))]
     public void ShouldRegisterTransientService(Type serviceType, Type implementationType)
     {
         // Arrange

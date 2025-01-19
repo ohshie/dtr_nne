@@ -70,7 +70,10 @@ public class ZenrowsService(ILogger<ZenrowsService> logger, ExternalService serv
         var query = HttpUtility.ParseQueryString(string.Empty);
         query.Add("apikey", apiKey);
         query.Add("url", requestUri.AbsoluteUri);
-        query.Add("css_extractor", cssSelector);
+        if (!string.IsNullOrEmpty(cssSelector))
+        {
+            query.Add("css_extractor", cssSelector);
+        }
         
         if (useJs)
         {

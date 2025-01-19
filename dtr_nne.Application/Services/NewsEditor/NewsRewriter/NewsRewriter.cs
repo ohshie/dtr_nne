@@ -17,7 +17,7 @@ public class NewsRewriter(ILogger<NewsRewriter> logger, IArticleMapper mapper,
             return Errors.ExternalServiceProvider.Service.NoActiveServiceFound;
         }
 
-        var mappedArticle = mapper.DtoToArticle(articleContentDto);
+        var mappedArticle = mapper.DtoToArticleContent(articleContentDto);
         
         var processedArticle = await activeService.ProcessArticleAsync(mappedArticle);
         if (processedArticle.IsError)
@@ -25,7 +25,7 @@ public class NewsRewriter(ILogger<NewsRewriter> logger, IArticleMapper mapper,
             return processedArticle.FirstError;
         }
 
-        var processedArticleDto = mapper.ArticleToDto(processedArticle.Value);
+        var processedArticleDto = mapper.ArticleContentToDto(processedArticle.Value);
 
         return processedArticleDto;
     }

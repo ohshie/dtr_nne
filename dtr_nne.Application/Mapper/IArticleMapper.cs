@@ -5,6 +5,10 @@ namespace dtr_nne.Application.Mapper;
 
 public interface IArticleMapper
 {
-    public ArticleContent DtoToArticle(ArticleContentDto articleContentDto);
-    public ArticleContentDto ArticleToDto(ArticleContent article);
+    public NewsArticleDto NewsArticleToDto(NewsArticle article);
+
+    public List<NewsArticleDto> MassNewsArticleToDto(List<NewsArticle> articles);
+    public NewsArticle BaseNewsArticleDtoToNewsArticle(BaseNewsArticleDto articleDto);
+    public ArticleContent DtoToArticleContent(ArticleContentDto articleContentDto);
+    public ArticleContentDto ArticleContentToDto(ArticleContent article);
 }

@@ -177,8 +177,8 @@ public class TestArticleContent
     public void Serialize_UriList()
     {
         // Arrange
-        var url1 = new Uri(Faker.Internet.Url());
-        var url2 = new Uri(Faker.Internet.Url());
+        var url1 = new Uri(Faker.Internet.UrlWithPath());
+        var url2 = new Uri(Faker.Internet.UrlWithPath());
         var content = new ArticleContent
         {
             Images = [url1, url2]

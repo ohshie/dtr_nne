@@ -32,7 +32,7 @@ public class TestArticleMapper
         // assemble
 
         // act
-        var article = _sut.DtoToArticle(_testArticleContentDto);
+        var article = _sut.DtoToArticleContent(_testArticleContentDto);
         
         // assert
         article.Should().BeOfType<ArticleContent>();
@@ -45,7 +45,7 @@ public class TestArticleMapper
         // assemble
 
         // act
-        var articleDto = _sut.ArticleToDto(_testArticle);
+        var articleDto = _sut.ArticleContentToDto(_testArticle);
         
         // assert
         articleDto.Should().BeOfType<ArticleContentDto>();

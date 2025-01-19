@@ -33,7 +33,7 @@ public static class NewsOutletFixtureBase
                     NewsPassword =
                         "{ \"header\": \"h1.article-title\", \"body\": \"div.clearfix > p\", \"images\": \"img.attachment-post-thumbnail @src\", \"copyright\": \"\", \"source\": \"\" }",
                     AlwaysJs = Faker.Random.Bool(),
-                    InUse = Faker.Random.Bool(),
+                    InUse = true,
                     Themes = []
                 },
 

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using dtr_nne.Application.Extensions;
 using dtr_nne.Application.Services.NewsEditor.NewsParser.ScrapingManager;
 using dtr_nne.Application.Services.NewsEditor.NewsParser.ScrapingManager.MainPageScrapingResultProcessor;
@@ -7,7 +8,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Tests.Fixtures.NewsOutletFixtures;
 
-namespace Tests.Systems.Services.InternalServices.TestNewsEditor
+namespace Tests.Systems.Services.InternalServices.TestNewsEditor.TestNewsRewriter
 {
     public class TestScrapingManager
     {
@@ -27,6 +28,18 @@ namespace Tests.Systems.Services.InternalServices.TestNewsEditor
 
             _sut = new Mock<ScrapingManager>(_mockLogger.Object, _mockResultProcessor.Object) {CallBase = true};
         }
+
+        private readonly ArticleContent _mockArticleContent = new()
+        {
+            Headline = new Headline()
+            {
+                OriginalHeadline = Faker.Lorem.Sentence()
+            },
+            Body = Faker.Lorem.Paragraphs(),
+            Copyright = [Faker.Lorem.Word()],
+            Images = new List<Uri>([new Uri(Faker.Internet.UrlWithPath())]),
+            Source = Faker.Lorem.Word()
+        };
 
         private readonly List<NewsArticle> _mockArticles =
         [
@@ -168,5 +181,70 @@ namespace Tests.Systems.Services.InternalServices.TestNewsEditor
             result[0].NewsOutlet.Should().Be(NewsOutletFixtureBase.Outlets[0][0]);
         }
 
+        [Fact]
+        public async Task ScrapeNewsArticle_SuccessfulScraping_ReturnsArticleWithContent()
+        {
+            // Arrange
+            
+            _mockScrapingService
+                .Setup(s => s.ScrapeWebsiteWithRetry(
+                    It.IsAny<Uri>(), 
+                    It.IsAny<string>(), 
+                    It.IsAny<bool>(), 
+                    It.IsAny<int>()).Result)
+                .Returns(JsonSerializer.Serialize(_mockArticleContent));
+
+            // Act
+            var result = await _sut.Object.ScrapeNewsArticle(_mockScrapingService.Object, _mockArticles[0]);
+
+            // Assert
+            result.Should().HaveCount(1);
+            result[0].ArticleContent.Should().NotBeNull();
+            result[0].ArticleContent!.Headline.OriginalHeadline.Should().Be(_mockArticleContent.Headline.OriginalHeadline);
+            result[0].ArticleContent!.Body.Should().Be(_mockArticleContent.Body);
+            result[0].Error.Should().Be("");
+        }
+        
+        [Fact]
+        public async Task ScrapeNewsArticle_ScrapingError_ReturnsArticleWithError()
+        {
+            // Arrange
+            var errorMessage = "Failed to scrape article";
+            _mockScrapingService
+                .Setup(s => s.ScrapeWebsiteWithRetry(
+                    It.IsAny<Uri>(), 
+                    It.IsAny<string>(), 
+                    It.IsAny<bool>(), 
+                    It.IsAny<int>()).Result)
+                .Returns(Errors.ExternalServiceProvider.Scraper.ScrapingRequestError(errorMessage));
+
+            // Act
+            var result = await _sut.Object.ScrapeNewsArticle(_mockScrapingService.Object, _mockArticles[0]);
+
+            // Assert
+            result.Should().HaveCount(1);
+            result[0].Error.Should().Be(Errors.ExternalServiceProvider.Scraper.ScrapingRequestError(errorMessage).Description);
+        }
+        
+        [Fact]
+        public async Task ScrapeNewsArticle_InvalidJson_ReturnsArticleWithError()
+        {
+            // Arrange
+            _mockScrapingService
+                .Setup(s => s.ScrapeWebsiteWithRetry(
+                    It.IsAny<Uri>(), 
+                    It.IsAny<string>(), 
+                    It.IsAny<bool>(), 
+                    It.IsAny<int>()).Result)
+                .Returns("invalid json");
+
+            // Act
+            var result = await _sut.Object.ScrapeNewsArticle(_mockScrapingService.Object, _mockArticles[0]);
+
+            // Assert
+            result.Should().HaveCount(1);
+            result[0].Error.Should().NotBeNull();
+            result[0].Error.Should().Contain("Encountered error");
+        }
     }
 }

@@ -23,6 +23,15 @@ internal class NewsArticleRepository(ILogger<NewsArticleRepository> logger,
         return articles;
     }
 
+    public async Task<IEnumerable<NewsArticle>> GetLatestResults()
+    {
+        var articles = await _unitOfWork.Context.NewsArticles
+            .Where(na => na.ParseTime > DateTime.Now.AddDays(-2))
+            .ToListAsync();
+
+        return articles;
+    }
+
     public async Task<bool> AddRange(List<NewsArticle> articles)
     {
         try
