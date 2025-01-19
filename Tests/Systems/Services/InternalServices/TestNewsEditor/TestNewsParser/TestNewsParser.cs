@@ -132,7 +132,7 @@ public class TestNewsParser
         // Arrange
         _mockServiceProvider
             .Setup(provider => provider.Provide(ExternalServiceType.Scraper, ""))
-            .Returns((IExternalService?)null);
+            .Returns(((IExternalService?)null)!);
 
         // Act
         var result = await _sut.Object.ExecuteBatchParse();
@@ -148,7 +148,7 @@ public class TestNewsParser
         // Arrange
         _mockServiceProvider
             .Setup(provider => provider.Provide(ExternalServiceType.Translator, ""))
-            .Returns((IExternalService?)null);
+            .Returns((IExternalService?)null!);
 
         // Act
         var result = await _sut.Object.ExecuteBatchParse();
@@ -214,7 +214,7 @@ public class TestNewsParser
         // Assemble
         _mockServiceProvider
             .Setup(provider => provider.Provide(ExternalServiceType.Scraper, ""))
-            .Returns((IScrapingService?)null);
+            .Returns((IScrapingService?)null!);
         // Act
         var result = await _sut.Object.Execute(_mockBaseNewsArticleDto);
 

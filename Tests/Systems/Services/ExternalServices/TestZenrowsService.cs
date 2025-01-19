@@ -16,7 +16,7 @@ public class ZenrowsServiceTests
         _mockHttpMessageHandler = new();
         _mockHttpClientFactory = new();
 
-        TestService = new ExternalService
+        var testService = new ExternalService
         {
             ServiceName = "ZenrowsTest",
             Type = ExternalServiceType.Scraper,
@@ -24,24 +24,23 @@ public class ZenrowsServiceTests
             InUse = true
         };
 
-        TestUri = new Uri("https://test.com");
-        TestCssSelector = ".test-selector";
+        _testUri = new Uri("https://test.com");
+        _testCssSelector = ".test-selector";
 
         DefaultSetup();
 
         _sut = new ZenrowsService(
             logger: new Mock<ILogger<ZenrowsService>>().Object,
-            service: TestService,
+            service: testService,
             _mockHttpClientFactory.Object);
     }
 
     private readonly ZenrowsService _sut;
-    private Mock<IHttpClientFactory> _mockHttpClientFactory;
-    private HttpClient _httpClient;
+    private readonly Mock<IHttpClientFactory> _mockHttpClientFactory;
+    private HttpClient? _httpClient;
     private readonly Mock<HttpMessageHandler> _mockHttpMessageHandler;
-    private readonly ExternalService TestService;
-    private readonly Uri TestUri;
-    private readonly string TestCssSelector;
+    private readonly Uri _testUri;
+    private readonly string _testCssSelector;
 
     internal void DefaultSetup()
     {
@@ -71,7 +70,7 @@ public class ZenrowsServiceTests
         var expectedContent = "<html><body>Test content</body></html>";
 
         // Act
-        var result = await _sut.ScrapeWebsiteWithRetry(TestUri, TestCssSelector);
+        var result = await _sut.ScrapeWebsiteWithRetry(_testUri, _testCssSelector);
 
         // Assert
         result.IsError.Should().BeFalse();
@@ -94,7 +93,7 @@ public class ZenrowsServiceTests
             });
 
         // Act
-        var result = await _sut.ScrapeWebsiteWithRetry(TestUri, TestCssSelector);
+        var result = await _sut.ScrapeWebsiteWithRetry(_testUri, _testCssSelector);
 
         // Assert
         result.IsError.Should().BeTrue();

@@ -8,9 +8,16 @@ public class ContentCollector(ILogger<ContentCollector> logger, IScrapingManager
 {
     public async Task<ErrorOr<List<NewsArticle>>> Collect(IScrapingService scraper, List<NewsArticle> newsList)
     {
+        logger.LogInformation("Starting to collect content from {ArticleCount} articles", newsList.Count);
         var scrapedArticles = await scrapingManager.BatchProcess(newsList, scraper);
-        if (scrapedArticles.IsError) return scrapedArticles.FirstError;
-
+        if (scrapedArticles.IsError)
+        {
+            logger.LogError("Encountered {ErrorDescription} collecting content from news articles", 
+                scrapedArticles.FirstError.Description);
+            return scrapedArticles.FirstError;
+        }
+        
+        logger.LogInformation("Successfully processed {ScrapedArticleCount}", scrapedArticles.Value.Count);
         return scrapedArticles;
     }
 }

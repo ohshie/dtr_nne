@@ -107,7 +107,7 @@ public class TestGenericRepository : IClassFixture<GenericDatabaseFixture<Extern
         await _genericDatabaseFixture.Context.SaveChangesAsync();
 
         // Act
-        var result = await _sut.Object.GetAll();
+        var result = await _sut.Object.GetAll() as List<ExternalService>;
 
         // Assert 
         result.Should().BeOfType<List<ExternalService>>();

@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -9,6 +10,7 @@ public class ArticleContent
     public int Id { get; set; }
 
     [DefaultValue("")]
+    [MaxLength(30000)]
     [JsonPropertyName("body")]
     [JsonConverter(typeof(JsonStringOrArrayConverter<string>))]
     public string Body { get; set; } = string.Empty;
@@ -21,6 +23,7 @@ public class ArticleContent
     [JsonConverter(typeof(JsonStringOrArrayConverter<List<string>>))]
     public List<string> Copyright { get; set; } = [];
     
+    [MaxLength(200)]
     [JsonPropertyName("source")]
     [JsonConverter(typeof(JsonStringOrArrayConverter<string>))]
     public string Source { get; set; } = string.Empty;

@@ -9,6 +9,7 @@ public class NewsArticle
 
     public List<string> Themes { get; set; } = [];
     public Uri? Uri { get; set; }
+    [MaxLength(10000)]
     public string Error { get; set; } = string.Empty;
     public DateTime ParseTime { get; set; }
     

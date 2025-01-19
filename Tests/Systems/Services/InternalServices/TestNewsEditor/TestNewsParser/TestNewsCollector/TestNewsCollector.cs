@@ -17,7 +17,7 @@ public class TestNewsCollector
 {
     public TestNewsCollector()
     {
-        _mockLogger = new Mock<ILogger<NewsCollector>>();
+        Mock<ILogger<NewsCollector>> mockLogger = new();
         _mockScrapingManager = new Mock<IScrapingManager>();
         _mockNewsArticleRepository = new Mock<INewsArticleRepository>();
         _mockUnitOfWork = new Mock<IUnitOfWork<INneDbContext>>();
@@ -29,12 +29,10 @@ public class TestNewsCollector
         _mockTranslatedHeadlines = NewsArticleFixtureBase.Articles[1]
             .Select(na => na.ArticleContent!.Headline).ToList();
 
-        var faker = new Bogus.Faker();
-
         BasicSetup();
 
         _sut = new Mock<NewsCollector>(
-            _mockLogger.Object,
+            mockLogger.Object,
             _mockScrapingManager.Object,
             _mockNewsArticleRepository.Object,
             _mockUnitOfWork.Object) 
@@ -42,7 +40,6 @@ public class TestNewsCollector
     }
 
     private readonly Mock<NewsCollector> _sut;
-    private readonly Mock<ILogger<NewsCollector>> _mockLogger;
     private readonly Mock<IScrapingManager> _mockScrapingManager;
     private readonly Mock<INewsArticleRepository> _mockNewsArticleRepository;
     private readonly Mock<IUnitOfWork<INneDbContext>> _mockUnitOfWork;

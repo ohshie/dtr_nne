@@ -50,7 +50,7 @@ public class TestUnitOfWork(GenericDatabaseFixture<NewsOutlet> genericDatabaseFi
 
         // Assert
         var disposedField = sut.GetType().GetField("_disposed", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        var isDisposed = (bool)disposedField.GetValue(sut);
+        var isDisposed = (bool)disposedField?.GetValue(sut)!;
         Assert.True(isDisposed);
     }
     

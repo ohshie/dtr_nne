@@ -1,4 +1,3 @@
-using Bogus;
 using dtr_nne.Application.DTO.NewsOutlet;
 using dtr_nne.Application.Extensions;
 using dtr_nne.Application.Mapper;
@@ -16,8 +15,6 @@ namespace Tests.Systems.Services.InternalServices.TestNewsOutletService;
 
 public class TestUpdateNewsOutletService
 {
-    private static readonly Faker Faker = new();
-    
     public TestUpdateNewsOutletService()
     {
         Mock<ILogger<UpdateNewsOutletService>> mockLogger = new();

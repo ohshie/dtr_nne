@@ -51,7 +51,7 @@ public class TestArticleContent
 
         // Assert
         result.Should().NotBeNull();
-        result!.Copyright.Should().ContainSingle().And.Contain("test copyright");
+        result.Copyright.Should().ContainSingle().And.Contain("test copyright");
     }
     
     [Fact]
@@ -65,7 +65,7 @@ public class TestArticleContent
 
         // Assert
         result.Should().NotBeNull();
-        result!.Copyright.Should().HaveCount(2)
+        result.Copyright.Should().HaveCount(2)
             .And.Contain("test")
             .And.Contain("copyright");
     }
@@ -138,7 +138,7 @@ public class TestArticleContent
 
         // Assert
         result.Should().NotBeNull();
-        result!.Images.Should().HaveCount(2);
+        result.Images.Should().HaveCount(2);
         result.Images[0].ToString().Should().Be(url1);
         result.Images[1].ToString().Should().Be(url2);
     }
@@ -154,7 +154,7 @@ public class TestArticleContent
 
         // Assert
         result.Should().NotBeNull();
-        result!.Images.Should().BeEmpty();
+        result.Images.Should().BeEmpty();
     }
     
     [Fact]
@@ -169,7 +169,7 @@ public class TestArticleContent
 
         // Assert
         result.Should().NotBeNull();
-        result!.Images.Should().ContainSingle()
+        result.Images.Should().ContainSingle()
             .Which.ToString().Should().Be(validUrl);
     }
 

@@ -7,6 +7,8 @@ using Microsoft.Extensions.Logging;
 
 namespace dtr_nne.Infrastructure.Repositories;
 
+#pragma warning disable CS9124 // Parameter is captured into the state of the enclosing type and its value is also used to initialize a field, property, or event.
+#pragma warning disable CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
 internal class NewsArticleRepository(ILogger<NewsArticleRepository> logger, 
     IUnitOfWork<NneDbContext> unitOfWork) 
     : GenericRepository<NewsArticle, NneDbContext>(logger, unitOfWork), INewsArticleRepository

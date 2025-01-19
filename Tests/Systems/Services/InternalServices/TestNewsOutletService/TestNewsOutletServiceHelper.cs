@@ -14,23 +14,20 @@ public class TestNewsOutletServiceHelper
     private static readonly Faker Faker = new();
     public TestNewsOutletServiceHelper()
     {
-        _mockLogger = new Mock<ILogger<NewsOutletServiceHelper>>();
+        Mock<ILogger<NewsOutletServiceHelper>> mockLogger = new();
         _mockRepository = new Mock<INewsOutletRepository>();
 
-        var faker = new Bogus.Faker();
-        
         _savedNewsOutlets = NewsOutletFixtureBase.Outlets[1];
 
         BasicSetup();
 
         _sut = new NewsOutletServiceHelper(
-            _mockLogger.Object,
+            mockLogger.Object,
             _mockRepository.Object
         );
     }
 
     private readonly NewsOutletServiceHelper _sut;
-    private readonly Mock<ILogger<NewsOutletServiceHelper>> _mockLogger;
     private readonly Mock<INewsOutletRepository> _mockRepository;
     private readonly List<NewsOutlet> _savedNewsOutlets;
 
