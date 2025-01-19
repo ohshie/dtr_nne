@@ -72,7 +72,7 @@ public class TestInfrastructureServiceCollection
 
         // Assert
         serviceDescriptor.Should().NotBeNull();
-        serviceDescriptor.Lifetime.Should().Be(expectedLifetime);
+        serviceDescriptor!.Lifetime.Should().Be(expectedLifetime);
     }
     
     [Fact]

@@ -47,7 +47,7 @@ public class TestApplicationServiceCollection
 
         // Assert
         serviceDescriptor.Should().NotBeNull();
-        serviceDescriptor.ImplementationType.Should().Be(implementationType);
+        serviceDescriptor!.ImplementationType.Should().Be(implementationType);
         serviceDescriptor.Lifetime.Should().Be(ServiceLifetime.Transient);
     }
     

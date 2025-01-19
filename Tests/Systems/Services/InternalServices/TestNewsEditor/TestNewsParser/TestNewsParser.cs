@@ -38,6 +38,14 @@ public class TestNewsParser
 
         _mockNewsArticles[0].Uri = new Uri(_mockNewsOutlets.First(no => no.InUse).Website + "/" + faker.Lorem.Word());
 
+        _mockNewsArticleDto = new()
+        {
+            Uri = _mockNewsArticles[0].Uri,
+            Body = _mockNewsArticles[0].ArticleContent!.Body,
+            OriginalHeadline = _mockNewsArticles[0].ArticleContent!.Headline.OriginalHeadline,
+            TranslatedHeadline = _mockNewsArticles[0].ArticleContent!.Headline.TranslatedHeadline
+        };
+
         BaseSetup();
         
         _sut = new Mock<NewsParser>(new Mock<ILogger<NewsParser>>().Object, 
@@ -53,13 +61,14 @@ public class TestNewsParser
     private readonly Mock<IExternalServiceProvider> _mockServiceProvider;
     private readonly Mock<IArticleMapper> _mockArticleMapper;
     private readonly Mock<INewsOutletRepository> _mockNewsOutletRepository;
-    private Mock<IContentCollector> _mockContentCollector;
+    private readonly Mock<IContentCollector> _mockContentCollector;
     private readonly Mock<INewsCollector> _mockNewsCollector;
     private readonly Mock<IScrapingService> _mockScrapingService;
     private readonly Mock<ITranslatorService> _mockTranslatorService;
 
     private readonly List<NewsOutlet> _mockNewsOutlets;
     private readonly List<NewsArticle> _mockNewsArticles;
+    private readonly NewsArticleDto _mockNewsArticleDto;
     private readonly BaseNewsArticleDto _mockBaseNewsArticleDto;
 
     private void BaseSetup()
@@ -92,6 +101,10 @@ public class TestNewsParser
         _mockArticleMapper
             .Setup(mapper => mapper.BaseNewsArticleDtoToNewsArticle(_mockBaseNewsArticleDto))
             .Returns(_mockNewsArticles[0]);
+
+        _mockArticleMapper
+            .Setup(mapper => mapper.NewsArticleToDto(_mockNewsArticles[0]))
+            .Returns(_mockNewsArticleDto);
     }
 
     [Fact]
