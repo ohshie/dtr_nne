@@ -21,7 +21,7 @@ public static class ServiceCollectionExtensions
         var connectionString = configuration.GetConnectionString("DefaultConnection");
         serviceCollection.AddDbContext<INneDbContext, NneDbContext>(s =>
         {
-            s.UseSqlite(connectionString, builder => builder.MigrationsAssembly("dtr_nne.Infrastructure"))
+            s.UseSqlite(connectionString, builder => builder.MigrationsAssembly("dtr_nne.API"))
                 .ConfigureWarnings(builder => builder.Log(RelationalEventId.PendingModelChangesWarning));
         });
 

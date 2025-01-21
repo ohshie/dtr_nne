@@ -64,7 +64,7 @@ namespace Tests.Systems.Services.InternalServices.TestNewsEditor.TestNewsRewrite
         {
             _mockScrapingService
                 .Setup(s => 
-                    s.ScrapeWebsiteWithRetry(It.IsAny<Uri>(), It.IsAny<string>(), false, 2).Result)
+                    s.ScrapeWebsiteWithRetry(It.IsAny<NewsOutlet>(), 2).Result)
                 .Returns("scraped_content");
             
             _mockResultProcessor
@@ -94,9 +94,7 @@ namespace Tests.Systems.Services.InternalServices.TestNewsEditor.TestNewsRewrite
             // Arrange
             _mockScrapingService
                 .Setup(s => s.ScrapeWebsiteWithRetry(
-                    It.IsAny<Uri>(), 
-                    It.IsAny<string>(), 
-                    It.IsAny<bool>(), 
+                    It.IsAny<NewsOutlet>(), 
                     It.IsAny<int>()).Result)
                 .Throws(new Exception("Scraping failed"));
 
@@ -125,7 +123,7 @@ namespace Tests.Systems.Services.InternalServices.TestNewsEditor.TestNewsRewrite
             var delay = TimeSpan.FromMilliseconds(100);
 
             _mockScrapingService
-                .Setup(s => s.ScrapeWebsiteWithRetry(It.IsAny<Uri>(), It.IsAny<string>(), false, 2))
+                .Setup(s => s.ScrapeWebsiteWithRetry(It.IsAny<NewsOutlet>(), 2))
                 .Returns(async () =>
                 {
                     await Task.Delay(delay);
@@ -169,7 +167,7 @@ namespace Tests.Systems.Services.InternalServices.TestNewsEditor.TestNewsRewrite
             // Arrange
             var errorMessage = "Failed to scrape";
             _mockScrapingService
-                .Setup(s => s.ScrapeWebsiteWithRetry(It.IsAny<Uri>(), It.IsAny<string>(), false, 2).Result)
+                .Setup(s => s.ScrapeWebsiteWithRetry(It.IsAny<NewsOutlet>(), 2).Result)
                 .Returns(Errors.ExternalServiceProvider.Scraper.ScrapingRequestError(errorMessage));
 
             // Act
@@ -188,9 +186,7 @@ namespace Tests.Systems.Services.InternalServices.TestNewsEditor.TestNewsRewrite
             
             _mockScrapingService
                 .Setup(s => s.ScrapeWebsiteWithRetry(
-                    It.IsAny<Uri>(), 
-                    It.IsAny<string>(), 
-                    It.IsAny<bool>(), 
+                    It.IsAny<NewsArticle>(), 
                     It.IsAny<int>()).Result)
                 .Returns(JsonSerializer.Serialize(_mockArticleContent));
 
@@ -212,9 +208,7 @@ namespace Tests.Systems.Services.InternalServices.TestNewsEditor.TestNewsRewrite
             var errorMessage = "Failed to scrape article";
             _mockScrapingService
                 .Setup(s => s.ScrapeWebsiteWithRetry(
-                    It.IsAny<Uri>(), 
-                    It.IsAny<string>(), 
-                    It.IsAny<bool>(), 
+                    It.IsAny<NewsArticle>(), 
                     It.IsAny<int>()).Result)
                 .Returns(Errors.ExternalServiceProvider.Scraper.ScrapingRequestError(errorMessage));
 
@@ -232,10 +226,7 @@ namespace Tests.Systems.Services.InternalServices.TestNewsEditor.TestNewsRewrite
             // Arrange
             _mockScrapingService
                 .Setup(s => s.ScrapeWebsiteWithRetry(
-                    It.IsAny<Uri>(), 
-                    It.IsAny<string>(), 
-                    It.IsAny<bool>(), 
-                    It.IsAny<int>()).Result)
+                    It.IsAny<NewsOutlet>(), It.IsAny<int>()).Result)
                 .Returns("invalid json");
 
             // Act

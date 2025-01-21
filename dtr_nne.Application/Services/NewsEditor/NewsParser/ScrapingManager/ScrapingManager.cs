@@ -86,7 +86,7 @@ public class ScrapingManager(ILogger<ScrapingManager> logger,
         logger.LogInformation("Starting main page scrape for outlet: {OutletName}, URL: {Url}", 
             outlet.Name, outlet.Website);
         
-        var scrapeResult = await service.ScrapeWebsiteWithRetry(outlet.Website);
+        var scrapeResult = await service.ScrapeWebsiteWithRetry(outlet);
         if (scrapeResult.IsError)
         {
             logger.LogError("Failed to scrape main page for outlet {OutletName}: {Error}", 
@@ -115,8 +115,7 @@ public class ScrapingManager(ILogger<ScrapingManager> logger,
         logger.LogInformation("Starting article scrape for URL: {Url}, Outlet: {OutletName}", 
             article.Uri, article.NewsOutlet?.Name);
         
-        var scrapeResult = await service.ScrapeWebsiteWithRetry(article.Uri!, 
-            article.NewsOutlet!.NewsPassword);
+        var scrapeResult = await service.ScrapeWebsiteWithRetry(article);
         if (scrapeResult.IsError)
         {
             logger.LogError("Failed to scrape article {Url}: {Error}", 
