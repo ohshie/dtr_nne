@@ -10,6 +10,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dtr_nne.Application", "dtr_
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dtr_nne.Infrastructure", "dtr_nne.Infrastructure\dtr_nne.Infrastructure.csproj", "{ED5F8707-02F9-4A38-8923-FADD452A2C03}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{90E55A70-C221-451A-A0C7-9A15C897901D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Deploy", "Deploy", "{4D39367C-BEEA-4847-8D75-A15F0B6B09C2}"
+	ProjectSection(SolutionItems) = preProject
+		Caddyfile = Caddyfile
+		docker-compose.yml = docker-compose.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +44,11 @@ Global
 		{ED5F8707-02F9-4A38-8923-FADD452A2C03}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ED5F8707-02F9-4A38-8923-FADD452A2C03}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ED5F8707-02F9-4A38-8923-FADD452A2C03}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F1B41410-BBC9-4208-A791-45F951173C74} = {90E55A70-C221-451A-A0C7-9A15C897901D}
+		{F2C525EF-790D-4397-AC76-9DF0BC9753D9} = {90E55A70-C221-451A-A0C7-9A15C897901D}
+		{76475293-DBCA-4449-B0F1-B3C757FFF1EA} = {90E55A70-C221-451A-A0C7-9A15C897901D}
+		{ED5F8707-02F9-4A38-8923-FADD452A2C03} = {90E55A70-C221-451A-A0C7-9A15C897901D}
 	EndGlobalSection
 EndGlobal

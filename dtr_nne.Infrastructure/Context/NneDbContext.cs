@@ -4,6 +4,7 @@ using dtr_nne.Domain.IContext;
 using Microsoft.EntityFrameworkCore;
 
 [assembly: InternalsVisibleTo("Tests")]
+[assembly: InternalsVisibleTo("dtr_nne.API")]
 
 namespace dtr_nne.Infrastructure.Context;
 
@@ -30,6 +31,10 @@ internal class NneDbContext(DbContextOptions<NneDbContext> options) : DbContext(
 
     public async Task MigrateAsync()
     {
+        foreach (var pending in Database.GetPendingMigrations())
+        {
+            Console.WriteLine(pending);
+        }
         await Database.MigrateAsync();
     }
 }
