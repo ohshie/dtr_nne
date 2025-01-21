@@ -52,21 +52,7 @@ jobs:
               title: `${identifier}: ${context.payload.issue.title}`
             });
 
-            // Commit counter file
-            const { repo, owner } = context.repo;
-            const contentParams = {
-              owner,
-              repo,
-              path: '.github/issue-counters.json',
-              message: `Update issue counters [skip ci]`,
-              content: Buffer.from(JSON.stringify(counter)).toString('base64'),
-              committer: {
-                name: 'GitHub Action',
-                email: 'action@github.com'
-              }
-            };
-            
-            // Create branch
+            // Get default branch SHA for new branch creation
             const defaultBranch = await github.rest.repos.get({
               owner: context.repo.owner,
               repo: context.repo.repo
@@ -78,20 +64,27 @@ jobs:
               ref: `heads/${defaultBranch}`
             }).then(res => res.data.object.sha);
             
+            // Create new branch
             await github.rest.git.createRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
               ref: `refs/heads/${branchName}`,
               sha: sha
             });
-            
-            // Add branch reference to issue
-            await github.rest.issues.createComment({
+
+            // Create or update counter file in the new branch
+            const contentParams = {
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: context.payload.issue.number,
-              body: `Branch \`${branchName}\` has been created for this issue.`
-            });
+              path: '.github/issue-counters.json',
+              message: `Update issue counters for ${identifier} [skip ci]`,
+              content: Buffer.from(JSON.stringify(counter, null, 2)).toString('base64'),
+              branch: branchName,
+              committer: {
+                name: 'GitHub Action',
+                email: 'action@github.com'
+              }
+            };
             
             // Add SHA if file exists
             if (fileSha) {
@@ -99,6 +92,15 @@ jobs:
             }
             
             await github.rest.repos.createOrUpdateFileContents(contentParams);
+            
+            // Add branch reference to issue
+            await github.rest.repos.createOrUpdateLinkedBranch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              branch: branchName,
+              issue_number: context.payload.issue.number
+            });
 permissions:
   issues: write
   contents: write
+  pull-requests: write
