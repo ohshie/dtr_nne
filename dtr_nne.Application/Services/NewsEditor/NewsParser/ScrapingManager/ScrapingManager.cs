@@ -35,7 +35,7 @@ public class ScrapingManager(ILogger<ScrapingManager> logger,
         }
         catch (Exception e)
         {
-            logger.LogError(
+            logger.LogError(e, 
                 "Unexpected error happened while trying to process incoming batch {EntityType}. {ExceptionMessage}, {ExceptionTrace}",
                 typeof(T), e.Message, e.StackTrace);
             return Errors.ExternalServiceProvider.Scraper.ScrapingRequestError(e.Message);
@@ -133,7 +133,7 @@ public class ScrapingManager(ILogger<ScrapingManager> logger,
         }
         catch (Exception e)
         {
-            logger.LogError("JSON deserialization failed for article {Url}", article.Uri);
+            logger.LogError(e, "JSON deserialization failed for article {Url}", article.Uri);
             article.Error = Errors.NewsArticles.JsonSerializationError(e.Message).Description;
         }
         

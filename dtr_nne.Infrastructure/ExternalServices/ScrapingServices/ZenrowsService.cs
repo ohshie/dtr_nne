@@ -62,7 +62,7 @@ public class ZenrowsService(ILogger<ZenrowsService> logger, ExternalService serv
             }
             catch (Exception e)
             {
-                logger.LogError("Something went wrong trying to scrape {OutletUrl} {Exception}\n {StackTrace}", requestUrl, e.Message, e.StackTrace);
+                logger.LogError(e, "Something went wrong trying to scrape {OutletUrl} {Exception}\n {StackTrace}", requestUrl, e.Message, e.StackTrace);
                 return Errors.ExternalServiceProvider.Scraper.ScrapingRequestError(e.Message);
             }
         }
