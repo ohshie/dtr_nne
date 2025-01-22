@@ -142,6 +142,8 @@ public class ExternalServiceManager(ILogger<ExternalServiceManager> logger,
     
     internal async Task<ErrorOr<bool>> CheckLlmApiKey(ILlmService llmService)
     {
+        logger.LogInformation("Starting to check api key for llm service");
+        
         var testArticle = new ArticleContent { Body = "test" };
         var validKey = await llmService.ProcessArticleAsync(testArticle);
         if (validKey.IsError)
@@ -156,6 +158,8 @@ public class ExternalServiceManager(ILogger<ExternalServiceManager> logger,
     
     internal async Task<ErrorOr<bool>> CheckTranslatorKey(ITranslatorService service, string incomingApiKey)
     {
+        logger.LogInformation("Starting to check api key for translator service");
+        
         List<Headline> testHeadlines = [new Headline{OriginalHeadline = "api test"}];
         var validKey = await service.Translate(testHeadlines);
         if (validKey.IsError)
@@ -170,8 +174,18 @@ public class ExternalServiceManager(ILogger<ExternalServiceManager> logger,
 
     internal async Task<ErrorOr<bool>> CheckScraperKey(IScrapingService service)
     {
-        var validKey = await service.ScrapeWebsiteWithRetry(new Uri("https://httpbin.io/anything"),
-            "{\n  \"links\": \"a @href\",\n  \"images\":\"img @src\"\n}");
+        logger.LogInformation("Starting to check api key for scraping service");
+        
+        var testOutlet = new NewsOutlet
+        {
+            Website = new Uri("https://httpbin.io/anything"),
+            NewsPassword = "{\n  \"links\": \"a @href\",\n  \"images\":\"img @src\"\n}",
+            Name = "null",
+            MainPagePassword = "{\n  \"links\": \"a @href\",\n  \"images\":\"img @src\"\n}",
+            Themes = []
+        };
+        
+        var validKey = await service.ScrapeWebsiteWithRetry(testOutlet);
         if (validKey.IsError)
         {
             logger.LogWarning("Failed to validate API key. Error: {Error}", validKey.FirstError.Description);

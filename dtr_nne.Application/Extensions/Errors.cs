@@ -2,6 +2,16 @@ namespace dtr_nne.Application.Extensions;
 
 public static class Errors
 {
+    public static class MapperErorrs
+    {
+        public static class ZenrowsErrors
+        {
+            public static Error InvalidContainerType => Error.Validation(
+                code: "MapperErrors.ZenrowsErrors.InvalidContainerType",
+                description: "Invalid container provided");
+        }
+    }
+    
     public static class DbErrors
     {
         public static Error UnitOfWorkSaveFailed => Error.Failure(

@@ -35,7 +35,7 @@ public class ScrapingManager(ILogger<ScrapingManager> logger,
         }
         catch (Exception e)
         {
-            logger.LogError(
+            logger.LogError(e, 
                 "Unexpected error happened while trying to process incoming batch {EntityType}. {ExceptionMessage}, {ExceptionTrace}",
                 typeof(T), e.Message, e.StackTrace);
             return Errors.ExternalServiceProvider.Scraper.ScrapingRequestError(e.Message);
@@ -86,7 +86,7 @@ public class ScrapingManager(ILogger<ScrapingManager> logger,
         logger.LogInformation("Starting main page scrape for outlet: {OutletName}, URL: {Url}", 
             outlet.Name, outlet.Website);
         
-        var scrapeResult = await service.ScrapeWebsiteWithRetry(outlet.Website);
+        var scrapeResult = await service.ScrapeWebsiteWithRetry(outlet);
         if (scrapeResult.IsError)
         {
             logger.LogError("Failed to scrape main page for outlet {OutletName}: {Error}", 
@@ -115,8 +115,7 @@ public class ScrapingManager(ILogger<ScrapingManager> logger,
         logger.LogInformation("Starting article scrape for URL: {Url}, Outlet: {OutletName}", 
             article.Uri, article.NewsOutlet?.Name);
         
-        var scrapeResult = await service.ScrapeWebsiteWithRetry(article.Uri!, 
-            article.NewsOutlet!.NewsPassword);
+        var scrapeResult = await service.ScrapeWebsiteWithRetry(article);
         if (scrapeResult.IsError)
         {
             logger.LogError("Failed to scrape article {Url}: {Error}", 
@@ -134,7 +133,7 @@ public class ScrapingManager(ILogger<ScrapingManager> logger,
         }
         catch (Exception e)
         {
-            logger.LogError("JSON deserialization failed for article {Url}", article.Uri);
+            logger.LogError(e, "JSON deserialization failed for article {Url}", article.Uri);
             article.Error = Errors.NewsArticles.JsonSerializationError(e.Message).Description;
         }
         

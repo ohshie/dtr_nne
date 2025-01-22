@@ -6,6 +6,7 @@ using dtr_nne.Infrastructure.ExternalServices.ScrapingServices;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
+using Tests.Fixtures.NewsOutletFixtures;
 
 namespace Tests.Systems.Services.ExternalServices;
 
@@ -24,9 +25,6 @@ public class ZenrowsServiceTests
             InUse = true
         };
 
-        _testUri = new Uri("https://test.com");
-        _testCssSelector = ".test-selector";
-
         DefaultSetup();
 
         _sut = new ZenrowsService(
@@ -39,10 +37,8 @@ public class ZenrowsServiceTests
     private readonly Mock<IHttpClientFactory> _mockHttpClientFactory;
     private HttpClient? _httpClient;
     private readonly Mock<HttpMessageHandler> _mockHttpMessageHandler;
-    private readonly Uri _testUri;
-    private readonly string _testCssSelector;
 
-    internal void DefaultSetup()
+    private void DefaultSetup()
     {
         _mockHttpMessageHandler
             .Protected()
@@ -70,7 +66,7 @@ public class ZenrowsServiceTests
         var expectedContent = "<html><body>Test content</body></html>";
 
         // Act
-        var result = await _sut.ScrapeWebsiteWithRetry(_testUri, _testCssSelector);
+        var result = await _sut.ScrapeWebsiteWithRetry(NewsOutletFixtureBase.Outlets[0][0]);
 
         // Assert
         result.IsError.Should().BeFalse();
@@ -93,7 +89,7 @@ public class ZenrowsServiceTests
             });
 
         // Act
-        var result = await _sut.ScrapeWebsiteWithRetry(_testUri, _testCssSelector);
+        var result = await _sut.ScrapeWebsiteWithRetry(NewsOutletFixtureBase.Outlets[0][0]);
 
         // Assert
         result.IsError.Should().BeTrue();

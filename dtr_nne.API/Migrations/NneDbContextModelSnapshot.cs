@@ -7,7 +7,7 @@ using dtr_nne.Infrastructure.Context;
 
 #nullable disable
 
-namespace dtr_nne.Infrastructure.Migrations
+namespace dtr_nne.Migrations
 {
     [DbContext(typeof(NneDbContext))]
     partial class NneDbContextModelSnapshot : ModelSnapshot
@@ -15,7 +15,7 @@ namespace dtr_nne.Infrastructure.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.1");
 
             modelBuilder.Entity("dtr_nne.Domain.Entities.ArticleContent", b =>
                 {
@@ -25,6 +25,7 @@ namespace dtr_nne.Infrastructure.Migrations
 
                     b.Property<string>("Body")
                         .IsRequired()
+                        .HasMaxLength(30000)
                         .HasColumnType("TEXT")
                         .HasAnnotation("Relational:JsonPropertyName", "body");
 
@@ -36,7 +37,7 @@ namespace dtr_nne.Infrastructure.Migrations
                     b.Property<int?>("EditedArticleId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("HeadlineId")
+                    b.Property<int>("HeadlineId")
                         .HasColumnType("INTEGER");
 
                     b.PrimitiveCollection<string>("Images")
@@ -46,6 +47,7 @@ namespace dtr_nne.Infrastructure.Migrations
 
                     b.Property<string>("Source")
                         .IsRequired()
+                        .HasMaxLength(200)
                         .HasColumnType("TEXT")
                         .HasAnnotation("Relational:JsonPropertyName", "source");
 
@@ -66,34 +68,42 @@ namespace dtr_nne.Infrastructure.Migrations
 
                     b.Property<string>("EditedBody")
                         .IsRequired()
+                        .HasMaxLength(30000)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("EditedBodyRunId")
                         .IsRequired()
+                        .HasMaxLength(1000)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Header")
                         .IsRequired()
+                        .HasMaxLength(1000)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("HeaderRunId")
                         .IsRequired()
+                        .HasMaxLength(1000)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Subheader")
                         .IsRequired()
+                        .HasMaxLength(10000)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("SubheaderRunId")
                         .IsRequired()
+                        .HasMaxLength(1000)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("TranslatedBody")
                         .IsRequired()
+                        .HasMaxLength(30000)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("TranslatedBodyRunId")
                         .IsRequired()
+                        .HasMaxLength(1000)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -136,16 +146,19 @@ namespace dtr_nne.Infrastructure.Migrations
 
                     b.Property<string>("OriginalHeadline")
                         .IsRequired()
-                        .HasColumnType("TEXT")
-                        .HasAnnotation("Relational:JsonPropertyName", "header");
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("TranslatedHeadline")
                         .IsRequired()
+                        .HasMaxLength(1000)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
                     b.ToTable("Headline");
+
+                    b.HasAnnotation("Relational:JsonPropertyName", "header");
                 });
 
             modelBuilder.Entity("dtr_nne.Domain.Entities.NewsArticle", b =>
@@ -162,6 +175,7 @@ namespace dtr_nne.Infrastructure.Migrations
 
                     b.Property<string>("Error")
                         .IsRequired()
+                        .HasMaxLength(10000)
                         .HasColumnType("TEXT");
 
                     b.Property<int>("NewsOutletId")
@@ -219,6 +233,11 @@ namespace dtr_nne.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("WaitTimer")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Website")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -257,7 +276,9 @@ namespace dtr_nne.Infrastructure.Migrations
 
                     b.HasOne("dtr_nne.Domain.Entities.Headline", "Headline")
                         .WithMany()
-                        .HasForeignKey("HeadlineId");
+                        .HasForeignKey("HeadlineId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("EditedArticle");
 
