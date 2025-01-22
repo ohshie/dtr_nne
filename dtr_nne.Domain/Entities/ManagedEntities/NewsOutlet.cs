@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace dtr_nne.Domain.Entities;
+namespace dtr_nne.Domain.Entities.ManagedEntities;
 
-public class NewsOutlet
+public class NewsOutlet : IManagedEntity
 {
     public int Id { get; set; }
     public bool InUse { get; set; }

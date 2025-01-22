@@ -1,4 +1,5 @@
-using dtr_nne.Application.ExternalServices;
+using dtr_nne.Application.Services.ExternalServices;
+using dtr_nne.Domain.Entities.ManagedEntities;
 using dtr_nne.Domain.IContext;
 using dtr_nne.Domain.Repositories;
 using dtr_nne.Domain.UnitOfWork;
@@ -34,6 +35,8 @@ public static class ServiceCollectionExtensions
         serviceCollection.AddScoped<IExternalServiceProviderRepository, ExternalServiceProviderRepository>();
         serviceCollection.AddScoped<IOpenAiAssistantRepository, OpenAiAssistantRepository>();
         serviceCollection.AddScoped<INewsArticleRepository, NewsArticleRepository>();
+        serviceCollection.AddScoped<IRepository<OpenAiAssistant>, GenericRepository<OpenAiAssistant, NneDbContext>>();
+        serviceCollection.AddScoped<IRepository<NewsOutlet>, GenericRepository<NewsOutlet, NneDbContext>>();
         
         // Providers
         serviceCollection.AddTransient<IExternalServiceProvider, ExternalServiceProvider>();

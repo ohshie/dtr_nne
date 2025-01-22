@@ -1,9 +1,10 @@
 using dtr_nne.Application.DTO.Article;
 using dtr_nne.Application.Extensions;
-using dtr_nne.Application.ExternalServices;
 using dtr_nne.Application.Mapper;
+using dtr_nne.Application.Services.ExternalServices;
 using dtr_nne.Application.Services.NewsEditor.NewsParser.NewsCollector;
 using dtr_nne.Domain.Entities;
+using dtr_nne.Domain.Entities.ManagedEntities;
 using dtr_nne.Domain.Enums;
 using dtr_nne.Domain.ExternalServices;
 using dtr_nne.Domain.Repositories;
@@ -140,14 +141,14 @@ public class NewsParser(ILogger<NewsParser> logger,
         if (await newsOutletRepository.GetAll() is not { } allOutlets)
         {
             logger.LogError("No news outlets found in database");
-            return Errors.NewsOutlets.NotFoundInDb;
+            return Errors.ManagedEntities.NotFoundInDb(typeof(NewsOutlet));
         }
         
         var activeOutlets = allOutlets.Where(no => no.InUse).ToList();
         if (activeOutlets.Count < 1)
         {
             logger.LogError("No active news outlets found");
-            return Errors.NewsOutlets.NotFoundInDb;
+            return Errors.ManagedEntities.NotFoundInDb(typeof(NewsOutlet));
         }
 
         if (targetParse is null)
@@ -160,7 +161,7 @@ public class NewsParser(ILogger<NewsParser> logger,
         if (outlet is null)
         {
             logger.LogError("No matching outlet found for host: {Host}", targetParse.Uri!.Host);
-            return Errors.NewsOutlets.MatchFailed;
+            return Errors.ManagedEntities.NewsOutlets.MatchFailed;
         }
         
         logger.LogInformation("Found matching outlet: {OutletName} for host: {Host}", 

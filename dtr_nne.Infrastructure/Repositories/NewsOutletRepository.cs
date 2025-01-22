@@ -1,4 +1,4 @@
-using dtr_nne.Domain.Entities;
+using dtr_nne.Domain.Entities.ManagedEntities;
 using dtr_nne.Domain.Repositories;
 using dtr_nne.Domain.UnitOfWork;
 using dtr_nne.Infrastructure.Context;
