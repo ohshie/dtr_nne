@@ -14,7 +14,7 @@ public class TestUpdateNewsOutletController : BaseTestNewsOutletController
     {
        // Arrange
        MockUpdateNewsOutletService
-           .Setup(service => service.UpdateNewsOutlets(incomingNewsOutletsDtos).Result)
+           .Setup(service => service.Update(incomingNewsOutletsDtos).Result)
            .Returns(new List<NewsOutletDto>());
        // Act
        var result = await Sut.Update(incomingNewsOutletsDtos);
@@ -30,7 +30,7 @@ public class TestUpdateNewsOutletController : BaseTestNewsOutletController
     {
         // Assemble
         MockUpdateNewsOutletService
-            .Setup(service => service.UpdateNewsOutlets(incomingNewsOutletsDtos).Result)
+            .Setup(service => service.Update(incomingNewsOutletsDtos).Result)
             .Returns(incomingNewsOutletsDtos);
 
         // Act
@@ -46,14 +46,14 @@ public class TestUpdateNewsOutletController : BaseTestNewsOutletController
     {
         // Assemble
         MockUpdateNewsOutletService
-            .Setup(service => service.UpdateNewsOutlets(new List<NewsOutletDto>()).Result)
+            .Setup(service => service.Update(new List<NewsOutletDto>()).Result)
             .Returns(new List<NewsOutletDto>());
 
         // Act
         await Sut.Update(new List<NewsOutletDto>());
         
         // Assert 
-        MockUpdateNewsOutletService.Verify(service => service.UpdateNewsOutlets(new List<NewsOutletDto>()), Times.Once);
+        MockUpdateNewsOutletService.Verify(service => service.Update(new List<NewsOutletDto>()), Times.Once);
     }
 
     [Fact]
@@ -61,8 +61,8 @@ public class TestUpdateNewsOutletController : BaseTestNewsOutletController
     {
         // Assemble
         MockUpdateNewsOutletService
-            .Setup(service => service.UpdateNewsOutlets(It.IsAny<List<NewsOutletDto>>()).Result)
-            .Returns(Errors.NewsOutlets.NoNewsOutletProvided);
+            .Setup(service => service.Update(It.IsAny<List<NewsOutletDto>>()).Result)
+            .Returns(Errors.ManagedEntities.NoEntitiesProvided);
 
         // Act
         var result = await Sut.Update([]);

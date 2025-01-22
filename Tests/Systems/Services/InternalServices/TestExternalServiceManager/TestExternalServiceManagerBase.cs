@@ -1,8 +1,8 @@
 using Bogus;
 using dtr_nne.Application.DTO.ExternalService;
 using dtr_nne.Application.Extensions;
-using dtr_nne.Application.ExternalServices;
 using dtr_nne.Application.Mapper;
+using dtr_nne.Application.Services.ExternalServices;
 using dtr_nne.Domain.Entities;
 using dtr_nne.Domain.Enums;
 using dtr_nne.Domain.ExternalServices;

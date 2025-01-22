@@ -1,4 +1,7 @@
 using dtr_nne.Application.DTO.NewsOutlet;
+using dtr_nne.Application.Extensions;
+using dtr_nne.Domain.Entities.ManagedEntities;
+using ErrorOr;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Tests.Fixtures;
@@ -14,7 +17,7 @@ public class TestGetNewsOutletController : BaseTestNewsOutletController
     {
         // Arrange 
         MockGetNewsOutletService
-            .Setup(service => service.GetAllNewsOutlets().Result)
+            .Setup(service => service.GetAll().Result)
             .Returns(newsOutletDtos);
         
         // Act
@@ -29,7 +32,7 @@ public class TestGetNewsOutletController : BaseTestNewsOutletController
     {
         // Arrange 
         MockGetNewsOutletService
-            .Setup(service => service.GetAllNewsOutlets().Result)
+            .Setup(service => service.GetAll().Result)
             .Returns(new List<NewsOutletDto>());
 
         // Act
@@ -37,7 +40,7 @@ public class TestGetNewsOutletController : BaseTestNewsOutletController
         
         // Assert
         MockGetNewsOutletService.Verify(
-            service => service.GetAllNewsOutlets(), 
+            service => service.GetAll(), 
             Times.Once);
     }
 
@@ -47,7 +50,7 @@ public class TestGetNewsOutletController : BaseTestNewsOutletController
     {
         // Arrange 
         MockGetNewsOutletService
-            .Setup(service => service.GetAllNewsOutlets().Result)
+            .Setup(service => service.GetAll().Result)
             .Returns(newsOutlets);
         
         // Act
@@ -56,7 +59,8 @@ public class TestGetNewsOutletController : BaseTestNewsOutletController
         // Assert
         result.Should().BeOfType<OkObjectResult>();
         var objectResult = (OkObjectResult)result;
-        objectResult.Value.Should().BeOfType<List<NewsOutletDto>>();
+        var actualResult = objectResult.Value is ErrorOr<List<NewsOutletDto>> or ? or : default;
+        actualResult.Value.Should().BeEquivalentTo(newsOutlets);
     }
 
     [Fact]
@@ -64,8 +68,8 @@ public class TestGetNewsOutletController : BaseTestNewsOutletController
     {
         // Arrange 
         MockGetNewsOutletService
-            .Setup(service => service.GetAllNewsOutlets().Result)
-            .Returns(new List<NewsOutletDto>());
+            .Setup(service => service.GetAll().Result)
+            .Returns(Errors.ManagedEntities.NotFoundInDb(typeof(NewsOutlet)));
        
         // Act
         var result = await Sut.Get();

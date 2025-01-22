@@ -1,4 +1,4 @@
-using dtr_nne.Application.ExternalServices;
+using dtr_nne.Application.Services.ExternalServices;
 using dtr_nne.Domain.IContext;
 using dtr_nne.Domain.Repositories;
 using dtr_nne.Domain.UnitOfWork;

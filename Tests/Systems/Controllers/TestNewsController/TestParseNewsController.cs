@@ -1,5 +1,6 @@
 using dtr_nne.Application.DTO.Article;
 using dtr_nne.Application.Extensions;
+using dtr_nne.Domain.Entities.ManagedEntities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Tests.Systems.Controllers.TestNewsController;
@@ -26,7 +27,7 @@ public class TestParseNewsController : BaseTestNewsController
         // Assemble
         MockNewsParser
             .Setup(rewriter => rewriter.ExecuteBatchParse(true, "").Result)
-            .Returns(Errors.NewsOutlets.NotFoundInDb);
+            .Returns(Errors.ManagedEntities.NotFoundInDb(typeof(NewsOutlet)));
 
         // Act
         var result = await Sut.ParseNews();

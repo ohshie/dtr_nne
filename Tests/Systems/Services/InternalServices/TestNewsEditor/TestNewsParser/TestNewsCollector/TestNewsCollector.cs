@@ -2,6 +2,7 @@ using dtr_nne.Application.Extensions;
 using dtr_nne.Application.Services.NewsEditor.NewsParser.NewsCollector;
 using dtr_nne.Application.Services.NewsEditor.NewsParser.ScrapingManager;
 using dtr_nne.Domain.Entities;
+using dtr_nne.Domain.Entities.ManagedEntities;
 using dtr_nne.Domain.ExternalServices;
 using dtr_nne.Domain.IContext;
 using dtr_nne.Domain.Repositories;

@@ -34,7 +34,7 @@ public class DeleteManagedEntity<T, TDto>(ILogger<DeleteManagedEntity<T, TDto>> 
         }
 
         var (matchedEntities, notmatchedEntities) = processedEntities.Value;
-        if (notmatchedEntities.Count < 1)
+        if (matchedEntities.Count < 1)
         {
             logger.LogWarning("No provided entities found in Db, returning list back to the customer");
             var notMatchedNewsOutletDtos = mapper.EntityToDto<T, TDto>(notmatchedEntities);

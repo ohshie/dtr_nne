@@ -64,7 +64,7 @@ public class TestGenericRepository : IClassFixture<GenericDatabaseFixture<Extern
     }
     
     [Fact]
-    public void Update_WhenError_Throws()
+    public void Update_WhenError_CatchesAndReturnFalse()
     {
         // Assemble
         _mockDbSet
@@ -73,10 +73,10 @@ public class TestGenericRepository : IClassFixture<GenericDatabaseFixture<Extern
         _sut.Object.DbSet = _mockDbSet.Object;
         
         // Act
-        Action result = () => _sut.Object.Update(_mockService);
+        var result = _sut.Object.Update(_mockService);
 
         // Assert 
-        result.Should().Throw<Exception>();
+        result.Should().BeFalse();
     }
     
     [Fact]

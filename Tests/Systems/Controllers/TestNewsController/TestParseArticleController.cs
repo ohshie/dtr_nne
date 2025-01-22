@@ -1,5 +1,6 @@
 using dtr_nne.Application.DTO.Article;
 using dtr_nne.Application.Extensions;
+using dtr_nne.Domain.Entities.ManagedEntities;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 
@@ -27,7 +28,7 @@ public class TestParseArticleController : BaseTestNewsController
         // Assemble
         MockNewsParser
             .Setup(rewriter => rewriter.Execute(It.IsAny<NewsArticleDto>()).Result)
-            .Returns(Errors.NewsOutlets.NotFoundInDb);
+            .Returns(Errors.ManagedEntities.NotFoundInDb(typeof(NewsOutlet)));
 
         // Act
         var result = await Sut.ParseArticle(It.IsAny<NewsArticleDto>());

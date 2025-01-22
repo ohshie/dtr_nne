@@ -1,4 +1,6 @@
 using dtr_nne.Application.DTO.NewsOutlet;
+using dtr_nne.Application.Extensions;
+using ErrorOr;
 using Microsoft.AspNetCore.Mvc;
 using Tests.Fixtures;
 
@@ -12,7 +14,7 @@ public class TestAddNewsOutletController : BaseTestNewsOutletController
     {
         // Assemble
         MockAddNewsOutletService
-            .Setup(service => service.AddNewsOutlets(incomingNewsOutletDtos).Result)
+            .Setup(service => service.Add(incomingNewsOutletDtos).Result)
             .Returns(incomingNewsOutletDtos);
         
         // Act
@@ -30,15 +32,15 @@ public class TestAddNewsOutletController : BaseTestNewsOutletController
     {
         // Assemble
         MockAddNewsOutletService
-            .Setup(service => service.AddNewsOutlets(incomingNewsOutletDtos).Result)
-            .Returns([]);
+            .Setup(service => service.Add(incomingNewsOutletDtos).Result)
+            .Returns(Errors.ManagedEntities.NoEntitiesProvided);
 
         // Act
         var result = await Sut.Add(incomingNewsOutletDtos);
         
         // Assert
-        result.Should().BeOfType<UnprocessableEntityResult>();
-        var objectResult = (StatusCodeResult)result;
+        result.Should().BeOfType<UnprocessableEntityObjectResult>();
+        var objectResult = (ObjectResult)result;
         objectResult.StatusCode.Should().Be(422);
     }
 
@@ -48,7 +50,7 @@ public class TestAddNewsOutletController : BaseTestNewsOutletController
     {
         // Assemble
         MockAddNewsOutletService
-            .Setup(service => service.AddNewsOutlets(incomingNewsOutletDtos).Result)
+            .Setup(service => service.Add(incomingNewsOutletDtos).Result)
             .Returns(incomingNewsOutletDtos);
 
         // Act
@@ -56,7 +58,8 @@ public class TestAddNewsOutletController : BaseTestNewsOutletController
         
         // Assert
         var objectResult = (ObjectResult)result;
-        objectResult.Value.Should().BeOfType<List<NewsOutletDto>>();
+        var actualResult = objectResult.Value is ErrorOr<List<NewsOutletDto>> or ? or : default;
+        actualResult.Value.Should().BeEquivalentTo(incomingNewsOutletDtos);
     }
     
     [Theory]
@@ -65,14 +68,16 @@ public class TestAddNewsOutletController : BaseTestNewsOutletController
     {
         // Assemble
         MockAddNewsOutletService
-            .Setup(service => service.AddNewsOutlets(incomingNewsOutletsDtos).Result)
+            .Setup(service => service.Add(incomingNewsOutletsDtos).Result)
             .Returns(incomingNewsOutletsDtos);
 
         // Act
         var result = await Sut.Add(incomingNewsOutletsDtos);
         
         // Assert
+        result.Should().BeOfType<CreatedAtActionResult>();
         var objectResult = (ObjectResult)result;
-        objectResult.Value.Should().BeEquivalentTo(incomingNewsOutletsDtos);
+        var actualResult = objectResult.Value is ErrorOr<List<NewsOutletDto>> or ? or : default;
+        actualResult.Value.Should().BeEquivalentTo(incomingNewsOutletsDtos);
     }
 }

@@ -1,4 +1,4 @@
-using dtr_nne.Domain.Entities;
+using dtr_nne.Domain.Entities.ManagedEntities;
 using dtr_nne.Infrastructure.Context;
 using dtr_nne.Infrastructure.Repositories;
 using dtr_nne.Infrastructure.UnitOfWork;
@@ -101,16 +101,16 @@ public class TestNewsOutletRepository : IClassFixture<GenericDatabaseFixture<New
     }
     
     [Fact]
-    public async Task AddRange_WithNullEntities_ShouldThrowException()
+    public async Task AddRange_WithNullEntities_ReturnsFalse()
     {
         // Arrange
         IEnumerable<NewsOutlet> entities = null!;
 
         // Act
-        Func<Task> act = async () => await _genericDatabaseFixture.Repository.AddRange(entities);
+        var result = await _genericDatabaseFixture.Repository.AddRange(entities);
 
         // Assert
-        await act.Should().ThrowAsync<NullReferenceException>();
+        result.Should().BeFalse();
     }
 
     [Fact]

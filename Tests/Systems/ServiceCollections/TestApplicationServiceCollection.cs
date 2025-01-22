@@ -1,9 +1,8 @@
 using dtr_nne.Application.Extensions;
-using dtr_nne.Application.ExternalServices;
 using dtr_nne.Application.Mapper;
+using dtr_nne.Application.Services.ExternalServices;
 using dtr_nne.Application.Services.NewsEditor.NewsParser;
 using dtr_nne.Application.Services.NewsEditor.NewsRewriter;
-using dtr_nne.Application.Services.NewsOutletServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -27,11 +26,6 @@ public class TestApplicationServiceCollection
     }
     
     [Theory]
-    [InlineData(typeof(INewsOutletServiceHelper), typeof(NewsOutletServiceHelper))]
-    [InlineData(typeof(IGetNewsOutletService), typeof(GetNewsOutletService))]
-    [InlineData(typeof(IAddNewsOutletService), typeof(AddNewsOutletService))]
-    [InlineData(typeof(IUpdateNewsOutletService), typeof(UpdateNewsOutletService))]
-    [InlineData(typeof(IDeleteNewsOutletService), typeof(DeleteNewsOutletService))]
     [InlineData(typeof(INewsOutletMapper), typeof(NewsOutletMapper))]
     [InlineData(typeof(IExternalServiceMapper), typeof(ExternalServiceMapper))]
     [InlineData(typeof(IArticleMapper), typeof(ArticleMapper))]

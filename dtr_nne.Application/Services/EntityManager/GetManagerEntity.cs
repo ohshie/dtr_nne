@@ -18,7 +18,7 @@ public class GetManagerEntity<T, TDto>(ILogger<GetManagerEntity<T, TDto>> logger
         var assistants = await aiAssistantRepository.GetAll() as List<T>;
         if (assistants is null)
         {
-            return Errors.ExternalServiceProvider.Llm.NoAssitantsSaved;
+            return Errors.ManagedEntities.NotFoundInDb(typeof(T));
         }
 
         var assistantDtos = mapper.EntityToDto<T, TDto>(assistants);
