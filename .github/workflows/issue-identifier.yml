@@ -93,13 +93,6 @@ jobs:
             
             await github.rest.repos.createOrUpdateFileContents(contentParams);
             
-            // Add branch reference to issue
-            await github.rest.repos.createOrUpdateLinkedBranch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              branch: branchName,
-              issue_number: context.payload.issue.number
-            });
 permissions:
   issues: write
   contents: write
