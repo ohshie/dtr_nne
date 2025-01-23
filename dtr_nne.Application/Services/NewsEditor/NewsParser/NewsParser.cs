@@ -14,7 +14,7 @@ namespace dtr_nne.Application.Services.NewsEditor.NewsParser;
 public class NewsParser(ILogger<NewsParser> logger, 
     IExternalServiceProvider serviceProvider, 
     IArticleMapper mapper,
-    INewsOutletRepository newsOutletRepository,
+    IRepository<NewsOutlet> newsOutletRepository,
     IContentCollector contentCollector,
     INewsCollector newsCollector) : INewsParser
 {
@@ -84,7 +84,7 @@ public class NewsParser(ILogger<NewsParser> logger,
             return newsOutlets.FirstError;
         }
         
-        newsArticle.NewsOutlet = newsOutlets.Value.First();
+        newsArticle.NewsOutlet = newsOutlets.Value[0];
         logger.LogInformation("Matched article to news outlet: {OutletName}", newsArticle.NewsOutlet.Name);
         
         if (RequestScraper() is not { } activeScrapingService)
@@ -100,7 +100,7 @@ public class NewsParser(ILogger<NewsParser> logger,
             return processedArticle.FirstError;
         }
 
-        var processedArticleDto = mapper.NewsArticleToDto(processedArticle.Value.First());
+        var processedArticleDto = mapper.NewsArticleToDto(processedArticle.Value[0]);
         logger.LogInformation("Successfully processed article with title: {Url}", processedArticleDto.Uri);
         return processedArticleDto;
     }
@@ -179,7 +179,7 @@ public class NewsParser(ILogger<NewsParser> logger,
         }
         catch (Exception e)
         {
-            logger.LogError("Something went wrong when attempting to fetch currently active existing Scraping Service: {ErrorStack}, {ErrorMessage}", e.Message, e.StackTrace);
+            logger.LogError(e, "Something went wrong when attempting to fetch currently active existing Scraping Service: {ErrorStack}, {ErrorMessage}", e.Message, e.StackTrace);
             return null;
         }
     }
@@ -194,7 +194,7 @@ public class NewsParser(ILogger<NewsParser> logger,
         }
         catch (Exception e)
         {
-            logger.LogError("Something went wrong when attempting to fetch currently active existing Translator Serivce: {ErrorStack}, {ErrorMessage}", e.Message, e.StackTrace);
+            logger.LogError(e, "Something went wrong when attempting to fetch currently active existing Translator Serivce: {ErrorStack}, {ErrorMessage}", e.Message, e.StackTrace);
             return null;
         }
     }

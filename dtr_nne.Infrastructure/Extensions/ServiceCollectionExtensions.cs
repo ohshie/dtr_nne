@@ -31,7 +31,6 @@ public static class ServiceCollectionExtensions
         serviceCollection.AddScoped<IUnitOfWork<NneDbContext>, UnitOfWork<NneDbContext>>();
         
         // Repositories
-        serviceCollection.AddScoped<INewsOutletRepository, NewsOutletRepository>();
         serviceCollection.AddScoped<IExternalServiceProviderRepository, ExternalServiceProviderRepository>();
         serviceCollection.AddScoped<IOpenAiAssistantRepository, OpenAiAssistantRepository>();
         serviceCollection.AddScoped<INewsArticleRepository, NewsArticleRepository>();

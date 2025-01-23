@@ -15,7 +15,7 @@ public class TestNewsOutletServiceHelper
     public TestNewsOutletServiceHelper()
     {
         Mock<ILogger<ManagedEntityHelper<NewsOutlet>>> mockLogger = new();
-        _mockRepository = new Mock<INewsOutletRepository>();
+        _mockRepository = new Mock<IRepository<NewsOutlet>>();
 
         _savedNewsOutlets = NewsOutletFixtureBase.Outlets[1];
 
@@ -28,7 +28,7 @@ public class TestNewsOutletServiceHelper
     }
 
     private readonly ManagedEntityHelper<NewsOutlet> _sut;
-    private readonly Mock<INewsOutletRepository> _mockRepository;
+    private readonly Mock<IRepository<NewsOutlet>> _mockRepository;
     private readonly List<NewsOutlet> _savedNewsOutlets;
 
     private void BasicSetup()

@@ -15,8 +15,7 @@ public class GetManagerEntity<T, TDto>(ILogger<GetManagerEntity<T, TDto>> logger
     public async Task<ErrorOr<List<TDto>>> GetAll()
     {
         logger.LogInformation("Serving all currently saved openAi assistants");
-        var assistants = await aiAssistantRepository.GetAll() as List<T>;
-        if (assistants is null)
+        if (await aiAssistantRepository.GetAll() is not List<T> assistants || assistants.Count < 1)
         {
             return Errors.ManagedEntities.NotFoundInDb(typeof(T));
         }

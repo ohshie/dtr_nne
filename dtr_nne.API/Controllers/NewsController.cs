@@ -33,7 +33,7 @@ public class NewsController(INewsParser newsParser, INewsRewriter rewriter) : Co
     [ProducesResponseType<Error>(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> ParseNews(bool fullProcess = true)
     {
-        var newsArticles = await newsParser.ExecuteBatchParse(true);
+        var newsArticles = await newsParser.ExecuteBatchParse();
         if (newsArticles.IsError)
         {
             return BadRequest(newsArticles.FirstError);

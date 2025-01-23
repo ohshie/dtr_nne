@@ -30,7 +30,7 @@ internal class UnitOfWork<TContext>(TContext passedContext, ILogger<UnitOfWork<T
         GC.SuppressFinalize(this);
     }
 
-    private void Dispose(bool disposing)
+    protected virtual void Dispose(bool disposing)
     {
         if (!_disposed && disposing) Context.Dispose();
         _disposed = true;

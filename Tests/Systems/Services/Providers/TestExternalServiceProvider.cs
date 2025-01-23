@@ -1,5 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
-using dtr_nne.Application.ExternalServices;
+using dtr_nne.Application.Services.ExternalServices;
 using dtr_nne.Domain.Entities;
 using dtr_nne.Domain.Enums;
 using dtr_nne.Domain.ExternalServices;

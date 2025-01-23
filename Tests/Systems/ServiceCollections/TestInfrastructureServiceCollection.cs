@@ -1,4 +1,5 @@
 using dtr_nne.Application.Services.ExternalServices;
+using dtr_nne.Domain.Entities.ManagedEntities;
 using dtr_nne.Domain.IContext;
 using dtr_nne.Domain.Repositories;
 using dtr_nne.Domain.UnitOfWork;
@@ -58,7 +59,7 @@ public class TestInfrastructureServiceCollection
     [Theory]
     [InlineData(typeof(IUnitOfWork<INneDbContext>), ServiceLifetime.Scoped)]
     [InlineData(typeof(IUnitOfWork<NneDbContext>), ServiceLifetime.Scoped)]
-    [InlineData(typeof(INewsOutletRepository), ServiceLifetime.Scoped)]
+    [InlineData(typeof(IRepository<NewsOutlet>), ServiceLifetime.Scoped)]
     [InlineData(typeof(IExternalServiceProviderRepository), ServiceLifetime.Scoped)]
     [InlineData(typeof(IOpenAiAssistantRepository), ServiceLifetime.Scoped)]
     [InlineData(typeof(IExternalServiceProvider), ServiceLifetime.Transient)]

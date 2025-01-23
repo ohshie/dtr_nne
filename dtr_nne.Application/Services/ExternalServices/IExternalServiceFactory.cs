@@ -1,7 +1,7 @@
 using dtr_nne.Domain.Entities;
 using dtr_nne.Domain.ExternalServices;
 
-namespace dtr_nne.Application.ExternalServices;
+namespace dtr_nne.Application.Services.ExternalServices;
 
 public interface IExternalServiceFactory
 {

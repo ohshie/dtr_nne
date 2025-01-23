@@ -61,7 +61,7 @@ public class TestNewsParser
     private readonly Mock<NewsParser> _sut;
     private readonly Mock<IExternalServiceProvider> _mockServiceProvider;
     private readonly Mock<IArticleMapper> _mockArticleMapper;
-    private readonly Mock<INewsOutletRepository> _mockNewsOutletRepository;
+    private readonly Mock<IRepository<NewsOutlet>> _mockNewsOutletRepository;
     private readonly Mock<IContentCollector> _mockContentCollector;
     private readonly Mock<INewsCollector> _mockNewsCollector;
     private readonly Mock<IScrapingService> _mockScrapingService;
