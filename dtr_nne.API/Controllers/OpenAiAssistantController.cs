@@ -7,39 +7,39 @@ namespace dtr_nne.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class OpenAiAssistantController(IGetManagerEntity<OpenAiAssistantDto> getNewsOutletService, 
-    IAddManagedEntity<OpenAiAssistantDto> addNewsOutletService, 
-    IUpdateManagedEntity<OpenAiAssistantDto> updateNewsOutletService, 
-    IDeleteManagedEntity<OpenAiAssistantDto> deleteNewsOutletService) : ControllerBase
+public class OpenAiAssistantController(IGetManagerEntity<OpenAiAssistantDto> getManagedEntityService, 
+    IAddManagedEntity<OpenAiAssistantDto> addManagedEntityService, 
+    IUpdateManagedEntity<OpenAiAssistantDto> updateManagedEntityService, 
+    IDeleteManagedEntity<OpenAiAssistantDto> deleteManagedEntityService) : ControllerBase
 {
     [HttpGet("Get", Name = "Get assistants")]
     [ProducesResponseType<OpenAiAssistantDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<Error>(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> Get()
     {
-        var newsOutlets = await getNewsOutletService.GetAll();
+        var newsOutlets = await getManagedEntityService.GetAll();
 
         if (newsOutlets.IsError)
         {
             return NotFound(newsOutlets);
         }
         
-        return Ok(newsOutlets);
+        return Ok(newsOutlets.Value);
     }
 
     [HttpPost("Add", Name = "Add assistants")]
     [ProducesResponseType<OpenAiAssistantDto>(StatusCodes.Status201Created)]
     [ProducesResponseType<Error>(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<ActionResult> Add(List<OpenAiAssistantDto> newsOutletDtos)
+    public async Task<ActionResult> Add(List<OpenAiAssistantDto> managedEntityDtos)
     {
-        var addedNewsOutletDtos = await addNewsOutletService.Add(newsOutletDtos);
+        var addedNewsOutletDtos = await addManagedEntityService.Add(managedEntityDtos);
 
         if (addedNewsOutletDtos.IsError)
         {
             return UnprocessableEntity(addedNewsOutletDtos);
         }
         
-        return CreatedAtAction(nameof(Add), addedNewsOutletDtos);
+        return CreatedAtAction(nameof(Add), addedNewsOutletDtos.Value);
     }
 
     [HttpPut("Update", Name = "Update assistants")]
@@ -47,9 +47,9 @@ public class OpenAiAssistantController(IGetManagerEntity<OpenAiAssistantDto> get
     [ProducesResponseType<OpenAiAssistantDto>(StatusCodes.Status206PartialContent)]
     [ProducesResponseType<Error>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<Error>(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> Update(List<OpenAiAssistantDto> newsOutletDtos)
+    public async Task<ActionResult> Update(List<OpenAiAssistantDto> managedEntityDtos)
     {
-        var resultOfUpdate = await updateNewsOutletService.Update(newsOutletDtos);
+        var resultOfUpdate = await updateManagedEntityService.Update(managedEntityDtos);
 
         if (resultOfUpdate.IsError)
         {
@@ -73,9 +73,9 @@ public class OpenAiAssistantController(IGetManagerEntity<OpenAiAssistantDto> get
     [ProducesResponseType<OpenAiAssistantDto>(StatusCodes.Status206PartialContent)]
     [ProducesResponseType<Error>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<Error>(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> Delete(List<OpenAiAssistantDto> newsOutletDtos)
+    public async Task<ActionResult> Delete(List<OpenAiAssistantDto> managedEntityDtos)
     {
-        var resultOfDeletion = await deleteNewsOutletService.Delete(newsOutletDtos);
+        var resultOfDeletion = await deleteManagedEntityService.Delete(managedEntityDtos);
 
         if (resultOfDeletion.IsError)
         {

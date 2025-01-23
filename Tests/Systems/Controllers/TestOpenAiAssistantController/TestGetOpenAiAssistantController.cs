@@ -1,7 +1,6 @@
 using dtr_nne.Application.DTO.ExternalService.OpenAiAssistantDto;
 using dtr_nne.Application.Extensions;
 using dtr_nne.Domain.Entities.ManagedEntities;
-using ErrorOr;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Tests.Fixtures.ManagedEntityFixtures.OpenAiAssistantFixture;
@@ -59,8 +58,7 @@ public class TestGetOpenAiAssistantController : BaseTestOpenAiAssistantControlle
         // Assert
         result.Should().BeOfType<OkObjectResult>();
         var objectResult = (OkObjectResult)result;
-        var actualResult = objectResult.Value is ErrorOr<List<OpenAiAssistantDto>> or ? or : default;
-        actualResult.Value.Should().BeEquivalentTo(newsOutlets);
+        objectResult.Value.Should().BeEquivalentTo(newsOutlets);
     }
 
     [Fact]
