@@ -52,7 +52,7 @@ internal class NewsArticleRepository(ILogger<NewsArticleRepository> logger,
         }
         catch (Exception e)
         {
-            logger.LogError("Something went really wrong when trying to AddRange to Db {Exception}, \n {ExceptionTrace} \n {ExceptionInnerException}", 
+            logger.LogError(e, "Something went really wrong when trying to AddRange to Db {Exception}, \n {ExceptionTrace} \n {ExceptionInnerException}", 
                 e.Message, 
                 e.StackTrace, 
                 e.InnerException?.Message ?? "No Inner Exception");

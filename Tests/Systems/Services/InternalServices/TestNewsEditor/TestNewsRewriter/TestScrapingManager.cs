@@ -3,6 +3,7 @@ using dtr_nne.Application.Extensions;
 using dtr_nne.Application.Services.NewsEditor.NewsParser.ScrapingManager;
 using dtr_nne.Application.Services.NewsEditor.NewsParser.ScrapingManager.MainPageScrapingResultProcessor;
 using dtr_nne.Domain.Entities;
+using dtr_nne.Domain.Entities.ManagedEntities;
 using dtr_nne.Domain.ExternalServices;
 using Microsoft.Extensions.Logging;
 using Moq;

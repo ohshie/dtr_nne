@@ -28,7 +28,7 @@ internal class ExternalServiceProviderRepository(ILogger<ExternalServiceProvider
         }
         catch (Exception e)
         {
-            logger.LogError("Something went wrong when trying to fetch external services by type {Type}, " +
+            logger.LogError(e, "Something went wrong when trying to fetch external services by type {Type}, " +
                             "{Exception}, \n {ExceptionTrace} \n {ExceptionInnerException}", 
                 type.GetType(),
                 e.Message, 

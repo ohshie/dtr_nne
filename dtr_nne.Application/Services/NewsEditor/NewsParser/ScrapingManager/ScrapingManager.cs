@@ -3,6 +3,7 @@ using System.Text.Json;
 using dtr_nne.Application.Extensions;
 using dtr_nne.Application.Services.NewsEditor.NewsParser.ScrapingManager.MainPageScrapingResultProcessor;
 using dtr_nne.Domain.Entities;
+using dtr_nne.Domain.Entities.ManagedEntities;
 using dtr_nne.Domain.ExternalServices;
 
 [assembly: InternalsVisibleTo("Tests")]

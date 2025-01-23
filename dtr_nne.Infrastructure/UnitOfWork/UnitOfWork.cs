@@ -19,8 +19,8 @@ internal class UnitOfWork<TContext>(TContext passedContext, ILogger<UnitOfWork<T
         }
         catch (Exception dbEx)
         {
-            logger.LogCritical("Unit Of Work saving produced Error {DbException}", dbEx.ToString());
-            throw;
+            logger.LogCritical(dbEx, "Unit Of Work saving produced Error {DbException}", dbEx.Message);
+            return false;
         }
     }
     
@@ -30,11 +30,9 @@ internal class UnitOfWork<TContext>(TContext passedContext, ILogger<UnitOfWork<T
         GC.SuppressFinalize(this);
     }
 
-    private void Dispose(bool disposing)
+    protected virtual void Dispose(bool disposing)
     {
-        if (!_disposed)
-            if (disposing)
-                Context.Dispose();
+        if (!_disposed && disposing) Context.Dispose();
         _disposed = true;
     }
 }

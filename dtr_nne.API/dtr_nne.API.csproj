@@ -6,6 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <RootNamespace>dtr_nne</RootNamespace>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <RuntimeIdentifiers>linux-musl-x64;linux-musl-arm64</RuntimeIdentifiers>
     </PropertyGroup>
 
     <ItemGroup>

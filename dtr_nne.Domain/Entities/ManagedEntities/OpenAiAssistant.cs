@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace dtr_nne.Domain.Entities;
+namespace dtr_nne.Domain.Entities.ManagedEntities;
 
-public class OpenAiAssistant
+public class OpenAiAssistant : IManagedEntity
 {
     public int Id { get; set; }
     [StringLength(20)]

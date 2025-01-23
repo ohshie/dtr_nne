@@ -46,4 +46,4 @@ using (var scope = app.Services.CreateScope())
     await dbContext.MigrateAsync();
 }
 
-app.Run();
+await app.RunAsync();

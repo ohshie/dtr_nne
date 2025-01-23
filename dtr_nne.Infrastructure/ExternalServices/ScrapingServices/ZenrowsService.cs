@@ -1,6 +1,7 @@
 using System.Web;
 using dtr_nne.Application.Extensions;
 using dtr_nne.Domain.Entities;
+using dtr_nne.Domain.Entities.ManagedEntities;
 using dtr_nne.Domain.ExternalServices;
 using ErrorOr;
 using Microsoft.Extensions.Logging;

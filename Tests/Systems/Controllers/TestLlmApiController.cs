@@ -1,6 +1,6 @@
 using dtr_nne.Application.DTO.ExternalService;
 using dtr_nne.Application.Extensions;
-using dtr_nne.Application.ExternalServices;
+using dtr_nne.Application.Services.ExternalServices;
 using dtr_nne.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Moq;

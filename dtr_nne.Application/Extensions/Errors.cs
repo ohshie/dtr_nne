@@ -2,16 +2,6 @@ namespace dtr_nne.Application.Extensions;
 
 public static class Errors
 {
-    public static class MapperErorrs
-    {
-        public static class ZenrowsErrors
-        {
-            public static Error InvalidContainerType => Error.Validation(
-                code: "MapperErrors.ZenrowsErrors.InvalidContainerType",
-                description: "Invalid container provided");
-        }
-    }
-    
     public static class DbErrors
     {
         public static Error UnitOfWorkSaveFailed => Error.Failure(
@@ -52,6 +42,16 @@ public static class Errors
 
         public static class Llm
         {
+            public static class OpenAi
+            {
+                public static Error EmptyAssistantListProvided => Error.Validation(
+                    code: "ExternalServiceProvider.Llm.OpenAi.EmptyAssistantListProvided",
+                    description: "Provided open ai assistant dto list is empty");
+            }
+            
+            public static Error NoAssitantsSaved => Error.NotFound(
+                code: "ExternalServiceProvider.Llm.NoAssitantsSaved",
+                description: "No lls assistants exists in db");
             public static Error InvalidAssistantRequested => Error.NotFound(
                 code: "ExternalServiceProvider.Llm.InvalidAssistantRequested",
                 description: "Requested llm assistant not found");
@@ -78,29 +78,36 @@ public static class Errors
             code: "NewsArticles.JsonSerializationError",
             description: $"Encountered error while attempting to deserialize json with parse results: {info}");
     }
-    
-    public static class NewsOutlets
+    public static class ManagedEntities
     {
-        public static Error NoNewsOutletProvided => Error.Validation(
-            code: "NewsOutlet.NoNewsOutletProvided",
-            description: "No suitable news outlet were provided");
-
-        public static Error NotFoundInDb => Error.NotFound(
-            "NewsOutlet.NotFound",
-            description: "No NewsOutlets Were Found in Db");
-
-        public static Error MatchFailed => Error.NotFound(
-            "NewsOutlets.MatchFailed",
-            description: "Provided NewsOutlets not found in Db");
+        public static Error NoEntitiesProvided => Error.Validation(
+            code: "ManagedEntities.NoEntitiesProvided",
+            description: "No suitable entities were provided");
         
-        public static Error DeletionFailed => Error.Failure(
-            code: "NewsOutlets.DeletionFailed",
-            description: "Failed to delete one or more news outlets.");
+        public static Error DeletionFailed(Type entityType) => Error.Failure(
+            code: "ManagedEntities.DeletionFailed",
+            description: $"Failed to delete one or more {entityType.FullName}");
         
-        public static Error UpdateFailed => Error.Failure(
-            code: "NewsOutlets.UpdateFailed",
-            description: "Failed to update one or more news outlets.");
+        public static Error UpdateFailed(Type entityType) => Error.Failure(
+            code: "ManagedEntities.UpdateFailed",
+            description: $"Failed to update one or more {entityType.FullName}");
+        
+        public static Error NotFoundInDb(Type entityType) => Error.NotFound(
+            "ManagedEntities.NotFoundInDb",
+            description: $"No {entityType.FullName} were found in Db");
+        
+        public static class NewsOutlets
+        {
+            public static Error NoNewsOutletProvided => Error.Validation(
+                code: "NewsOutlet.NoNewsOutletProvided",
+                description: "No suitable news outlet were provided");
+
+            public static Error MatchFailed => Error.NotFound(
+                "NewsOutlets.MatchFailed",
+                description: "Provided NewsOutlets not found in Db");
+        }
     }
+    
 
     public static class Translator
     {

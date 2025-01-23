@@ -1,9 +1,10 @@
 using dtr_nne.Application.DTO.Article;
 using dtr_nne.Application.Extensions;
-using dtr_nne.Application.ExternalServices;
 using dtr_nne.Application.Mapper;
+using dtr_nne.Application.Services.ExternalServices;
 using dtr_nne.Application.Services.NewsEditor.NewsParser.NewsCollector;
 using dtr_nne.Domain.Entities;
+using dtr_nne.Domain.Entities.ManagedEntities;
 using dtr_nne.Domain.Enums;
 using dtr_nne.Domain.ExternalServices;
 using dtr_nne.Domain.Repositories;
@@ -13,7 +14,7 @@ namespace dtr_nne.Application.Services.NewsEditor.NewsParser;
 public class NewsParser(ILogger<NewsParser> logger, 
     IExternalServiceProvider serviceProvider, 
     IArticleMapper mapper,
-    INewsOutletRepository newsOutletRepository,
+    IRepository<NewsOutlet> newsOutletRepository,
     IContentCollector contentCollector,
     INewsCollector newsCollector) : INewsParser
 {
@@ -83,7 +84,7 @@ public class NewsParser(ILogger<NewsParser> logger,
             return newsOutlets.FirstError;
         }
         
-        newsArticle.NewsOutlet = newsOutlets.Value.First();
+        newsArticle.NewsOutlet = newsOutlets.Value[0];
         logger.LogInformation("Matched article to news outlet: {OutletName}", newsArticle.NewsOutlet.Name);
         
         if (RequestScraper() is not { } activeScrapingService)
@@ -99,7 +100,7 @@ public class NewsParser(ILogger<NewsParser> logger,
             return processedArticle.FirstError;
         }
 
-        var processedArticleDto = mapper.NewsArticleToDto(processedArticle.Value.First());
+        var processedArticleDto = mapper.NewsArticleToDto(processedArticle.Value[0]);
         logger.LogInformation("Successfully processed article with title: {Url}", processedArticleDto.Uri);
         return processedArticleDto;
     }
@@ -140,14 +141,14 @@ public class NewsParser(ILogger<NewsParser> logger,
         if (await newsOutletRepository.GetAll() is not { } allOutlets)
         {
             logger.LogError("No news outlets found in database");
-            return Errors.NewsOutlets.NotFoundInDb;
+            return Errors.ManagedEntities.NotFoundInDb(typeof(NewsOutlet));
         }
         
         var activeOutlets = allOutlets.Where(no => no.InUse).ToList();
         if (activeOutlets.Count < 1)
         {
             logger.LogError("No active news outlets found");
-            return Errors.NewsOutlets.NotFoundInDb;
+            return Errors.ManagedEntities.NotFoundInDb(typeof(NewsOutlet));
         }
 
         if (targetParse is null)
@@ -160,7 +161,7 @@ public class NewsParser(ILogger<NewsParser> logger,
         if (outlet is null)
         {
             logger.LogError("No matching outlet found for host: {Host}", targetParse.Uri!.Host);
-            return Errors.NewsOutlets.MatchFailed;
+            return Errors.ManagedEntities.NewsOutlets.MatchFailed;
         }
         
         logger.LogInformation("Found matching outlet: {OutletName} for host: {Host}", 
@@ -178,7 +179,7 @@ public class NewsParser(ILogger<NewsParser> logger,
         }
         catch (Exception e)
         {
-            logger.LogError("Something went wrong when attempting to fetch currently active existing Scraping Service: {ErrorStack}, {ErrorMessage}", e.Message, e.StackTrace);
+            logger.LogError(e, "Something went wrong when attempting to fetch currently active existing Scraping Service: {ErrorStack}, {ErrorMessage}", e.Message, e.StackTrace);
             return null;
         }
     }
@@ -193,7 +194,7 @@ public class NewsParser(ILogger<NewsParser> logger,
         }
         catch (Exception e)
         {
-            logger.LogError("Something went wrong when attempting to fetch currently active existing Translator Serivce: {ErrorStack}, {ErrorMessage}", e.Message, e.StackTrace);
+            logger.LogError(e, "Something went wrong when attempting to fetch currently active existing Translator Serivce: {ErrorStack}, {ErrorMessage}", e.Message, e.StackTrace);
             return null;
         }
     }

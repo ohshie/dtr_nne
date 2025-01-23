@@ -1,10 +1,11 @@
 using dtr_nne.Application.DTO.Article;
 using dtr_nne.Application.Extensions;
-using dtr_nne.Application.ExternalServices;
 using dtr_nne.Application.Mapper;
+using dtr_nne.Application.Services.ExternalServices;
 using dtr_nne.Application.Services.NewsEditor.NewsParser;
 using dtr_nne.Application.Services.NewsEditor.NewsParser.NewsCollector;
 using dtr_nne.Domain.Entities;
+using dtr_nne.Domain.Entities.ManagedEntities;
 using dtr_nne.Domain.Enums;
 using dtr_nne.Domain.ExternalServices;
 using dtr_nne.Domain.Repositories;
@@ -60,7 +61,7 @@ public class TestNewsParser
     private readonly Mock<NewsParser> _sut;
     private readonly Mock<IExternalServiceProvider> _mockServiceProvider;
     private readonly Mock<IArticleMapper> _mockArticleMapper;
-    private readonly Mock<INewsOutletRepository> _mockNewsOutletRepository;
+    private readonly Mock<IRepository<NewsOutlet>> _mockNewsOutletRepository;
     private readonly Mock<IContentCollector> _mockContentCollector;
     private readonly Mock<INewsCollector> _mockNewsCollector;
     private readonly Mock<IScrapingService> _mockScrapingService;
@@ -184,7 +185,7 @@ public class TestNewsParser
 
         // Assert 
         result.IsError.Should().BeTrue();
-        result.FirstError.Should().Be(Errors.NewsOutlets.NotFoundInDb);
+        result.FirstError.Should().Be(Errors.ManagedEntities.NotFoundInDb(typeof(NewsOutlet)));
     }
     
     [Fact]
@@ -251,7 +252,7 @@ public class TestNewsParser
 
         // Assert 
         result.IsError.Should().BeTrue();
-        result.FirstError.Should().Be(Errors.NewsOutlets.MatchFailed);
+        result.FirstError.Should().Be(Errors.ManagedEntities.NewsOutlets.MatchFailed);
     }
     
     [Fact]
@@ -301,7 +302,7 @@ public class TestNewsParser
 
         // Assert 
         result.IsError.Should().BeTrue();
-        result.FirstError.Should().Be(Errors.NewsOutlets.NotFoundInDb);
+        result.FirstError.Should().Be(Errors.ManagedEntities.NotFoundInDb(typeof(NewsOutlet)));
     }
 
     [Fact]

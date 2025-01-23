@@ -2,13 +2,14 @@ using dtr_nne.Application.DTO.ExternalService;
 using dtr_nne.Application.Extensions;
 using dtr_nne.Application.Mapper;
 using dtr_nne.Domain.Entities;
+using dtr_nne.Domain.Entities.ManagedEntities;
 using dtr_nne.Domain.Enums;
 using dtr_nne.Domain.ExternalServices;
 using dtr_nne.Domain.IContext;
 using dtr_nne.Domain.Repositories;
 using dtr_nne.Domain.UnitOfWork;
 
-namespace dtr_nne.Application.ExternalServices;
+namespace dtr_nne.Application.Services.ExternalServices;
 
 public class ExternalServiceManager(ILogger<ExternalServiceManager> logger,
     IExternalServiceProviderRepository repository,

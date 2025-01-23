@@ -1,34 +1,34 @@
 using Bogus;
 using dtr_nne.Application.Extensions;
-using dtr_nne.Application.Services.NewsOutletServices;
-using dtr_nne.Domain.Entities;
+using dtr_nne.Application.Services.EntityManager;
+using dtr_nne.Domain.Entities.ManagedEntities;
 using dtr_nne.Domain.Repositories;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Tests.Fixtures.NewsOutletFixtures;
 
-namespace Tests.Systems.Services.InternalServices.TestNewsOutletService;
+namespace Tests.Systems.Services.InternalServices.TestManagedEntityService;
 
 public class TestNewsOutletServiceHelper
 {
     private static readonly Faker Faker = new();
     public TestNewsOutletServiceHelper()
     {
-        Mock<ILogger<NewsOutletServiceHelper>> mockLogger = new();
-        _mockRepository = new Mock<INewsOutletRepository>();
+        Mock<ILogger<ManagedEntityHelper<NewsOutlet>>> mockLogger = new();
+        _mockRepository = new Mock<IRepository<NewsOutlet>>();
 
         _savedNewsOutlets = NewsOutletFixtureBase.Outlets[1];
 
         BasicSetup();
 
-        _sut = new NewsOutletServiceHelper(
+        _sut = new ManagedEntityHelper<NewsOutlet>(
             mockLogger.Object,
             _mockRepository.Object
         );
     }
 
-    private readonly NewsOutletServiceHelper _sut;
-    private readonly Mock<INewsOutletRepository> _mockRepository;
+    private readonly ManagedEntityHelper<NewsOutlet> _sut;
+    private readonly Mock<IRepository<NewsOutlet>> _mockRepository;
     private readonly List<NewsOutlet> _savedNewsOutlets;
 
     private void BasicSetup()
@@ -49,11 +49,11 @@ public class TestNewsOutletServiceHelper
         var incomingOutlets = NewsOutletFixtureBase.Outlets[0];
 
         // Act
-        var result = await _sut.MatchNewsOutlets(incomingOutlets);
+        var result = await _sut.MatchEntities(incomingOutlets);
 
         // Assert
         result.IsError.Should().BeTrue();
-        result.FirstError.Should().BeEquivalentTo(Errors.NewsOutlets.NotFoundInDb);
+        result.FirstError.Should().BeEquivalentTo(Errors.ManagedEntities.NotFoundInDb(typeof(NewsOutlet)));
     }
 
     [Fact]
@@ -62,7 +62,7 @@ public class TestNewsOutletServiceHelper
         // Arrange
 
         // Act
-        var result = await _sut.MatchNewsOutlets(_savedNewsOutlets);
+        var result = await _sut.MatchEntities(_savedNewsOutlets);
 
         // Assert
         result.IsError.Should().BeFalse();
@@ -105,7 +105,7 @@ public class TestNewsOutletServiceHelper
         };
 
         // Act
-        var result = await _sut.MatchNewsOutlets(incomingOutlets);
+        var result = await _sut.MatchEntities(incomingOutlets);
 
         // Assert
         result.IsError.Should().BeFalse();
@@ -150,7 +150,7 @@ public class TestNewsOutletServiceHelper
         };
 
         // Act
-        var result = await _sut.MatchNewsOutlets(incomingOutlets);
+        var result = await _sut.MatchEntities(incomingOutlets);
 
         // Assert
         result.IsError.Should().BeFalse();
@@ -170,7 +170,7 @@ public class TestNewsOutletServiceHelper
         var incomingOutlets = new List<NewsOutlet>();
 
         // Act
-        var result = await _sut.MatchNewsOutlets(incomingOutlets);
+        var result = await _sut.MatchEntities(incomingOutlets);
 
         // Assert
         result.IsError.Should().BeFalse();

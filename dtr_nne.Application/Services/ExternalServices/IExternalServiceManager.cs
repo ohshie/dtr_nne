@@ -1,6 +1,6 @@
 using dtr_nne.Application.DTO.ExternalService;
 
-namespace dtr_nne.Application.ExternalServices;
+namespace dtr_nne.Application.Services.ExternalServices;
 
 public interface IExternalServiceManager
 {

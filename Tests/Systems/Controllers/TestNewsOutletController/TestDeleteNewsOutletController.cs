@@ -1,5 +1,6 @@
 using dtr_nne.Application.DTO.NewsOutlet;
 using dtr_nne.Application.Extensions;
+using dtr_nne.Domain.Entities.ManagedEntities;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Tests.Fixtures;
@@ -14,7 +15,7 @@ public class TestDeleteNewsOutletController : BaseTestNewsOutletController
     {
         // Assemble
         MockDeleteNewsOutletService
-            .Setup(service => service.DeleteNewsOutlets(incomingNewsOutletsDtos).Result)
+            .Setup(service => service.Delete(incomingNewsOutletsDtos).Result)
             .Returns(new List<NewsOutletDto>{Capacity = 0});
 
         // Act
@@ -30,14 +31,14 @@ public class TestDeleteNewsOutletController : BaseTestNewsOutletController
     {
         // Assemble
         MockDeleteNewsOutletService
-            .Setup(service => service.DeleteNewsOutlets(new List<NewsOutletDto>()).Result)
+            .Setup(service => service.Delete(new List<NewsOutletDto>()).Result)
             .Returns(new List<NewsOutletDto>());
 
         // Act
         await Sut.Delete(new List<NewsOutletDto>());
         
         // Assert 
-        MockDeleteNewsOutletService.Verify(service => service.DeleteNewsOutlets(new List<NewsOutletDto>()), Times.Once);
+        MockDeleteNewsOutletService.Verify(service => service.Delete(new List<NewsOutletDto>()), Times.Once);
     }
     
     [Fact]
@@ -45,8 +46,8 @@ public class TestDeleteNewsOutletController : BaseTestNewsOutletController
     {
         // Assemble
         MockDeleteNewsOutletService
-            .Setup(service => service.DeleteNewsOutlets(It.IsAny<List<NewsOutletDto>>()).Result)
-            .Returns(Errors.NewsOutlets.NotFoundInDb);
+            .Setup(service => service.Delete(It.IsAny<List<NewsOutletDto>>()).Result)
+            .Returns(Errors.ManagedEntities.NotFoundInDb(typeof(NewsOutlet)));
 
         // Act
         var result = await Sut.Delete([]);

@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using dtr_nne.Domain.Entities;
+using dtr_nne.Domain.Entities.ManagedEntities;
 using dtr_nne.Domain.IContext;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,7 +32,7 @@ internal class NneDbContext(DbContextOptions<NneDbContext> options) : DbContext(
 
     public async Task MigrateAsync()
     {
-        foreach (var pending in Database.GetPendingMigrations())
+        foreach (var pending in await Database.GetPendingMigrationsAsync())
         {
             Console.WriteLine(pending);
         }

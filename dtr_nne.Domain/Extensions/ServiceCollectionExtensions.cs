@@ -7,5 +7,6 @@ public static class ServiceCollectionExtensions
 {
     public static void AddDomain(this IServiceCollection serviceCollection, IConfiguration configuration)
     {
+        // nothing to add from domain yet
     }
 }
