@@ -2,11 +2,13 @@ using dtr_nne.Application.DTO.ExternalService;
 using dtr_nne.Application.Services.ExternalServices;
 using dtr_nne.Domain.Entities;
 using ErrorOr;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace dtr_nne.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class TranslatorApiController(IExternalServiceManager serviceManager) : ControllerBase
 {

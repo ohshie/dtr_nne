@@ -1,11 +1,13 @@
 using dtr_nne.Application.DTO.NewsOutlet;
 using dtr_nne.Application.Services.EntityManager;
 using ErrorOr;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace dtr_nne.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class NewsOutletController(IGetManagerEntity<NewsOutletDto> getNewsOutletService, 
     IAddManagedEntity<NewsOutletDto> addNewsOutletService, 
@@ -21,10 +23,10 @@ public class NewsOutletController(IGetManagerEntity<NewsOutletDto> getNewsOutlet
 
         if (newsOutlets.IsError)
         {
-            return NotFound(newsOutlets);
+            return NotFound(newsOutlets.FirstError);
         }
         
-        return Ok(newsOutlets);
+        return Ok(newsOutlets.Value);
     }
 
     [HttpPost("Add", Name = "Add Outlet")]
@@ -36,10 +38,10 @@ public class NewsOutletController(IGetManagerEntity<NewsOutletDto> getNewsOutlet
 
         if (addedNewsOutletDtos.IsError)
         {
-            return UnprocessableEntity(addedNewsOutletDtos);
+            return UnprocessableEntity(addedNewsOutletDtos.FirstError);
         }
         
-        return CreatedAtAction(nameof(Add), addedNewsOutletDtos);
+        return CreatedAtAction(nameof(Add), addedNewsOutletDtos.Value);
     }
 
     [HttpPut("Update", Name = "Update")]
