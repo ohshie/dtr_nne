@@ -2,6 +2,8 @@ using dtr_nne.Application.Extensions;
 using dtr_nne.Domain.Extensions;
 using dtr_nne.Domain.IContext;
 using dtr_nne.Infrastructure.Extensions;
+using dtr_nne.Middleware;
+using Microsoft.AspNetCore.Authentication;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +14,15 @@ builder.Host.UseSerilog((context, configuration)
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication(builder.Configuration);
 builder.Services.AddDomain(builder.Configuration);
+
+builder.Services.Configure<Auth.AuthSettings>(builder.Configuration.GetSection("Authentication"));
+
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = "Bearer";
+        options.DefaultChallengeScheme = "Bearer";
+    })
+    .AddScheme<AuthenticationSchemeOptions, Auth>("Bearer", _ => { });
 
 builder.Services.AddHttpClient();
 
@@ -32,10 +43,13 @@ app.UseHttpsRedirection();
 
 app.UseSerilogRequestLogging();
 
-app.UseSwaggerUI(options =>
+if (app.Environment.IsDevelopment())
 {
-    options.SwaggerEndpoint("/openapi/v1.json", "v1");
-});
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/openapi/v1.json", "v1");
+    });
+}
 
 app.MapControllers();
 

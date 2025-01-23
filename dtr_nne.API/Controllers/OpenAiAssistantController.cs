@@ -1,11 +1,13 @@
 using dtr_nne.Application.DTO.ExternalService.OpenAiAssistantDto;
 using dtr_nne.Application.Services.EntityManager;
 using ErrorOr;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace dtr_nne.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class OpenAiAssistantController(IGetManagerEntity<OpenAiAssistantDto> getManagedEntityService, 
     IAddManagedEntity<OpenAiAssistantDto> addManagedEntityService, 

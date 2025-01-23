@@ -2,12 +2,14 @@ using dtr_nne.Application.DTO.Article;
 using dtr_nne.Application.Services.NewsEditor.NewsParser;
 using dtr_nne.Application.Services.NewsEditor.NewsRewriter;
 using ErrorOr;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace dtr_nne.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class NewsController(INewsParser newsParser, INewsRewriter rewriter) : ControllerBase
