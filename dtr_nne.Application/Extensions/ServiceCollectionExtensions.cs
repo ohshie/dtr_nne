@@ -18,7 +18,8 @@ public static class ServiceCollectionExtensions
 {
     public static void AddApplication(this IServiceCollection serviceCollection, IConfiguration configuration)
     {
-        // managed entities
+        #region ManagedEntities
+        
         serviceCollection
             .AddTransient<IGetManagerEntity<OpenAiAssistantDto>,
                 GetManagerEntity<OpenAiAssistant, OpenAiAssistantDto>>();
@@ -46,16 +47,27 @@ public static class ServiceCollectionExtensions
         serviceCollection
             .AddTransient<IUpdateManagedEntity<NewsOutletDto>,
                 UpdateManagedEntity<NewsOutlet, NewsOutletDto>>();
-
+        
         serviceCollection.AddTransient<IManagedEntityHelper<OpenAiAssistant>, ManagedEntityHelper<OpenAiAssistant>>();
         serviceCollection.AddTransient<IManagedEntityHelper<NewsOutlet>, ManagedEntityHelper<NewsOutlet>>();
+        serviceCollection.AddTransient<IManagedEntityMapper, ManagedEntityMapper>();
+        
+        #endregion
+
+        #region ExternalServiceManager
+
+        serviceCollection.AddTransient<IExternalServiceManagerHelper, ExternalServiceManagerHelper>();
+        serviceCollection.AddTransient<IAddExternalService, AddExternalService>();
+        serviceCollection.AddTransient<IGetExternalService, GetExternalService>();
+        serviceCollection.AddTransient<IUpdateExternalService, UpdateExternalService>();
+        serviceCollection.AddTransient<IDeleteExternalService, DeleteExternalService>();
+        serviceCollection.AddTransient<IExternalServiceMapper, ExternalServiceMapper>();
+
+        #endregion
         
         serviceCollection.AddTransient<INewsOutletMapper, NewsOutletMapper>();
-        serviceCollection.AddTransient<IExternalServiceMapper, ExternalServiceMapper>();
+        
         serviceCollection.AddTransient<IArticleMapper, ArticleMapper>();
-        serviceCollection.AddTransient<IManagedEntityMapper, ManagedEntityMapper>();
-
-        serviceCollection.AddTransient<IExternalServiceManager, ExternalServiceManager>();
 
         serviceCollection.AddTransient<IScrapingManager, ScrapingManager>();
         serviceCollection.AddTransient<IMainPageScrapingResultProcessor, MainPageScrapingResultProcessor>();
