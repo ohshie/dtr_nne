@@ -11,11 +11,14 @@ public class TestExternalServiceController
 {
     public TestExternalServiceController()
     {
-        _mockLlmApiKeyService = new();
-        _sut = new(_mockLlmApiKeyService.Object);
+        _mockUpdateExternalService = new();
+        _mockAddExternalService = new();
+        _sut = new(_mockAddExternalService.Object, 
+            _mockUpdateExternalService.Object);
     }
 
-    private readonly Mock<IExternalServiceManager> _mockLlmApiKeyService;
+    private readonly Mock<IUpdateExternalService> _mockUpdateExternalService;
+    private readonly Mock<IAddExternalService> _mockAddExternalService;
     private readonly ExternalServiceController _sut;
     private readonly Mock<ExternalServiceDto> _mockExternalServiceDto = new();
 
@@ -37,21 +40,21 @@ public class TestExternalServiceController
     public async Task Add_OnInvoke_ShouldCallLlmApiService()
     {
         // Assemble
-        _mockLlmApiKeyService.Setup(
+        _mockAddExternalService.Setup(
             service => service.Add(_mockExternalServiceDto.Object).Result).Returns(_mockExternalServiceDto.Object);
 
         // Act
         await _sut.Add(_mockExternalServiceDto.Object);
 
         // Assert 
-        _mockLlmApiKeyService.Verify(service => service.Add(_mockExternalServiceDto.Object), Times.Once);
+        _mockAddExternalService.Verify(service => service.Add(_mockExternalServiceDto.Object), Times.Once);
     }
     
     [Fact]
     public async Task Add_IfServiceReturnsError_ShouldReturn400()
     {
         // Assemble
-        _mockLlmApiKeyService.Setup(
+        _mockAddExternalService.Setup(
             service => service.Add(_mockExternalServiceDto.Object).Result).Returns(Errors.ExternalServiceProvider.Service.BadApiKey);
 
         // Act
@@ -81,22 +84,26 @@ public class TestExternalServiceController
     public async Task UpdateKey_OnInvoke_ShouldCall_TranslatorApiService()
     {
         // Assemble
-        _mockLlmApiKeyService.Setup(
-            service => service.Update(_mockExternalServiceDto.Object).Result).Returns(_mockExternalServiceDto.Object);
+        _mockUpdateExternalService.Setup(
+            service => service.Update(_mockExternalServiceDto.Object).Result)
+            .Returns(_mockExternalServiceDto.Object);
 
         // Act
         await _sut.UpdateKey(_mockExternalServiceDto.Object);
 
         // Assert 
-        _mockLlmApiKeyService.Verify(service => service.Update(_mockExternalServiceDto.Object), Times.AtLeastOnce);
+        _mockUpdateExternalService
+            .Verify(service => service.Update(_mockExternalServiceDto.Object), 
+                Times.AtLeastOnce);
     }
 
     [Fact]
     public async Task UpdateKey_IfServiceReturnsError_ShouldReturn400()
     {
         // Assemble
-        _mockLlmApiKeyService.Setup(
-            service => service.Update(_mockExternalServiceDto.Object).Result).Returns(Errors.Translator.Api.BadApiKey);
+        _mockUpdateExternalService.Setup(
+            service => service.Update(_mockExternalServiceDto.Object).Result)
+            .Returns(Errors.Translator.Api.BadApiKey);
 
         // Act
         var result = await _sut.UpdateKey(_mockExternalServiceDto.Object);

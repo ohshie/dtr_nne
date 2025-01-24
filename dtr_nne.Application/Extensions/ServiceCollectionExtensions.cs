@@ -68,8 +68,6 @@ public static class ServiceCollectionExtensions
         serviceCollection.AddTransient<INewsOutletMapper, NewsOutletMapper>();
         
         serviceCollection.AddTransient<IArticleMapper, ArticleMapper>();
-        
-        serviceCollection.AddTransient<IExternalServiceManager, ExternalServiceManager>();
 
         serviceCollection.AddTransient<IScrapingManager, ScrapingManager>();
         serviceCollection.AddTransient<IMainPageScrapingResultProcessor, MainPageScrapingResultProcessor>();
