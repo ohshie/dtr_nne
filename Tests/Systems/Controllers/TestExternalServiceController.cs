@@ -7,16 +7,16 @@ using Moq;
 
 namespace Tests.Systems.Controllers;
 
-public class TestLlmApiController
+public class TestExternalServiceController
 {
-    public TestLlmApiController()
+    public TestExternalServiceController()
     {
         _mockLlmApiKeyService = new();
         _sut = new(_mockLlmApiKeyService.Object);
     }
 
     private readonly Mock<IExternalServiceManager> _mockLlmApiKeyService;
-    private readonly LlmApiController _sut;
+    private readonly ExternalServiceController _sut;
     private readonly Mock<ExternalServiceDto> _mockExternalServiceDto = new();
 
     [Fact]
