@@ -9,9 +9,9 @@ namespace dtr_nne.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/[controller]")]
-public class LlmApiController(IExternalServiceManager serviceManager) : ControllerBase
+public class ExternalServiceController(IExternalServiceManager serviceManager) : ControllerBase
 {
-    [HttpPost("Add", Name = "Add LlmApiKey")]
+    [HttpPost("Add", Name = "Add External Service")]
     [ProducesResponseType<ExternalServiceDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<Error>(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> Add(ExternalServiceDto service)
@@ -26,7 +26,7 @@ public class LlmApiController(IExternalServiceManager serviceManager) : Controll
         return CreatedAtAction(nameof(Add), service);
     }
     
-    [HttpPatch("Patch", Name = "Update LlmapiKey")]
+    [HttpPatch("Patch", Name = "Update External Service")]
     [ProducesResponseType<ExternalServiceDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<Error>(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> UpdateKey(ExternalServiceDto service)

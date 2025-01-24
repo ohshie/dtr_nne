@@ -1,6 +1,5 @@
 using dtr_nne.Application.DTO.NewsOutlet;
 using dtr_nne.Application.Extensions;
-using ErrorOr;
 using Microsoft.AspNetCore.Mvc;
 using Tests.Fixtures;
 
@@ -58,8 +57,7 @@ public class TestAddNewsOutletController : BaseTestNewsOutletController
         
         // Assert
         var objectResult = (ObjectResult)result;
-        var actualResult = objectResult.Value is ErrorOr<List<NewsOutletDto>> or ? or : default;
-        actualResult.Value.Should().BeEquivalentTo(incomingNewsOutletDtos);
+        objectResult.Value.Should().BeEquivalentTo(incomingNewsOutletDtos);
     }
     
     [Theory]
@@ -77,7 +75,6 @@ public class TestAddNewsOutletController : BaseTestNewsOutletController
         // Assert
         result.Should().BeOfType<CreatedAtActionResult>();
         var objectResult = (ObjectResult)result;
-        var actualResult = objectResult.Value is ErrorOr<List<NewsOutletDto>> or ? or : default;
-        actualResult.Value.Should().BeEquivalentTo(incomingNewsOutletsDtos);
+        objectResult.Value.Should().BeEquivalentTo(incomingNewsOutletsDtos);
     }
 }
