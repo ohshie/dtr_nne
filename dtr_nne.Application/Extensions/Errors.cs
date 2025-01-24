@@ -10,7 +10,11 @@ public static class Errors
 
         public static Error AddingToDbFailed => Error.Failure(
             code: "DbErrors.AddingToDbFailed",
-            description: "Something went wrong when trying to add a value to database");
+            description: "Something went wrong when trying to entity to database");
+        
+        public static Error RemovingFailed => Error.Failure(
+            code: "DbErrors.RemovingFailed",
+            description: "Something went wrong when trying to delete entity from database");
         
         public static Error UpdatingDbFailed => Error.Failure(
             code: "DbErrors.UpdatingDbFailed",
