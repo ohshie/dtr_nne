@@ -60,6 +60,7 @@ public class ManagedEntityMapper : IManagedEntityMapper
     {
         return new NewsOutlet
         {
+            Id = dto.Id,
             Name = dto.Name,
             Website = dto.Website,
             Themes = dto.Themes,
