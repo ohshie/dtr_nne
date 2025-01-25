@@ -49,7 +49,7 @@ public class TestUpdateExternalService : TestExternalServiceManagerBase
     {
         // Arrange
         MockHelper
-            .Setup(helper => helper.FindRequiredExistingService(TestServiceDto))
+            .Setup(helper => helper.FindRequiredExistingService(TestService))
             .Returns(Errors.ExternalServiceProvider.Service.NoSavedServiceFound);
 
         // Act

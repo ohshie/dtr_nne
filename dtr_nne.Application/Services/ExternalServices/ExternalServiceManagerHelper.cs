@@ -1,5 +1,4 @@
 using System.Runtime.CompilerServices;
-using dtr_nne.Application.DTO.ExternalService;
 using dtr_nne.Application.Extensions;
 using dtr_nne.Domain.Entities;
 using dtr_nne.Domain.Entities.ManagedEntities;
@@ -55,7 +54,7 @@ internal class ExternalServiceManagerHelper(ILogger<ExternalServiceManagerHelper
         return success.Value;
     }
     
-    public ErrorOr<ExternalService> FindRequiredExistingService(ExternalServiceDto serviceDto)
+    public ErrorOr<ExternalService> FindRequiredExistingService(ExternalService serviceDto)
     {
         if (repository.GetByType(serviceDto.Type) is not { } currentServices)
         {
@@ -164,6 +163,6 @@ internal class ExternalServiceManagerHelper(ILogger<ExternalServiceManagerHelper
 internal interface IExternalServiceManagerHelper
 {
     public Task<ErrorOr<bool>> CheckKeyValidity(ExternalService incomingService);
-    public ErrorOr<ExternalService> FindRequiredExistingService(ExternalServiceDto serviceDto);
+    public ErrorOr<ExternalService> FindRequiredExistingService(ExternalService serviceDto);
     public Task<ErrorOr<bool>> PerformDataOperation(ExternalService service, string action);
 }

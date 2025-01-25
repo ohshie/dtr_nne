@@ -34,6 +34,8 @@ public class TestGetExternalService : TestExternalServiceManagerBase
         MockMapper.Setup(mapper => mapper.ServiceToDto(_testExternalServicesList))
             .Returns(_testExternalServicesDtos);
 
+        _testExternalServicesDtos[0].Id = _testExternalServicesList[0].Id;
+
         // Act
         var result = _sut.GetAllByType(ExternalServiceType.Llm);
 
