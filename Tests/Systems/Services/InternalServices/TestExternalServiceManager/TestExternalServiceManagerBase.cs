@@ -69,6 +69,10 @@ public class TestExternalServiceManagerBase
             .Setup(mapper => mapper.DtoToService(TestServiceDto))
             .Returns(TestService);
 
+        MockMapper
+            .Setup(mapper => mapper.ServiceToDto(TestService))
+            .Returns(TestServiceDto);
+
         MockHelper
             .Setup(helper => helper.CheckKeyValidity(TestService).Result)
             .Returns(true);

@@ -37,7 +37,8 @@ internal class UpdateExternalService(ILogger<UpdateExternalService> logger,
         if (success is { IsError: false, Value: true })
         {
             logger.LogInformation("Successfully updated {ServiceName}", serviceToUpdate.ServiceName);
-            return serviceDto;
+            var mappedServiceDto = mapper.ServiceToDto(serviceToUpdate);
+            return mappedServiceDto;
         }
         
         logger.LogError("Failed to perform data operations on External service {Service}", serviceToUpdate.ServiceName);
