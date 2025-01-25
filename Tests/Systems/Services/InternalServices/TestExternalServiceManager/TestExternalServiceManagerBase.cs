@@ -28,6 +28,7 @@ public class TestExternalServiceManagerBase
         TestBaseExternalServiceDto = new()
         {
             Id = faker.Random.Int(0, 100),
+            Type = ExternalServiceType.Llm,
             ServiceName = faker.Internet.UserName()
         };
         

@@ -12,7 +12,7 @@ namespace dtr_nne.Controllers;
 public class NewsOutletController(IGetManagerEntity<NewsOutletDto> getNewsOutletService, 
     IAddManagedEntity<NewsOutletDto> addNewsOutletService, 
     IUpdateManagedEntity<NewsOutletDto> updateNewsOutletService, 
-    IDeleteManagedEntity<NewsOutletDto> deleteNewsOutletService) : ControllerBase
+    IDeleteManagedEntity<BaseNewsOutletsDto> deleteNewsOutletService) : ControllerBase
 {
     [HttpGet("Get", Name = "Get")]
     [ProducesResponseType<NewsOutletDto>(StatusCodes.Status200OK)]
@@ -75,7 +75,7 @@ public class NewsOutletController(IGetManagerEntity<NewsOutletDto> getNewsOutlet
     [ProducesResponseType<NewsOutletDto>(StatusCodes.Status206PartialContent)]
     [ProducesResponseType<Error>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<Error>(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> Delete(List<NewsOutletDto> newsOutletDtos)
+    public async Task<ActionResult> Delete(List<BaseNewsOutletsDto> newsOutletDtos)
     {
         var resultOfDeletion = await deleteNewsOutletService.Delete(newsOutletDtos);
 

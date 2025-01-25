@@ -81,7 +81,7 @@ internal class ExternalServiceManagerHelper(ILogger<ExternalServiceManagerHelper
                 }
                 break;
             case "delete":
-                if (!await repository.Remove(service))
+                if (!repository.Remove(service))
                 {
                     logger.LogError("Failed to remove External service in repository");
                     return Errors.DbErrors.AddingToDbFailed;

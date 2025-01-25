@@ -14,7 +14,7 @@ public class ExternalServiceController(IGetExternalService getExternalService, I
     IUpdateExternalService updateExternalService, 
     IDeleteExternalService deleteExternalService) : ControllerBase
 {
-    [HttpPost("GetAllByType", Name = "Get External Services by type")]
+    [HttpGet("GetAllByType", Name = "Get External Services by type")]
     [ProducesResponseType<ExternalServiceDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<Error>(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> GetAll(ExternalServiceType type)

@@ -50,6 +50,7 @@ public class ManagedEntityMapper : IManagedEntityMapper
         return entityDtos switch
         {
             List<NewsOutletDto> newsOutlet => MapDtoToEntity(newsOutlet) as List<T>,
+            List<BaseNewsOutletsDto> newsOutlet => MapDtoToEntity(newsOutlet) as List<T>,
             List<OpenAiAssistantDto> openAiAssistant => MapDtoToEntity(openAiAssistant) as List<T>,
             _ => null
         };
@@ -72,16 +73,43 @@ public class ManagedEntityMapper : IManagedEntityMapper
         };
     }
     
+    internal NewsOutlet MapDtoToEntitty(BaseNewsOutletsDto dto)
+    {
+        return new NewsOutlet
+        {
+            Id = dto.Id,
+            Name = dto.Name,
+            Website = new Uri("http://empty.com"),
+            Themes = [],
+
+            MainPagePassword = string.Empty,
+            NewsPassword = string.Empty,
+            WaitTimer = string.Empty,
+
+            AlwaysJs = true,
+            InUse = true,
+        };
+    }
+    
     internal OpenAiAssistant MapDtoToEntitty(OpenAiAssistantDto dto)
     {
         return new OpenAiAssistant
         {
+            Id = dto.Id,
             Role = dto.Role,
             AssistantId = dto.AssistantId
         };
     }
     
     internal List<NewsOutlet> MapDtoToEntity(List<NewsOutletDto> dtos)
+    {
+        List<NewsOutlet> entities = [];
+        entities.AddRange(dtos.Select(MapDtoToEntitty));
+
+        return entities;
+    }
+    
+    internal List<NewsOutlet> MapDtoToEntity(List<BaseNewsOutletsDto> dtos)
     {
         List<NewsOutlet> entities = [];
         entities.AddRange(dtos.Select(MapDtoToEntitty));
@@ -117,6 +145,7 @@ public class ManagedEntityMapper : IManagedEntityMapper
     {
         return new OpenAiAssistantDto
         {
+            Id = entity.Id,
             Role = entity.Role,
             AssistantId = entity.AssistantId
         };
