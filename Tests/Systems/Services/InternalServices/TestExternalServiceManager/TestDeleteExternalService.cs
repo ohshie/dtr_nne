@@ -9,7 +9,7 @@ public class TestDeleteExternalService : TestExternalServiceManagerBase
 {
     public TestDeleteExternalService()
     {
-        _sut = new(new Mock<ILogger<DeleteExternalService>>().Object,
+        _sut = new(new Mock<ILogger<DeleteExternalService>>().Object, MockMapper.Object,
             MockHelper.Object);
     }
     
@@ -21,7 +21,7 @@ public class TestDeleteExternalService : TestExternalServiceManagerBase
         // Assemble
 
         // Act
-        var result = await _sut.Delete(TestServiceDto);
+        var result = await _sut.Delete(TestBaseExternalServiceDto);
 
         // Assert 
         result.IsError.Should().BeFalse();
@@ -33,11 +33,11 @@ public class TestDeleteExternalService : TestExternalServiceManagerBase
     {
         // Assemble
         MockHelper
-            .Setup(helper => helper.FindRequiredExistingService(TestServiceDto))
+            .Setup(helper => helper.FindRequiredExistingService(TestService))
             .Returns(Errors.ExternalServiceProvider.Service.NoSavedServiceFound);
 
         // Act
-        var result = await _sut.Delete(TestServiceDto);
+        var result = await _sut.Delete(TestBaseExternalServiceDto);
 
         // Assert 
         result.IsError.Should().BeTrue();
@@ -53,7 +53,7 @@ public class TestDeleteExternalService : TestExternalServiceManagerBase
             .Returns(Errors.DbErrors.RemovingFailed);
 
         // Act
-        var result = await _sut.Delete(TestServiceDto);
+        var result = await _sut.Delete(TestBaseExternalServiceDto);
 
         // Assert 
         result.IsError.Should().BeTrue();

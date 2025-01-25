@@ -14,7 +14,7 @@ public class ExternalServiceController(IGetExternalService getExternalService, I
     IUpdateExternalService updateExternalService, 
     IDeleteExternalService deleteExternalService) : ControllerBase
 {
-    [HttpPost("GetAll", Name = "Get External Services")]
+    [HttpGet("GetAllByType", Name = "Get External Services by type")]
     [ProducesResponseType<ExternalServiceDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<Error>(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> GetAll(ExternalServiceType type)
@@ -34,14 +34,14 @@ public class ExternalServiceController(IGetExternalService getExternalService, I
     [ProducesResponseType<Error>(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> Add(ExternalServiceDto service)
     {
-        var success = await addExternalService.Add(service);
+        var addedService = await addExternalService.Add(service);
 
-        if (success.IsError)
+        if (addedService.IsError)
         {
-            return BadRequest(success.FirstError);
+            return BadRequest(addedService.FirstError);
         }
         
-        return CreatedAtAction(nameof(Add), service);
+        return CreatedAtAction(nameof(Add), addedService.Value);
     }
     
     [HttpPatch("Patch", Name = "Update External Service")]
@@ -62,7 +62,7 @@ public class ExternalServiceController(IGetExternalService getExternalService, I
     [HttpDelete("Delete", Name = "Delete External Service")]
     [ProducesResponseType<ExternalServiceDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<Error>(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> Delete(ExternalServiceDto service)
+    public async Task<ActionResult> Delete(BaseExternalServiceDto service)
     {
         var success = await deleteExternalService.Delete(service);
         

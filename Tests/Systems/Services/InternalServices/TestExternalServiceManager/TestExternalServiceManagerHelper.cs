@@ -64,7 +64,7 @@ public class TestExternalServiceManagerHelper : TestExternalServiceManagerBase
         // Arrange
 
         // Act
-        var result = _sut.Object.FindRequiredExistingService(TestServiceDto);
+        var result = _sut.Object.FindRequiredExistingService(TestService);
 
         // Assert
         result.IsError.Should().BeFalse();
@@ -78,7 +78,7 @@ public class TestExternalServiceManagerHelper : TestExternalServiceManagerBase
         MockRepository.Reset();
 
         // Act
-        var result = _sut.Object.FindRequiredExistingService(TestServiceDto);
+        var result = _sut.Object.FindRequiredExistingService(TestService);
 
         // Assert 
         result.IsError.Should().BeTrue();
@@ -89,10 +89,10 @@ public class TestExternalServiceManagerHelper : TestExternalServiceManagerBase
     public void FindRequiredExistingService_WhenNoServiceMatch_ReturnsError()
     {
         // Assemble
-        TestServiceDto.ServiceName = "";
+        TestService.ServiceName = "";
 
         // Act
-        var result = _sut.Object.FindRequiredExistingService(TestServiceDto);
+        var result = _sut.Object.FindRequiredExistingService(TestService);
 
         // Assert
         result.IsError.Should().BeTrue();

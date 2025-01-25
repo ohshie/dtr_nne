@@ -24,18 +24,17 @@ public class TestExternalServiceManagerBase
         MockLlmService = new();
         
         var faker = new Faker();
+
+        TestBaseExternalServiceDto = new()
+        {
+            Id = faker.Random.Int(0, 100),
+            Type = ExternalServiceType.Llm,
+            ServiceName = faker.Internet.UserName()
+        };
         
         TestServiceDto = new()
         {
-            ServiceName = faker.Internet.UserName(),
-            Type = ExternalServiceType.Llm,
-            ApiKey = faker.Random.Guid().ToString(),
-            InUse = true
-        };
-
-        TestExistingService = new()
-        {
-            ServiceName = TestServiceDto.ServiceName,
+            ServiceName = TestBaseExternalServiceDto.ServiceName,
             Type = ExternalServiceType.Llm,
             ApiKey = faker.Random.Guid().ToString(),
             InUse = true
@@ -43,9 +42,19 @@ public class TestExternalServiceManagerBase
         
         TestService = new()
         {
+            Id = TestBaseExternalServiceDto.Id,
             ServiceName = TestServiceDto.ServiceName,
             Type = ExternalServiceType.Llm,
             ApiKey = TestServiceDto.ApiKey,
+            InUse = true
+        };
+
+        TestExistingService = new()
+        {
+            Id = TestBaseExternalServiceDto.Id,
+            ServiceName = TestServiceDto.ServiceName,
+            Type = ExternalServiceType.Llm,
+            ApiKey = faker.Random.Guid().ToString(),
             InUse = true
         };
         
@@ -59,6 +68,7 @@ public class TestExternalServiceManagerBase
     internal readonly Mock<ILlmService> MockLlmService;
     internal readonly Mock<IExternalServiceManagerHelper> MockHelper;
 
+    internal readonly BaseExternalServiceDto TestBaseExternalServiceDto;
     internal readonly ExternalServiceDto TestServiceDto;
     internal readonly ExternalService TestExistingService;
     internal readonly ExternalService TestService;
@@ -67,6 +77,14 @@ public class TestExternalServiceManagerBase
     {
         MockMapper
             .Setup(mapper => mapper.DtoToService(TestServiceDto))
+            .Returns(TestService);
+
+        MockMapper
+            .Setup(mapper => mapper.ServiceToDto(TestService))
+            .Returns(TestServiceDto);
+        
+        MockMapper
+            .Setup(mapper => mapper.DtoToService(TestBaseExternalServiceDto))
             .Returns(TestService);
 
         MockHelper
@@ -78,7 +96,7 @@ public class TestExternalServiceManagerBase
             .Returns(true);
 
         MockHelper
-            .Setup(helper => helper.FindRequiredExistingService(TestServiceDto))
+            .Setup(helper => helper.FindRequiredExistingService(TestService))
             .Returns(TestService);
         
         MockLlmService

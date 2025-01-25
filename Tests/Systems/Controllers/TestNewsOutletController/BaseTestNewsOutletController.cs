@@ -10,7 +10,7 @@ public abstract class BaseTestNewsOutletController
     internal readonly Mock<IGetManagerEntity<NewsOutletDto>> MockGetNewsOutletService;
     internal readonly Mock<IAddManagedEntity<NewsOutletDto>> MockAddNewsOutletService;
     internal readonly Mock<IUpdateManagedEntity<NewsOutletDto>> MockUpdateNewsOutletService;
-    internal readonly Mock<IDeleteManagedEntity<NewsOutletDto>> MockDeleteNewsOutletService;
+    internal readonly Mock<IDeleteManagedEntity<BaseNewsOutletsDto>> MockDeleteNewsOutletService;
     internal readonly NewsOutletController Sut;
     
     public BaseTestNewsOutletController()

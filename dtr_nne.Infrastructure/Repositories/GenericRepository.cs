@@ -97,9 +97,18 @@ internal class GenericRepository<TEntity, TContext>(
         }
     }
 
-    public Task<bool> Remove(TEntity? entity)
+    public bool Remove(TEntity entity)
     {
-        throw new NotImplementedException();
+        try
+        {
+            unitOfWork.Context.Remove(entity);
+            return true;
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Failed to remove provided entity of type {TypeOfEntity}", entity.GetType());
+            return false;
+        }
     }
 
     public bool RemoveRange(IEnumerable<TEntity> entities)

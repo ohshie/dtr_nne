@@ -11,7 +11,9 @@ internal class UpdateExternalService(ILogger<UpdateExternalService> logger,
     public async Task<ErrorOr<ExternalServiceDto>> Update(ExternalServiceDto serviceDto)
     {
         logger.LogInformation("Starting Update method for service {Service}", serviceDto.ServiceName);
-        var requiredServiceExist = helper.FindRequiredExistingService(serviceDto);
+        var mappedServiceDto = mapper.DtoToService(serviceDto);
+        
+        var requiredServiceExist = helper.FindRequiredExistingService(mappedServiceDto);
         if (requiredServiceExist.IsError)
         {
             return requiredServiceExist.FirstError;
@@ -37,7 +39,8 @@ internal class UpdateExternalService(ILogger<UpdateExternalService> logger,
         if (success is { IsError: false, Value: true })
         {
             logger.LogInformation("Successfully updated {ServiceName}", serviceToUpdate.ServiceName);
-            return serviceDto;
+            var mappedProcessedServiceDto = mapper.ServiceToDto(serviceToUpdate);
+            return mappedProcessedServiceDto;
         }
         
         logger.LogError("Failed to perform data operations on External service {Service}", serviceToUpdate.ServiceName);

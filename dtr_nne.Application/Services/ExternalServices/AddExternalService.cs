@@ -21,9 +21,11 @@ internal class AddExternalService(ILogger<AddExternalService> logger,
         }
 
         var success = await helper.PerformDataOperation(mappedIncomingService, "add");
-        if (success is { IsError: false, Value: true }) return serviceDto;
+
+        var mappedDto = mapper.ServiceToDto(mappedIncomingService);
+        if (success is { IsError: false, Value: true }) return mappedDto;
         
-        logger.LogError("Failed to perform data operations on External service {Service}", mappedIncomingService.ServiceName);
+        logger.LogError("Failed to perform data operations on External service {Service}", mappedDto.ServiceName);
         return Errors.DbErrors.AddingToDbFailed;
     }
 }

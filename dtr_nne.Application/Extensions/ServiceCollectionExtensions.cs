@@ -40,6 +40,9 @@ public static class ServiceCollectionExtensions
         serviceCollection
             .AddTransient<IDeleteManagedEntity<NewsOutletDto>,
                 DeleteManagedEntity<NewsOutlet, NewsOutletDto>>();
+        serviceCollection
+            .AddTransient<IDeleteManagedEntity<BaseNewsOutletsDto>,
+                DeleteManagedEntity<NewsOutlet, BaseNewsOutletsDto>>();
 
         serviceCollection
             .AddTransient<IUpdateManagedEntity<OpenAiAssistantDto>,
