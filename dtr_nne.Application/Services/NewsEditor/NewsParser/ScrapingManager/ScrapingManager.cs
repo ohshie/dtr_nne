@@ -129,7 +129,13 @@ public class ScrapingManager(ILogger<ScrapingManager> logger,
         try
         {
             logger.LogDebug("Attempting to deserialize article content for {Url}", article.Uri);
-            article.ArticleContent = JsonSerializer.Deserialize<ArticleContent>(scrapeResult.Value);
+            var newArticleContent = JsonSerializer.Deserialize<ArticleContent>(scrapeResult.Value);
+            if (article.ArticleContent is not null)
+            {
+                newArticleContent!.Headline = article.ArticleContent.Headline;
+            }
+
+            article.ArticleContent = newArticleContent;
             logger.LogInformation("Successfully scraped and processed article: {Url}", article.Uri);
         }
         catch (Exception e)

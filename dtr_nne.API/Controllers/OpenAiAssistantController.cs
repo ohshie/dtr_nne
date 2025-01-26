@@ -16,17 +16,11 @@ public class OpenAiAssistantController(IGetManagerEntity<OpenAiAssistantDto> get
 {
     [HttpGet("Get", Name = "Get assistants")]
     [ProducesResponseType<OpenAiAssistantDto>(StatusCodes.Status200OK)]
-    [ProducesResponseType<Error>(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> Get()
     {
-        var newsOutlets = await getManagedEntityService.GetAll();
+        var aiAssistants = await getManagedEntityService.GetAll();
 
-        if (newsOutlets.IsError)
-        {
-            return NotFound(newsOutlets);
-        }
-        
-        return Ok(newsOutlets.Value);
+        return aiAssistants.IsError ? Ok(aiAssistants.Errors) : Ok(aiAssistants.Value);
     }
 
     [HttpPost("Add", Name = "Add assistants")]
