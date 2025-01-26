@@ -42,7 +42,7 @@ public class NewsCollector(ILogger<NewsCollector> logger,
         }
         
         logger.LogDebug("Starting database operations for {Count} articles", latestArticles.Count);
-        await newsArticleRepository.AddRange(latestArticles);
+        await newsArticleRepository.AddRange(finalResult.Value);
         await unitOfWork.Save();
 
         return finalResult;
@@ -91,16 +91,18 @@ public class NewsCollector(ILogger<NewsCollector> logger,
             return translatorResult.FirstError;
         }
 
-        var finalResult = articles.Join(
-            translatorResult.Value,
-            article => article.ArticleContent!.Headline.OriginalHeadline,
-            translation => translation.OriginalHeadline,
-            (article, translation) =>
+        var finalResult = articles.Select(article => {
+            var matchingTranslation = translatorResult.Value
+                .FirstOrDefault(t => 
+                    t.OriginalHeadline == article.ArticleContent?.Headline.OriginalHeadline);
+    
+            if (matchingTranslation != null)
             {
-                article.ArticleContent!.Headline = translation;
-                return article;
+                article.ArticleContent!.Headline = matchingTranslation;
             }
-        ).ToList();
+    
+            return article;
+        }).ToList();
         
         var unmatched = articles.Count - finalResult.Count;
         if (unmatched > 0)

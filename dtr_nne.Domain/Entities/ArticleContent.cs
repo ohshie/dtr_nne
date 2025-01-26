@@ -147,7 +147,6 @@ internal class HeadlineConverter : JsonConverter<Headline>
             return new Headline
             {
                 OriginalHeadline = reader.GetString() ?? string.Empty,
-                TranslatedHeadline = string.Empty
             };
         }
         

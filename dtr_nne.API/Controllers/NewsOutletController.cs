@@ -16,17 +16,11 @@ public class NewsOutletController(IGetManagerEntity<NewsOutletDto> getNewsOutlet
 {
     [HttpGet("Get", Name = "Get")]
     [ProducesResponseType<NewsOutletDto>(StatusCodes.Status200OK)]
-    [ProducesResponseType<Error>(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> Get()
     {
         var newsOutlets = await getNewsOutletService.GetAll();
 
-        if (newsOutlets.IsError)
-        {
-            return NotFound(newsOutlets.FirstError);
-        }
-        
-        return Ok(newsOutlets.Value);
+        return newsOutlets.IsError ? Ok(newsOutlets.Errors) : Ok(newsOutlets.Value);
     }
 
     [HttpPost("Add", Name = "Add Outlet")]
