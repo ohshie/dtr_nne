@@ -23,10 +23,10 @@ public class NewsController(INewsParser newsParser, INewsRewriter rewriter) : Co
         
         if (editedArticle.IsError)
         {
-            return BadRequest(editedArticle.FirstError);
+            return BadRequest(editedArticle.Errors);
         }
 
-        return Ok(editedArticle);
+        return Ok(editedArticle.Value);
     }
     
     [HttpPost("ParseNews", Name = "ParseNews")]
