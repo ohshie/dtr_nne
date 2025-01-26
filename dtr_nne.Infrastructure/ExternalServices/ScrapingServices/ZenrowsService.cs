@@ -75,7 +75,7 @@ public class ZenrowsService(ILogger<ZenrowsService> logger, ExternalService serv
         {
             NewsArticle na => (na.Uri!, na.NewsOutlet!.NewsPassword, na.NewsOutlet.WaitTimer,
                 na.NewsOutlet.AlwaysJs),
-            NewsOutlet no => (no.Website, no.MainPagePassword, no.WaitTimer, no.AlwaysJs),
+            NewsOutlet no => (no.Website, "", no.WaitTimer, no.AlwaysJs),
             _ => _settings
         };
     }
