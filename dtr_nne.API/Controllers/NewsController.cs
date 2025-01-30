@@ -12,7 +12,7 @@ namespace dtr_nne.Controllers;
 [Authorize]
 [Route("api/[controller]")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class NewsController(INewsParser newsParser, INewsRewriter rewriter) : ControllerBase
+public class NewsController(INewsParseManager newsParseManager, INewsRewriter rewriter) : ControllerBase
 {
     [HttpPost("RewriteNews", Name = "RewriteNews")]
     [ProducesResponseType<ArticleContentDto>(StatusCodes.Status200OK)]
@@ -35,7 +35,7 @@ public class NewsController(INewsParser newsParser, INewsRewriter rewriter) : Co
     [ProducesResponseType<Error>(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> ParseNews(bool fullProcess = true)
     {
-        var newsArticles = await newsParser.ExecuteBatchParse();
+        var newsArticles = await newsParseManager.ExecuteBatchParse();
         if (newsArticles.IsError)
         {
             return BadRequest(newsArticles.FirstError);
@@ -54,7 +54,7 @@ public class NewsController(INewsParser newsParser, INewsRewriter rewriter) : Co
     [ProducesResponseType<Error>(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> ParseArticle(BaseNewsArticleDto articleDto)
     {
-        var newsArticles = await newsParser.Execute(articleDto);
+        var newsArticles = await newsParseManager.ExecuteParse(articleDto);
         if (newsArticles.IsError)
         {
             return BadRequest(newsArticles.FirstError);

@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using dtr_nne.Domain.Entities;
 using dtr_nne.Domain.Entities.ManagedEntities;
+using dtr_nne.Domain.Entities.ScrapableEntities;
 using dtr_nne.Domain.IContext;
 using Microsoft.EntityFrameworkCore;
 

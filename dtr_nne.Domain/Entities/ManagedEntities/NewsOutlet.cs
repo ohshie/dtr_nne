@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using dtr_nne.Domain.Entities.ScrapableEntities;
 
 namespace dtr_nne.Domain.Entities.ManagedEntities;
 
-public class NewsOutlet : IManagedEntity
+public class NewsOutlet : IManagedEntity, IScrapableEntity
 {
     public int Id { get; set; }
     public bool InUse { get; set; }
