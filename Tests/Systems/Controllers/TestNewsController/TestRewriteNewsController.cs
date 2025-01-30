@@ -1,5 +1,6 @@
 using dtr_nne.Application.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using NSubstitute;
 
 namespace Tests.Systems.Controllers.TestNewsController;
 
@@ -24,7 +25,7 @@ public class TestRewriteNewsController : BaseTestNewsController
     {
         // Assemble
         MockNewsRewriter
-            .Setup(rewriter => rewriter.Rewrite(TestArticleContentDto).Result)
+            .Rewrite(TestArticleContentDto)
             .Returns(Errors.ExternalServiceProvider.Service.NoActiveServiceFound);
 
         // Act

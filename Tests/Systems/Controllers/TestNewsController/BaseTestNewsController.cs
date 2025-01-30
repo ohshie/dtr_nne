@@ -1,17 +1,26 @@
+using Bogus;
 using dtr_nne.Application.DTO.Article;
 using dtr_nne.Application.Services.NewsEditor.NewsParser;
 using dtr_nne.Application.Services.NewsEditor.NewsRewriter;
 using dtr_nne.Controllers;
-using Moq;
+using NSubstitute;
 
 namespace Tests.Systems.Controllers.TestNewsController;
 
 public class BaseTestNewsController
 {
     internal readonly NewsController Sut;
-    internal readonly Mock<INewsRewriter> MockNewsRewriter;
-    internal readonly Mock<INewsParser> MockNewsParser;
 
+    private static readonly Faker Faker = new();
+
+    internal readonly INewsRewriter MockNewsRewriter = Substitute.For<INewsRewriter>();
+    internal readonly INewsParseManager MockNewsParser = Substitute.For<INewsParseManager>();
+
+    internal readonly NewsArticleDto TestArticleDto = new()
+    {
+        Uri = new Uri(Faker.Internet.Url())
+    };
+    
     internal readonly ArticleContentDto TestArticleContentDto = new()
     {
         Body = "test"
@@ -24,22 +33,19 @@ public class BaseTestNewsController
     
     public BaseTestNewsController()
     {
-        MockNewsRewriter = new();
-        MockNewsParser = new();
-        
         BaseSetup();
         
-        Sut = new NewsController(MockNewsParser.Object, MockNewsRewriter.Object);
+        Sut = new NewsController(MockNewsParser, MockNewsRewriter);
     }
 
     private void BaseSetup()
     {
         MockNewsRewriter
-            .Setup(rewriter => rewriter.Rewrite(TestArticleContentDto).Result)
+            .Rewrite(TestArticleContentDto)
             .Returns(TestProcessedArticleContentDto);
 
-        MockNewsParser.Setup(
-                parser => parser.ExecuteBatchParse(true, "").Result)
+        MockNewsParser
+            .ExecuteBatchParse()
             .Returns(new List<NewsArticleDto>([new NewsArticleDto()]));
     }
 }

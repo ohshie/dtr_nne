@@ -62,7 +62,7 @@ public class TestGetNewsOutletController : BaseTestNewsOutletController
     }
 
     [Fact]
-    public async Task Get_OnNoUsersFound_Returns404()
+    public async Task Get_OnNoNewsOtletsFound_ReturnsError()
     {
         // Arrange 
         MockGetNewsOutletService
@@ -73,8 +73,8 @@ public class TestGetNewsOutletController : BaseTestNewsOutletController
         var result = await Sut.Get();
         
         // Assert
-        result.Should().BeOfType<NotFoundObjectResult>();
-        var objectResult = (NotFoundObjectResult)result;
-        objectResult.StatusCode.Should().Be(404);
+        result.Should().BeOfType<OkObjectResult>();
+        var objectResult = (OkObjectResult)result;
+        objectResult.Value.Should().NotBeOfType<List<NewsOutlet>>();
     }
 }

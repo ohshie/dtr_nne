@@ -9,6 +9,7 @@ using dtr_nne.Domain.Repositories;
 using dtr_nne.Domain.UnitOfWork;
 
 [assembly: InternalsVisibleTo("Tests")]
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 namespace dtr_nne.Application.Services.ExternalServices;
 
 internal class ExternalServiceManagerHelper(ILogger<ExternalServiceManagerHelper> logger, 

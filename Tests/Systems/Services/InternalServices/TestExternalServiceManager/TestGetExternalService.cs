@@ -4,7 +4,8 @@ using dtr_nne.Application.Services.ExternalServices;
 using dtr_nne.Domain.Entities;
 using dtr_nne.Domain.Enums;
 using Microsoft.Extensions.Logging;
-using Moq;
+using NSubstitute;
+using NSubstitute.ClearExtensions;
 
 namespace Tests.Systems.Services.InternalServices.TestExternalServiceManager;
 
@@ -12,8 +13,8 @@ public class TestGetExternalService : TestExternalServiceManagerBase
 {
     public TestGetExternalService()
     {
-        _sut = new(new Mock<ILogger<GetExternalService>>().Object, 
-            MockMapper.Object, MockRepository.Object);
+        _sut = new(Substitute.For<ILogger<GetExternalService>>(), 
+            MockMapper, MockRepository);
         
         _testExternalServicesList = [TestService];
         _testExternalServicesDtos = [TestServiceDto];
@@ -29,11 +30,12 @@ public class TestGetExternalService : TestExternalServiceManagerBase
     {
         // Assemble
         MockRepository
-            .Setup(repository => repository.GetByType(ExternalServiceType.Llm))
+            .GetByType(ExternalServiceType.Llm)
             .Returns(_testExternalServicesList);
-        MockMapper.Setup(mapper => mapper.ServiceToDto(_testExternalServicesList))
+        MockMapper
+            .ServiceToDto(_testExternalServicesList)
             .Returns(_testExternalServicesDtos);
-
+ 
         _testExternalServicesDtos[0].Id = _testExternalServicesList[0].Id;
 
         // Act
@@ -48,7 +50,7 @@ public class TestGetExternalService : TestExternalServiceManagerBase
     public void Get_WhenNoServicesRegistered_ReturnsError()
     {
         // Assemble
-        MockRepository.Reset();
+        MockRepository.ClearSubstitute();
 
         // Act
         var result = _sut.GetAllByType(ExternalServiceType.Llm);

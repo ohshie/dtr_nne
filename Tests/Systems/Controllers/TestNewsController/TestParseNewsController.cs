@@ -2,6 +2,7 @@ using dtr_nne.Application.DTO.Article;
 using dtr_nne.Application.Extensions;
 using dtr_nne.Domain.Entities.ManagedEntities;
 using Microsoft.AspNetCore.Mvc;
+using NSubstitute;
 
 namespace Tests.Systems.Controllers.TestNewsController;
 
@@ -26,7 +27,7 @@ public class TestParseNewsController : BaseTestNewsController
     {
         // Assemble
         MockNewsParser
-            .Setup(rewriter => rewriter.ExecuteBatchParse(true, "").Result)
+            .ExecuteBatchParse()
             .Returns(Errors.ManagedEntities.NotFoundInDb(typeof(NewsOutlet)));
 
         // Act
@@ -43,9 +44,9 @@ public class TestParseNewsController : BaseTestNewsController
     {
         // Assemble
         MockNewsParser
-            .Setup(rewriter => rewriter.ExecuteBatchParse(true, "").Result)
-            .Returns(new List<NewsArticleDto>(){Capacity = 1});
-
+            .ExecuteBatchParse()
+            .Returns(new List<NewsArticleDto>{Capacity = 1});
+           
         // Act
         var result = await Sut.ParseNews();
 
