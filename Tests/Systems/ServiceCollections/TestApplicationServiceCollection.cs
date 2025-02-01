@@ -29,7 +29,7 @@ public class TestApplicationServiceCollection
     [InlineData(typeof(IExternalServiceMapper), typeof(ExternalServiceMapper))]
     [InlineData(typeof(IArticleMapper), typeof(ArticleMapper))]
     [InlineData(typeof(INewsRewriter), typeof(NewsRewriter))]
-    [InlineData(typeof(INewsParser), typeof(NewsParser))]
+    [InlineData(typeof(INewsParseManager), typeof(NewsParseManager))]
     public void ShouldRegisterTransientService(Type serviceType, Type implementationType)
     {
         // Arrange

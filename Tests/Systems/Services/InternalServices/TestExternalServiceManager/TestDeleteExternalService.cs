@@ -1,7 +1,7 @@
 using dtr_nne.Application.Extensions;
 using dtr_nne.Application.Services.ExternalServices;
 using Microsoft.Extensions.Logging;
-using Moq;
+using NSubstitute;
 
 namespace Tests.Systems.Services.InternalServices.TestExternalServiceManager;
 
@@ -9,8 +9,9 @@ public class TestDeleteExternalService : TestExternalServiceManagerBase
 {
     public TestDeleteExternalService()
     {
-        _sut = new(new Mock<ILogger<DeleteExternalService>>().Object, MockMapper.Object,
-            MockHelper.Object);
+        _sut = new(Substitute.For<ILogger<DeleteExternalService>>(), 
+            MockMapper,
+            MockHelper);
     }
     
     private readonly DeleteExternalService _sut;
@@ -33,7 +34,7 @@ public class TestDeleteExternalService : TestExternalServiceManagerBase
     {
         // Assemble
         MockHelper
-            .Setup(helper => helper.FindRequiredExistingService(TestService))
+            .FindRequiredExistingService(TestService)
             .Returns(Errors.ExternalServiceProvider.Service.NoSavedServiceFound);
 
         // Act
@@ -49,7 +50,7 @@ public class TestDeleteExternalService : TestExternalServiceManagerBase
     {
         // Assemble
         MockHelper
-            .Setup(helper => helper.PerformDataOperation(TestService, "delete").Result)
+            .PerformDataOperation(TestService, "delete")
             .Returns(Errors.DbErrors.RemovingFailed);
 
         // Act

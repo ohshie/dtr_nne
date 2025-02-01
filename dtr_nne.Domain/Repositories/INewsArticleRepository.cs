@@ -1,4 +1,4 @@
-using dtr_nne.Domain.Entities;
+using dtr_nne.Domain.Entities.ScrapableEntities;
 
 namespace dtr_nne.Domain.Repositories;
 

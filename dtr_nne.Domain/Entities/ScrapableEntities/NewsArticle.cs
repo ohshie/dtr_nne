@@ -1,15 +1,15 @@
 using System.ComponentModel.DataAnnotations;
 using dtr_nne.Domain.Entities.ManagedEntities;
 
-namespace dtr_nne.Domain.Entities;
+namespace dtr_nne.Domain.Entities.ScrapableEntities;
 
-public class NewsArticle
+public class NewsArticle : IScrapableEntity
 {
     [Key]
     public int Id { get; set; }
 
     public List<string> Themes { get; set; } = [];
-    public Uri? Uri { get; set; }
+    public Uri? Website { get; set; }
     [MaxLength(10000)]
     public string Error { get; set; } = string.Empty;
     public DateTime ParseTime { get; set; }

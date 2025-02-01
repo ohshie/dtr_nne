@@ -73,8 +73,9 @@ public class TestGetOpenAiAssistantController : BaseTestOpenAiAssistantControlle
         var result = await Sut.Get();
         
         // Assert
-        result.Should().BeOfType<NotFoundObjectResult>();
-        var objectResult = (NotFoundObjectResult)result;
-        objectResult.StatusCode.Should().Be(404);
+        result.Should().BeOfType<OkObjectResult>();
+        var objectResult = (OkObjectResult)result;
+        objectResult.StatusCode.Should().Be(200);
+        objectResult.Value.Should().NotBeOfType<List<OpenAiAssistantDto>>();
     }
 }

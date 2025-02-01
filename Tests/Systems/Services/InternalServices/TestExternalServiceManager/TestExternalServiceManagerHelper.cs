@@ -6,7 +6,8 @@ using dtr_nne.Domain.Enums;
 using dtr_nne.Domain.ExternalServices;
 using ErrorOr;
 using Microsoft.Extensions.Logging;
-using Moq;
+using NSubstitute;
+using NSubstitute.ClearExtensions;
 
 namespace Tests.Systems.Services.InternalServices.TestExternalServiceManager;
 
@@ -14,33 +15,34 @@ public class TestExternalServiceManagerHelper : TestExternalServiceManagerBase
 {
     public TestExternalServiceManagerHelper()
     {
-        _sut = new(new Mock<ILogger<ExternalServiceManagerHelper>>().Object, MockServiceProvider.Object,
-            MockRepository.Object, MockUow.Object){CallBase = true};
+        _sut = new(Substitute.For<ILogger<ExternalServiceManagerHelper>>(), 
+            MockServiceProvider,
+            MockRepository, MockUow);
 
-        _mockLlmService = new();
-        _mockTranslatorService = new();
-        _mockScrapingService = new();
+        _mockLlmService = Substitute.For<ILlmService>();
+        _mockTranslatorService = Substitute.For<ITranslatorService>();
+        _mockScrapingService = Substitute.For<IScrapingService>();
         
         BasicSetup();
     }
 
-    private readonly Mock<ExternalServiceManagerHelper> _sut;
-    private readonly Mock<ILlmService> _mockLlmService;
-    private readonly Mock<ITranslatorService> _mockTranslatorService;
-    private readonly Mock<IScrapingService> _mockScrapingService;
+    private readonly ExternalServiceManagerHelper _sut;
+    private readonly ILlmService _mockLlmService;
+    private readonly ITranslatorService _mockTranslatorService;
+    private readonly IScrapingService _mockScrapingService;
 
     private void BasicSetup()
     {
-        _mockLlmService
-            .Setup(service => service.ProcessArticleAsync(It.IsAny<ArticleContent>()).Result)
+        _mockLlmService.
+            ProcessArticleAsync(Arg.Any<ArticleContent>())
             .Returns(new ErrorOr<ArticleContent>().Value);
 
         _mockTranslatorService
-            .Setup(service => service.Translate(It.IsAny<List<Headline>>()).Result)
+            .Translate(Arg.Any<List<Headline>>())
             .Returns(new ErrorOr<List<Headline>>().Value);
-
+            
         _mockScrapingService
-            .Setup(service => service.ScrapeWebsiteWithRetry(It.IsAny<NewsOutlet>(), 2).Result)
+            .ScrapeWebsiteWithRetry(Arg.Any<NewsOutlet>())
             .Returns("");
     }
     
@@ -48,10 +50,12 @@ public class TestExternalServiceManagerHelper : TestExternalServiceManagerBase
     public async Task CheckKeyValidity_WhenNoServiceFound_ReturnsSpecificError()
     {
         // Assemble
-        MockServiceProvider.Reset();
+        MockServiceProvider
+            .Provide(TestService.Type, TestService.ApiKey)
+            .Returns((IExternalService)null!);
         
         // Act
-        var result = await _sut.Object.CheckKeyValidity(TestService);
+        var result = await _sut.CheckKeyValidity(TestService);
 
         // Assert
         result.IsError.Should().BeTrue();
@@ -64,7 +68,7 @@ public class TestExternalServiceManagerHelper : TestExternalServiceManagerBase
         // Arrange
 
         // Act
-        var result = _sut.Object.FindRequiredExistingService(TestService);
+        var result = _sut.FindRequiredExistingService(TestService);
 
         // Assert
         result.IsError.Should().BeFalse();
@@ -75,10 +79,10 @@ public class TestExternalServiceManagerHelper : TestExternalServiceManagerBase
     public void FindRequiredExistingService_WhenNoServiceExists_ReturnsError()
     {
         // Assemble
-        MockRepository.Reset();
+        MockRepository.ClearSubstitute();
 
         // Act
-        var result = _sut.Object.FindRequiredExistingService(TestService);
+        var result = _sut.FindRequiredExistingService(TestService);
 
         // Assert 
         result.IsError.Should().BeTrue();
@@ -92,7 +96,7 @@ public class TestExternalServiceManagerHelper : TestExternalServiceManagerBase
         TestService.ServiceName = "";
 
         // Act
-        var result = _sut.Object.FindRequiredExistingService(TestService);
+        var result = _sut.FindRequiredExistingService(TestService);
 
         // Assert
         result.IsError.Should().BeTrue();
@@ -105,7 +109,7 @@ public class TestExternalServiceManagerHelper : TestExternalServiceManagerBase
         // Assemble
 
         // Act
-        var result = await _sut.Object.CheckKeyValidity(TestService);
+        var result = await _sut.CheckKeyValidity(TestService);
 
         // Assert
         result.IsError.Should().BeFalse();
@@ -118,11 +122,11 @@ public class TestExternalServiceManagerHelper : TestExternalServiceManagerBase
         // Assemble
         TestService.Type = ExternalServiceType.Translator;
         MockServiceProvider
-            .Setup(provider => provider.Provide(TestService.Type, TestService.ApiKey))
-            .Returns(_mockTranslatorService.Object);
+            .Provide(TestService.Type, TestService.ApiKey)
+            .Returns(_mockTranslatorService);
 
         // Act
-        var result = await _sut.Object.CheckKeyValidity(TestService);
+        var result = await _sut.CheckKeyValidity(TestService);
 
         // Assert 
         result.IsError.Should().BeFalse();
@@ -135,11 +139,11 @@ public class TestExternalServiceManagerHelper : TestExternalServiceManagerBase
         // Assemble
         TestService.Type = ExternalServiceType.Scraper;
         MockServiceProvider
-            .Setup(provider => provider.Provide(TestService.Type, TestService.ApiKey))
-            .Returns(_mockScrapingService.Object);
+            .Provide(TestService.Type, TestService.ApiKey)
+            .Returns(_mockScrapingService);
 
         // Act
-        var result = await _sut.Object.CheckKeyValidity(TestService);
+        var result = await _sut.CheckKeyValidity(TestService);
 
         // Assert 
         result.IsError.Should().BeFalse();
@@ -151,11 +155,11 @@ public class TestExternalServiceManagerHelper : TestExternalServiceManagerBase
     {
         // Assemble
         MockLlmService
-            .Setup(service => service.ProcessArticleAsync(It.IsAny<ArticleContent>()).Result)
+            .ProcessArticleAsync(Arg.Any<ArticleContent>())
             .Returns(Errors.ExternalServiceProvider.Llm.AssistantRunError);
 
         // Act
-        var result = await _sut.Object.CheckKeyValidity(TestService);
+        var result = await _sut.CheckKeyValidity(TestService);
 
         // Assert
         result.IsError.Should().BeTrue();
@@ -168,15 +172,14 @@ public class TestExternalServiceManagerHelper : TestExternalServiceManagerBase
         // Assemble
         TestService.Type = ExternalServiceType.Translator;
         _mockTranslatorService
-            .Setup(service => service.Translate(It.IsAny<List<Headline>>()).Result)
+            .Translate(Arg.Any<List<Headline>>())
             .Returns(Errors.Translator.Api.QuotaExceeded);
         MockServiceProvider
-            .Setup(x => x.Provide(TestService.Type, TestService.ApiKey))
-            .Returns(_mockTranslatorService.Object);
-        
+            .Provide(TestService.Type, TestService.ApiKey)
+            .Returns(_mockTranslatorService);        
 
         // Act
-        var result = await _sut.Object.CheckKeyValidity(TestService);
+        var result = await _sut.CheckKeyValidity(TestService);
 
         // Assert
         result.IsError.Should().BeTrue();
@@ -189,18 +192,121 @@ public class TestExternalServiceManagerHelper : TestExternalServiceManagerBase
         // Assemble
         TestService.Type = ExternalServiceType.Scraper;
         _mockScrapingService
-            .Setup(service => service.ScrapeWebsiteWithRetry(It.IsAny<NewsOutlet>(), 2).Result)
+            .ScrapeWebsiteWithRetry(Arg.Any<NewsOutlet>())
             .Returns(Errors.ExternalServiceProvider.Scraper.ScrapingRequestError(""));
         MockServiceProvider
-            .Setup(x => x.Provide(TestService.Type, TestService.ApiKey))
-            .Returns(_mockScrapingService.Object);
-        
+            .Provide(TestService.Type, TestService.ApiKey)
+            .Returns(_mockScrapingService);
 
         // Act
-        var result = await _sut.Object.CheckKeyValidity(TestService);
+        var result = await _sut.CheckKeyValidity(TestService);
 
         // Assert
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(Errors.ExternalServiceProvider.Scraper.ScrapingRequestError(""));
+    }
+
+    [Fact]
+    public async Task PerformDataOperations_WhenUpdateSuccess_ReturnsTrue()
+    {
+        // Assemble
+
+        // Act
+        var result = await _sut.PerformDataOperation(TestService, "update");
+
+        // Assert 
+        result.IsError.Should().BeFalse();
+        result.Value.Should().BeTrue();
+    }
+    
+    [Fact]
+    public async Task PerformDataOperations_WhenDeleteSuccess_ReturnsTrue()
+    {
+        // Assemble
+        this.MockRepository.Remove(TestService)
+            .Returns(true);
+
+        // Act
+        var result = await _sut.PerformDataOperation(TestService, "delete");
+
+        // Assert 
+        result.IsError.Should().BeFalse();
+        result.Value.Should().BeTrue();
+    }
+    
+    [Fact]
+    public async Task PerformDataOperations_WhenAddSuccess_ReturnsTrue()
+    {
+        // Assemble
+        this.MockRepository.Add(TestService)
+            .Returns(true);
+
+        // Act
+        var result = await _sut.PerformDataOperation(TestService, "add");
+
+        // Assert 
+        result.IsError.Should().BeFalse();
+        result.Value.Should().BeTrue();
+    }
+    
+    [Fact]
+    public async Task PerformDataOperations_WhenUpdateFails_ReturnsFalse()
+    {
+        // Assemble
+        this.MockRepository.Update(TestService)
+            .Returns(false);
+
+        // Act
+        var result = await _sut.PerformDataOperation(TestService, "update");
+
+        // Assert 
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(Errors.DbErrors.UpdatingDbFailed);
+    }
+    
+    [Fact]
+    public async Task PerformDataOperations_WhenDeleteFails_ReturnsFalse()
+    {
+        // Assemble
+        this.MockRepository.Remove(TestService)
+            .Returns(false);
+
+        // Act
+        var result = await _sut.PerformDataOperation(TestService, "delete");
+
+        // Assert 
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(Errors.DbErrors.RemovingFailed);
+    }
+    
+    [Fact]
+    public async Task PerformDataOperations_WhenAddFails_ReturnsFalse()
+    {
+        // Assemble
+        this.MockRepository.Add(TestService)
+            .Returns(false);
+
+        // Act
+        var result = await _sut.PerformDataOperation(TestService, "add");
+
+        // Assert 
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(Errors.DbErrors.AddingToDbFailed);
+    }
+    
+    [Fact]
+    public async Task PerformDataOperations_WhenOuWFails_ReturnsError()
+    {
+        // Assemble
+        MockUow
+            .Save()
+            .Returns(false);
+
+        // Act
+        var result = await _sut.PerformDataOperation(TestService, "update");
+
+        // Assert 
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(Errors.DbErrors.UnitOfWorkSaveFailed);
     }
 }

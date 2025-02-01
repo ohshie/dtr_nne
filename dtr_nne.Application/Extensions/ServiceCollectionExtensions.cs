@@ -4,9 +4,10 @@ using dtr_nne.Application.Mapper;
 using dtr_nne.Application.Services.EntityManager;
 using dtr_nne.Application.Services.ExternalServices;
 using dtr_nne.Application.Services.NewsEditor.NewsParser;
-using dtr_nne.Application.Services.NewsEditor.NewsParser.NewsCollector;
-using dtr_nne.Application.Services.NewsEditor.NewsParser.ScrapingManager;
-using dtr_nne.Application.Services.NewsEditor.NewsParser.ScrapingManager.MainPageScrapingResultProcessor;
+using dtr_nne.Application.Services.NewsEditor.NewsParser.ContentProcessing;
+using dtr_nne.Application.Services.NewsEditor.NewsParser.ContentProcessing.HeadlineTranslateProcessor;
+using dtr_nne.Application.Services.NewsEditor.NewsParser.ContentProcessing.ScrapingProcessor;
+using dtr_nne.Application.Services.NewsEditor.NewsParser.ContentProcessing.ScrapingResultProcessor;
 using dtr_nne.Application.Services.NewsEditor.NewsRewriter;
 using dtr_nne.Domain.Entities.ManagedEntities;
 using Microsoft.Extensions.Configuration;
@@ -67,17 +68,27 @@ public static class ServiceCollectionExtensions
         serviceCollection.AddTransient<IExternalServiceMapper, ExternalServiceMapper>();
 
         #endregion
-        
-        serviceCollection.AddTransient<INewsOutletMapper, NewsOutletMapper>();
-        
-        serviceCollection.AddTransient<IArticleMapper, ArticleMapper>();
 
-        serviceCollection.AddTransient<IScrapingManager, ScrapingManager>();
-        serviceCollection.AddTransient<IMainPageScrapingResultProcessor, MainPageScrapingResultProcessor>();
-        serviceCollection.AddTransient<INewsCollector, NewsCollector>();
-        serviceCollection.AddTransient<IContentCollector, ContentCollector>();
+        #region Parsing
+        
+        serviceCollection.AddTransient<INewsParseManager, NewsParseManager>();
+        serviceCollection.AddTransient<INewsParseHelper, NewsParseHelper>();
+        serviceCollection.AddTransient<IBatchNewsParser, BatchNewsParser>();
         serviceCollection.AddTransient<INewsParser, NewsParser>();
 
+        serviceCollection.AddTransient<INewsParseProcessor, NewsParseProcessor>();
+        serviceCollection.AddTransient<IArticleParseProcessor, ArticleParseProcessor>();
+        
+        serviceCollection.AddTransient<IScrapingProcessor, ScrapingProcessor>();
+        serviceCollection.AddTransient<IScrapingResultProcessor, ScrapingResultProcessor>();
+        
+        serviceCollection.AddTransient<IHeadlineTranslationProcessor, HeadlineTranslationProcessor>();
+
+        #endregion
+        
+        serviceCollection.AddTransient<INewsOutletMapper, NewsOutletMapper>();
+        serviceCollection.AddTransient<IArticleMapper, ArticleMapper>();
+        
         serviceCollection.AddTransient<INewsRewriter, NewsRewriter>();
     }
 }

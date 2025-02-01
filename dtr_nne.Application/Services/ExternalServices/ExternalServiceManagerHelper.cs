@@ -9,6 +9,7 @@ using dtr_nne.Domain.Repositories;
 using dtr_nne.Domain.UnitOfWork;
 
 [assembly: InternalsVisibleTo("Tests")]
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 namespace dtr_nne.Application.Services.ExternalServices;
 
 internal class ExternalServiceManagerHelper(ILogger<ExternalServiceManagerHelper> logger, 
@@ -77,14 +78,14 @@ internal class ExternalServiceManagerHelper(ILogger<ExternalServiceManagerHelper
                 if (!repository.Update(service))
                 {
                     logger.LogError("Failed to update External service in repository");
-                    return Errors.DbErrors.AddingToDbFailed;
+                    return Errors.DbErrors.UpdatingDbFailed;
                 }
                 break;
             case "delete":
                 if (!repository.Remove(service))
                 {
                     logger.LogError("Failed to remove External service in repository");
-                    return Errors.DbErrors.AddingToDbFailed;
+                    return Errors.DbErrors.RemovingFailed;
                 }
                 break;
             case "add":

@@ -161,48 +161,7 @@ namespace dtr_nne.Migrations
                     b.HasAnnotation("Relational:JsonPropertyName", "header");
                 });
 
-            modelBuilder.Entity("dtr_nne.Domain.Entities.NewsArticle", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("ArticleContentId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("EditedArticleId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Error")
-                        .IsRequired()
-                        .HasMaxLength(10000)
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("NewsOutletId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("ParseTime")
-                        .HasColumnType("TEXT");
-
-                    b.PrimitiveCollection<string>("Themes")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Uri")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ArticleContentId");
-
-                    b.HasIndex("EditedArticleId");
-
-                    b.HasIndex("NewsOutletId");
-
-                    b.ToTable("NewsArticles");
-                });
-
-            modelBuilder.Entity("dtr_nne.Domain.Entities.NewsOutlet", b =>
+            modelBuilder.Entity("dtr_nne.Domain.Entities.ManagedEntities.NewsOutlet", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -247,7 +206,7 @@ namespace dtr_nne.Migrations
                     b.ToTable("NewsOutlets");
                 });
 
-            modelBuilder.Entity("dtr_nne.Domain.Entities.OpenAiAssistant", b =>
+            modelBuilder.Entity("dtr_nne.Domain.Entities.ManagedEntities.OpenAiAssistant", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -268,6 +227,47 @@ namespace dtr_nne.Migrations
                     b.ToTable("OpenAiAssistants");
                 });
 
+            modelBuilder.Entity("dtr_nne.Domain.Entities.ScrapableEntities.NewsArticle", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("ArticleContentId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("EditedArticleId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Error")
+                        .IsRequired()
+                        .HasMaxLength(10000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("NewsOutletId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("ParseTime")
+                        .HasColumnType("TEXT");
+
+                    b.PrimitiveCollection<string>("Themes")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Website")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ArticleContentId");
+
+                    b.HasIndex("EditedArticleId");
+
+                    b.HasIndex("NewsOutletId");
+
+                    b.ToTable("NewsArticles");
+                });
+
             modelBuilder.Entity("dtr_nne.Domain.Entities.ArticleContent", b =>
                 {
                     b.HasOne("dtr_nne.Domain.Entities.EditedArticle", "EditedArticle")
@@ -285,7 +285,7 @@ namespace dtr_nne.Migrations
                     b.Navigation("Headline");
                 });
 
-            modelBuilder.Entity("dtr_nne.Domain.Entities.NewsArticle", b =>
+            modelBuilder.Entity("dtr_nne.Domain.Entities.ScrapableEntities.NewsArticle", b =>
                 {
                     b.HasOne("dtr_nne.Domain.Entities.ArticleContent", "ArticleContent")
                         .WithMany()
@@ -295,7 +295,7 @@ namespace dtr_nne.Migrations
                         .WithMany()
                         .HasForeignKey("EditedArticleId");
 
-                    b.HasOne("dtr_nne.Domain.Entities.NewsOutlet", "NewsOutlet")
+                    b.HasOne("dtr_nne.Domain.Entities.ManagedEntities.NewsOutlet", "NewsOutlet")
                         .WithMany("Articles")
                         .HasForeignKey("NewsOutletId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -308,7 +308,7 @@ namespace dtr_nne.Migrations
                     b.Navigation("NewsOutlet");
                 });
 
-            modelBuilder.Entity("dtr_nne.Domain.Entities.NewsOutlet", b =>
+            modelBuilder.Entity("dtr_nne.Domain.Entities.ManagedEntities.NewsOutlet", b =>
                 {
                     b.Navigation("Articles");
                 });

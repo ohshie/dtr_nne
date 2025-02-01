@@ -1,4 +1,4 @@
-using dtr_nne.Domain.Entities;
+using dtr_nne.Domain.Entities.ScrapableEntities;
 using dtr_nne.Domain.Repositories;
 using dtr_nne.Domain.UnitOfWork;
 using dtr_nne.Infrastructure.Context;
@@ -56,7 +56,7 @@ internal class NewsArticleRepository(ILogger<NewsArticleRepository> logger,
                 e.Message, 
                 e.StackTrace, 
                 e.InnerException?.Message ?? "No Inner Exception");
-            throw;
+            return false;
         }
     }
 }

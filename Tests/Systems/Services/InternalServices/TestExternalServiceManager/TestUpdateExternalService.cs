@@ -1,7 +1,7 @@
 using dtr_nne.Application.Extensions;
 using dtr_nne.Application.Services.ExternalServices;
 using Microsoft.Extensions.Logging;
-using Moq;
+using NSubstitute;
 
 namespace Tests.Systems.Services.InternalServices.TestExternalServiceManager;
 
@@ -9,8 +9,8 @@ public class TestUpdateExternalService : TestExternalServiceManagerBase
 {
     public TestUpdateExternalService()
     {
-        _sut = new(new Mock<ILogger<UpdateExternalService>>().Object,
-            MockHelper.Object, MockMapper.Object);
+        _sut = new(Substitute.For<ILogger<UpdateExternalService>>(),
+            MockHelper, MockMapper);
     }
     
     private readonly UpdateExternalService _sut;
@@ -33,7 +33,7 @@ public class TestUpdateExternalService : TestExternalServiceManagerBase
     {
         // Assemble
         MockHelper
-            .Setup(helper => helper.CheckKeyValidity(TestService).Result)
+            .CheckKeyValidity(TestService)
             .Returns(Errors.ExternalServiceProvider.Service.BadApiKey);
         
         // Act
@@ -49,9 +49,9 @@ public class TestUpdateExternalService : TestExternalServiceManagerBase
     {
         // Arrange
         MockHelper
-            .Setup(helper => helper.FindRequiredExistingService(TestService))
+            .FindRequiredExistingService(TestService)
             .Returns(Errors.ExternalServiceProvider.Service.NoSavedServiceFound);
-
+        
         // Act
         var result = await _sut.Update(TestServiceDto);
 
@@ -65,7 +65,7 @@ public class TestUpdateExternalService : TestExternalServiceManagerBase
     {
         // Arrange
         MockHelper
-            .Setup(helper => helper.PerformDataOperation(TestService, "update").Result)
+            .PerformDataOperation(TestService, "update")
             .Returns(false);
         
         // Act

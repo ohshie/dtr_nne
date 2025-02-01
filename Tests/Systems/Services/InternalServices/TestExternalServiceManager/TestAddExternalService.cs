@@ -2,7 +2,7 @@ using dtr_nne.Application.Extensions;
 using dtr_nne.Application.Services.ExternalServices;
 using dtr_nne.Domain.Enums;
 using Microsoft.Extensions.Logging;
-using Moq;
+using NSubstitute;
 
 namespace Tests.Systems.Services.InternalServices.TestExternalServiceManager;
 
@@ -11,9 +11,9 @@ public class TestAddExternalService : TestExternalServiceManagerBase
     public TestAddExternalService()
     {
         _sut = new AddExternalService(
-            new Mock<ILogger<AddExternalService>>().Object, 
-            MockMapper.Object, 
-            MockHelper.Object);
+            Substitute.For<ILogger<AddExternalService>>(), 
+            MockMapper, 
+            MockHelper);
     }
 
     private readonly AddExternalService _sut;
@@ -23,8 +23,8 @@ public class TestAddExternalService : TestExternalServiceManagerBase
     {
         // Arrange
         MockServiceProvider
-            .Setup(x => x.Provide(ExternalServiceType.Llm, TestService.ApiKey))
-            .Returns(MockLlmService.Object);
+            .Provide(ExternalServiceType.Llm, TestService.ApiKey)
+            .Returns(MockLlmService);
         
         // Act
         var result = await _sut.Add(TestServiceDto);
@@ -39,9 +39,9 @@ public class TestAddExternalService : TestExternalServiceManagerBase
     {
         // Arrange
         MockHelper
-            .Setup(helper => helper.CheckKeyValidity(TestService).Result)
+            .CheckKeyValidity(TestService)
             .Returns(Errors.ExternalServiceProvider.Service.BadApiKey);
-        
+            
         // Act
         var result = await _sut.Add(TestServiceDto);
 
@@ -55,7 +55,7 @@ public class TestAddExternalService : TestExternalServiceManagerBase
     {
         // Arrange
         MockHelper
-            .Setup(helper => helper.PerformDataOperation(TestService, "add").Result)
+            .PerformDataOperation(TestService, "add")
             .Returns(false);
         
         // Act

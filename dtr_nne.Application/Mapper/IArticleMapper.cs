@@ -1,5 +1,6 @@
 using dtr_nne.Application.DTO.Article;
 using dtr_nne.Domain.Entities;
+using dtr_nne.Domain.Entities.ScrapableEntities;
 
 namespace dtr_nne.Application.Mapper;
 
