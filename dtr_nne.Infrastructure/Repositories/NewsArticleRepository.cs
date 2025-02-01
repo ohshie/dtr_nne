@@ -56,7 +56,7 @@ internal class NewsArticleRepository(ILogger<NewsArticleRepository> logger,
                 e.Message, 
                 e.StackTrace, 
                 e.InnerException?.Message ?? "No Inner Exception");
-            throw;
+            return false;
         }
     }
 }

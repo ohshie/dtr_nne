@@ -109,11 +109,11 @@ public class ZenrowsServiceTests
             Website = new Uri("https://example.com/article"),
             NewsOutlet = new NewsOutlet
             {
-                Name = null,
-                Website = null,
-                MainPagePassword = null,
-                NewsPassword = null,
-                Themes = null
+                Name = null!,
+                Website = null!,
+                MainPagePassword = null!,
+                NewsPassword = null!,
+                Themes = null!
             }
         };
 

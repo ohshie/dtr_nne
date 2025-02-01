@@ -66,50 +66,50 @@ public class TestScrapingProcessor
             new()
             {
                 Website = new Uri("http://example.com/outlet1"),
-                Name = null,
-                MainPagePassword = null,
-                NewsPassword = null,
-                Themes = null
+                Name = null!,
+                MainPagePassword = null!,
+                NewsPassword = null!,
+                Themes = null!
             },
             new()
             {
                 Website = new Uri("http://example.com/outlet2"),
-                Name = null,
-                MainPagePassword = null,
-                NewsPassword = null,
-                Themes = null
+                Name = null!,
+                MainPagePassword = null!,
+                NewsPassword = null!,
+                Themes = null!
             },
             new()
             {
                 Website = new Uri("http://example.com/outlet3"),
-                Name = null,
-                MainPagePassword = null,
-                NewsPassword = null,
-                Themes = null
+                Name = null!,
+                MainPagePassword = null!,
+                NewsPassword = null!,
+                Themes = null!
             },
             new()
             {
                 Website = new Uri("http://example.com/outlet4"),
-                Name = null,
-                MainPagePassword = null,
-                NewsPassword = null,
-                Themes = null
+                Name = null!,
+                MainPagePassword = null!,
+                NewsPassword = null!,
+                Themes = null!
             },
             new()
             {
                 Website = new Uri("http://example.com/outlet5"),
-                Name = null,
-                MainPagePassword = null,
-                NewsPassword = null,
-                Themes = null
+                Name = null!,
+                MainPagePassword = null!,
+                NewsPassword = null!,
+                Themes = null!
             },
             new()
             {
                 Website = new Uri("http://example.com/outlet6"),
-                Name = null,
-                MainPagePassword = null,
-                NewsPassword = null,
-                Themes = null
+                Name = null!,
+                MainPagePassword = null!,
+                NewsPassword = null!,
+                Themes = null!   
             }
         };
 
