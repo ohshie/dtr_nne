@@ -97,7 +97,7 @@ public class ZenrowsService(ILogger<ZenrowsService> logger, ExternalService serv
         return $"{_baseUri}?{query}";
     }
     
-    private string BuildRequestString(NewsArticle newsArticle, string apiKey)
+    internal string BuildRequestString(NewsArticle newsArticle, string apiKey)
     {
         var query = HttpUtility.ParseQueryString(string.Empty);
         query.Add("apikey", apiKey);

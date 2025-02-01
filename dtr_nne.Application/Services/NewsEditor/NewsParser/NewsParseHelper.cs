@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using dtr_nne.Application.Extensions;
 using dtr_nne.Application.Services.ExternalServices;
 using dtr_nne.Domain.Entities.ManagedEntities;
@@ -6,6 +7,8 @@ using dtr_nne.Domain.Enums;
 using dtr_nne.Domain.ExternalServices;
 using dtr_nne.Domain.Repositories;
 
+[assembly:InternalsVisibleTo("Tests")]
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 namespace dtr_nne.Application.Services.NewsEditor.NewsParser;
 
 internal class NewsParseHelper(ILogger<NewsParseHelper> logger, 
@@ -55,16 +58,30 @@ internal class NewsParseHelper(ILogger<NewsParseHelper> logger,
             logger.LogError("No active news outlets found");
             return Errors.ManagedEntities.NotFoundInDb(typeof(NewsOutlet));
         }
+
+        if (targetParse is null)
+            return activeOutlets;
         
-        return targetParse == null
-            ? activeOutlets
-            : FilterNewsOutlets(activeOutlets, targetParse);
+        var matchedOutlet = FilterNewsOutlets(activeOutlets, targetParse);
+        if (matchedOutlet.Count == 0)
+        {
+            return Errors.ManagedEntities.NotFoundInDb(typeof(NewsOutlet));
+        }
+        
+        return matchedOutlet;
     }
 
-    private List<NewsOutlet> FilterNewsOutlets(List<NewsOutlet> outlets, NewsArticle filter)
+    internal List<NewsOutlet> FilterNewsOutlets(List<NewsOutlet> outlets, NewsArticle filter)
     {
         var filteredOutlets = outlets.Where(no => no.Website.Host == filter.Website?.Host).ToList();
-        logger.LogInformation("Matched article to news outlet: {OutletName}", filteredOutlets[0].Name);
+        if (filteredOutlets.Count == 0)
+        {
+            logger.LogWarning("No matching outlet found for provided article host: {ArticleHost}", filter.Website!.Host);
+        }
+        else
+        {
+            logger.LogInformation("Matched article to news outlet: {OutletName}", filteredOutlets[0].Name);
+        }
         
         return filteredOutlets;
     }

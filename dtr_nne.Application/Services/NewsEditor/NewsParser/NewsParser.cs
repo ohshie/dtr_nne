@@ -29,13 +29,9 @@ internal class NewsParser(INewsParseHelper newsParseHelper,
         }
 
         var headlineTranslationResult = await translator.Translate([parseResult.Value[0].ArticleContent!.Headline]);
-        if (headlineTranslationResult.IsError)
-        {
-            parseResult.Value[0].ArticleContent!.Headline.TranslatedHeadline =
-                headlineTranslationResult.FirstError.Description;
-        }
-     
-        parseResult.Value[0].ArticleContent!.Headline = headlineTranslationResult.Value[0];
+        parseResult.Value[0].ArticleContent!.Headline.TranslatedHeadline = headlineTranslationResult.IsError
+            ? headlineTranslationResult.FirstError.Description
+            : headlineTranslationResult.Value[0].TranslatedHeadline;
         
         return parseResult.Value[0];
     }

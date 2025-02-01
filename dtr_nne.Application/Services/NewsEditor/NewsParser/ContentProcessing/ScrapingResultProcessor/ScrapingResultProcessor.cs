@@ -78,6 +78,7 @@ public class ScrapingResultProcessor(ILogger<ScrapingResultProcessor> logger) : 
             if (htmlMainNode == null)
             {
                 logger.LogWarning("Main content node not found using selector: {Selector}", selectors[0]);
+                newArticle.Error = $"Main content node not found using selector: {selectors[0]}";
                 return [newArticle];
             }
 
@@ -97,7 +98,7 @@ public class ScrapingResultProcessor(ILogger<ScrapingResultProcessor> logger) : 
         }
     }
     
-    private Uri CreateUri(string url, NewsOutlet newsOutlet)
+    internal Uri CreateUri(string url, NewsOutlet newsOutlet)
     {
         logger.LogDebug("Creating URI from URL: {Url} for outlet: {OutletName}", 
             url, newsOutlet.Name);
@@ -117,7 +118,7 @@ public class ScrapingResultProcessor(ILogger<ScrapingResultProcessor> logger) : 
         return combinedUrl;
     }
     
-    private NewsArticle InitializeArticleStructure(NewsArticle template)
+    internal NewsArticle InitializeArticleStructure(NewsArticle template)
     {
         return new NewsArticle
         {
@@ -134,7 +135,7 @@ public class ScrapingResultProcessor(ILogger<ScrapingResultProcessor> logger) : 
         };
     }
     
-    private string[] ValidateAndParseSelectors(string? newsPassword, int requiredCount)
+    internal string[] ValidateAndParseSelectors(string? newsPassword, int requiredCount)
     {
         if (string.IsNullOrWhiteSpace(newsPassword))
             throw new ArgumentException("NewsPassword is missing or empty");
@@ -146,12 +147,14 @@ public class ScrapingResultProcessor(ILogger<ScrapingResultProcessor> logger) : 
         return selectors;
     }
     
-    private void ExtractHeadline(HtmlNode mainNode, string headerSelector, NewsArticle article)
+    internal void ExtractHeadline(HtmlNode mainNode, string headerSelector, NewsArticle article)
     {
         var headerNode = mainNode.SelectSingleNode($".{headerSelector}");
         if (headerNode == null)
         {
             logger.LogWarning("Header node not found using selector: {Selector}", headerSelector);
+            article.ArticleContent!.Headline.OriginalHeadline =
+                $"Header node not found using selector: {headerSelector}";
             return;
         }
 
@@ -161,7 +164,7 @@ public class ScrapingResultProcessor(ILogger<ScrapingResultProcessor> logger) : 
         }
     }
     
-    private void ExtractImages(HtmlNode mainNode, string imageSelector, NewsArticle article)
+    internal void ExtractImages(HtmlNode mainNode, string imageSelector, NewsArticle article)
     {
         var imageNodes = mainNode.SelectNodes($".{imageSelector}") ?? Enumerable.Empty<HtmlNode>();
         foreach (var imageNode in imageNodes)
@@ -178,7 +181,7 @@ public class ScrapingResultProcessor(ILogger<ScrapingResultProcessor> logger) : 
         }
     }
     
-    private void ExtractCopyrights(HtmlNode mainNode, string copyrightSelector, NewsArticle article)
+    internal void ExtractCopyrights(HtmlNode mainNode, string copyrightSelector, NewsArticle article)
     {
         var copyrightNodes = mainNode.SelectNodes($".{copyrightSelector}") ?? Enumerable.Empty<HtmlNode>();
         article.ArticleContent!.Copyright.AddRange(
@@ -187,7 +190,7 @@ public class ScrapingResultProcessor(ILogger<ScrapingResultProcessor> logger) : 
         );
     }
     
-    private void ExtractBodyContent(HtmlNode mainNode, string bodySelector, NewsArticle article)
+    internal void ExtractBodyContent(HtmlNode mainNode, string bodySelector, NewsArticle article)
     {
         var bodyNodes = mainNode.SelectNodes($".{bodySelector}") ?? Enumerable.Empty<HtmlNode>();
         var bodyBuilder = new StringBuilder();
@@ -205,7 +208,7 @@ public class ScrapingResultProcessor(ILogger<ScrapingResultProcessor> logger) : 
         article.ArticleContent!.Body = bodyBuilder.ToString().TrimEnd('\r', '\n');
     }
     
-    private void ExtractSource(HtmlNode mainNode, string sourceSelector, NewsArticle article)
+    internal  void ExtractSource(HtmlNode mainNode, string sourceSelector, NewsArticle article)
     {
         if (string.IsNullOrWhiteSpace(sourceSelector)) return;
 

@@ -77,11 +77,11 @@ internal class GenericRepository<TEntity, TContext>(
         }
     }
     
-    public bool UpdateRange(IEnumerable<TEntity> incomingNewsOutlets)
+    public bool UpdateRange(IEnumerable<TEntity> entities)
     {
         try
         {
-            unitOfWork.Context.UpdateRange(incomingNewsOutlets);
+            unitOfWork.Context.UpdateRange(entities);
             return true;
         }
         catch (Exception e)
@@ -89,7 +89,7 @@ internal class GenericRepository<TEntity, TContext>(
             logger.LogError(e, "Failed to pass Update Range on {TypeOfEntity}, Exception: {Exception}, \n" +
                              "{Message}\n" +
                              "{StackTrace}", 
-                incomingNewsOutlets.GetType(),
+                entities.GetType(),
                 e.InnerException?.Message ?? "No Inner Exception",
                 e.Message,
                 e.StackTrace);

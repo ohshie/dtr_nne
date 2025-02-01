@@ -205,4 +205,108 @@ public class TestExternalServiceManagerHelper : TestExternalServiceManagerBase
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(Errors.ExternalServiceProvider.Scraper.ScrapingRequestError(""));
     }
+
+    [Fact]
+    public async Task PerformDataOperations_WhenUpdateSuccess_ReturnsTrue()
+    {
+        // Assemble
+
+        // Act
+        var result = await _sut.PerformDataOperation(TestService, "update");
+
+        // Assert 
+        result.IsError.Should().BeFalse();
+        result.Value.Should().BeTrue();
+    }
+    
+    [Fact]
+    public async Task PerformDataOperations_WhenDeleteSuccess_ReturnsTrue()
+    {
+        // Assemble
+        this.MockRepository.Remove(TestService)
+            .Returns(true);
+
+        // Act
+        var result = await _sut.PerformDataOperation(TestService, "delete");
+
+        // Assert 
+        result.IsError.Should().BeFalse();
+        result.Value.Should().BeTrue();
+    }
+    
+    [Fact]
+    public async Task PerformDataOperations_WhenAddSuccess_ReturnsTrue()
+    {
+        // Assemble
+        this.MockRepository.Add(TestService)
+            .Returns(true);
+
+        // Act
+        var result = await _sut.PerformDataOperation(TestService, "add");
+
+        // Assert 
+        result.IsError.Should().BeFalse();
+        result.Value.Should().BeTrue();
+    }
+    
+    [Fact]
+    public async Task PerformDataOperations_WhenUpdateFails_ReturnsFalse()
+    {
+        // Assemble
+        this.MockRepository.Update(TestService)
+            .Returns(false);
+
+        // Act
+        var result = await _sut.PerformDataOperation(TestService, "update");
+
+        // Assert 
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(Errors.DbErrors.UpdatingDbFailed);
+    }
+    
+    [Fact]
+    public async Task PerformDataOperations_WhenDeleteFails_ReturnsFalse()
+    {
+        // Assemble
+        this.MockRepository.Remove(TestService)
+            .Returns(false);
+
+        // Act
+        var result = await _sut.PerformDataOperation(TestService, "delete");
+
+        // Assert 
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(Errors.DbErrors.RemovingFailed);
+    }
+    
+    [Fact]
+    public async Task PerformDataOperations_WhenAddFails_ReturnsFalse()
+    {
+        // Assemble
+        this.MockRepository.Add(TestService)
+            .Returns(false);
+
+        // Act
+        var result = await _sut.PerformDataOperation(TestService, "add");
+
+        // Assert 
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(Errors.DbErrors.AddingToDbFailed);
+    }
+    
+    [Fact]
+    public async Task PerformDataOperations_WhenOuWFails_ReturnsError()
+    {
+        // Assemble
+        MockUow
+            .Save()
+            .Returns(false);
+
+        // Act
+        var result = await _sut.PerformDataOperation(TestService, "update");
+
+        // Assert 
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(Errors.DbErrors.UnitOfWorkSaveFailed);
+    }
 }
