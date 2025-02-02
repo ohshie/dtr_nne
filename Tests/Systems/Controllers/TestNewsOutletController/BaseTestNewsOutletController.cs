@@ -7,7 +7,7 @@ namespace Tests.Systems.Controllers.TestNewsOutletController;
 
 public abstract class BaseTestNewsOutletController
 {
-    internal readonly Mock<IGetManagerEntity<NewsOutletDto>> MockGetNewsOutletService;
+    internal readonly Mock<IGetManagedEntity<NewsOutletDto>> MockGetNewsOutletService;
     internal readonly Mock<IAddManagedEntity<NewsOutletDto>> MockAddNewsOutletService;
     internal readonly Mock<IUpdateManagedEntity<NewsOutletDto>> MockUpdateNewsOutletService;
     internal readonly Mock<IDeleteManagedEntity<BaseNewsOutletsDto>> MockDeleteNewsOutletService;

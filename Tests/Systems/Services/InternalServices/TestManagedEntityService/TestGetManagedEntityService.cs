@@ -11,11 +11,11 @@ namespace Tests.Systems.Services.InternalServices.TestManagedEntityService;
 
 public class TestGetManagedEntityService : BaseTestManagedEntityService
 {
-    private readonly GetManagerEntity<NewsOutlet, NewsOutletDto> _sut;
+    private readonly GetManagedEntity<NewsOutlet, NewsOutletDto> _sut;
 
     public TestGetManagedEntityService()
     {
-        var logger = new Mock<ILogger<GetManagerEntity<NewsOutlet, NewsOutletDto>>>().Object;
+        var logger = new Mock<ILogger<GetManagedEntity<NewsOutlet, NewsOutletDto>>>().Object;
 
         var randomNewsOutlet = NewsOutletDtoFixtureBase.OutletDtos[0];
         
@@ -23,7 +23,7 @@ public class TestGetManagedEntityService : BaseTestManagedEntityService
             .Setup(mapper => mapper.EntityToDto<NewsOutlet, NewsOutletDto>(It.IsAny<List<NewsOutlet>>()))
             .Returns(randomNewsOutlet);
         
-        _sut = new GetManagerEntity<NewsOutlet, NewsOutletDto>(logger: logger, 
+        _sut = new GetManagedEntity<NewsOutlet, NewsOutletDto>(logger: logger, 
             Mockrepository.Object, 
             mapper: MockMapper.Object);
     }
