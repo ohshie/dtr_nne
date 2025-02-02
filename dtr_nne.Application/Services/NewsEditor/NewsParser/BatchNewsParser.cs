@@ -44,23 +44,23 @@ internal class BatchNewsParser(INewsParseProcessor newsParseProcessor,
         if (partialResults.IsError)
             return partialResults.FirstError;
         
-        newsArticleRepository.AttachRange(partialResults.Value);
-        await newsArticleRepository.AddRange(partialResults.Value);
-        await unitOfWork.Save();
-        
         if (fullProcess)
         {
             partialResults = await articleParseProcessor.Collect(scraper, partialResults.Value);
             if (partialResults.IsError)
                 return partialResults.FirstError;
         }
+        
+        newsArticleRepository.AttachRange(partialResults.Value);
+        await newsArticleRepository.AddRange(partialResults.Value);
+        await unitOfWork.Save();
 
         return partialResults;
     }
 
     private async Task<List<NewsArticle>> HeadlineTranslation(List<NewsArticle> articlesToBeTranslated, ITranslatorService translator)
     {
-        var headlineTranslationResult = await translator.Translate(articlesToBeTranslated.Select(r => r.ArticleContent!.Headline).ToList());
+        var headlineTranslationResult = await translator.Translate(articlesToBeTranslated.Select(r => r.ArticleContent!.Headline!).ToList());
         if (headlineTranslationResult.IsError)
         {
             articlesToBeTranslated.ForEach(a => 
