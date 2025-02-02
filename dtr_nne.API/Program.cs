@@ -57,7 +57,7 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<INneDbContext>();
     
-    await dbContext.MigrateAsync();
+    await dbContext.EnsureCreatedAsync();
 }
 
 await app.RunAsync();

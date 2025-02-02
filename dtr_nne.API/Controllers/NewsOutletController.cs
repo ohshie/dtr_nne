@@ -9,7 +9,7 @@ namespace dtr_nne.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/[controller]")]
-public class NewsOutletController(IGetManagerEntity<NewsOutletDto> getNewsOutletService, 
+public class NewsOutletController(IGetManagedEntity<NewsOutletDto> getNewsOutletService, 
     IAddManagedEntity<NewsOutletDto> addNewsOutletService, 
     IUpdateManagedEntity<NewsOutletDto> updateNewsOutletService, 
     IDeleteManagedEntity<BaseNewsOutletsDto> deleteNewsOutletService) : ControllerBase

@@ -13,7 +13,7 @@ public class HeadlineTranslationProcessor(ILogger<HeadlineTranslationProcessor> 
             .Select(sa => sa.ArticleContent!.Headline)
             .ToList();
         
-        var translatorResult = await translator.Translate(headlines);
+        var translatorResult = await translator.Translate(headlines!);
         if (translatorResult.IsError)
         {
             logger.LogError("Translation service failed: {Error}", translatorResult.FirstError);
@@ -23,7 +23,7 @@ public class HeadlineTranslationProcessor(ILogger<HeadlineTranslationProcessor> 
         var finalResult = articles.Select(article => {
             var matchingTranslation = translatorResult.Value
                 .FirstOrDefault(t => 
-                    t.OriginalHeadline == article.ArticleContent?.Headline.OriginalHeadline);
+                    t.OriginalHeadline == article.ArticleContent?.Headline!.OriginalHeadline);
     
             if (matchingTranslation != null)
             {

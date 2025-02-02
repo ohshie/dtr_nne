@@ -3,12 +3,17 @@ using dtr_nne.Application.Services.NewsEditor.NewsParser.ContentProcessing;
 using dtr_nne.Domain.Entities.ManagedEntities;
 using dtr_nne.Domain.Entities.ScrapableEntities;
 using dtr_nne.Domain.ExternalServices;
+using dtr_nne.Domain.IContext;
+using dtr_nne.Domain.Repositories;
+using dtr_nne.Domain.UnitOfWork;
 
 namespace dtr_nne.Application.Services.NewsEditor.NewsParser;
 
 internal class BatchNewsParser(INewsParseProcessor newsParseProcessor, 
     IArticleParseProcessor articleParseProcessor,
-    INewsParseHelper newsParseHelper) : IBatchNewsParser
+    INewsParseHelper newsParseHelper,
+    IRepository<NewsArticle> newsArticleRepository,
+    IUnitOfWork<INneDbContext> unitOfWork) : IBatchNewsParser
 {
     public async Task<ErrorOr<List<NewsArticle>>> ExecuteBatchParse(bool fullProcess = true)
     {
@@ -21,9 +26,7 @@ internal class BatchNewsParser(INewsParseProcessor newsParseProcessor,
         if (newsParseHelper.RequestTranslator() is not {} translator)
             return Errors.ExternalServiceProvider.Service.NoActiveServiceFound;
 
-        var results = fullProcess
-            ? await FullProcess(scraper, translator, outlets.Value)
-            : await newsParseProcessor.Collect(scraper, translator, outlets.Value);
+        var results = await ManageFlow(scraper, translator, outlets.Value, fullProcess);
         if (results.IsError)
         {
             return results.FirstError;
@@ -34,16 +37,25 @@ internal class BatchNewsParser(INewsParseProcessor newsParseProcessor,
         return processedArticles;
     }
 
-    private async Task<ErrorOr<List<NewsArticle>>> FullProcess(IScrapingService scraper,
-        ITranslatorService translator, List<NewsOutlet> outlets)
+    private async Task<ErrorOr<List<NewsArticle>>> ManageFlow(IScrapingService scraper,
+        ITranslatorService translator, List<NewsOutlet> outlets, bool fullProcess)
     {
-        var collectedArticles = await newsParseProcessor.Collect(scraper, translator, outlets);
-        if (collectedArticles.IsError)
-            return collectedArticles.FirstError;
+        var partialResults = await newsParseProcessor.Collect(scraper, translator, outlets);
+        if (partialResults.IsError)
+            return partialResults.FirstError;
+        
+        newsArticleRepository.AttachRange(partialResults.Value);
+        await newsArticleRepository.AddRange(partialResults.Value);
+        await unitOfWork.Save();
+        
+        if (fullProcess)
+        {
+            partialResults = await articleParseProcessor.Collect(scraper, partialResults.Value);
+            if (partialResults.IsError)
+                return partialResults.FirstError;
+        }
 
-        var completeArticles = await articleParseProcessor.Collect(scraper, collectedArticles.Value);
-
-        return completeArticles;
+        return partialResults;
     }
 
     private async Task<List<NewsArticle>> HeadlineTranslation(List<NewsArticle> articlesToBeTranslated, ITranslatorService translator)
@@ -52,7 +64,7 @@ internal class BatchNewsParser(INewsParseProcessor newsParseProcessor,
         if (headlineTranslationResult.IsError)
         {
             articlesToBeTranslated.ForEach(a => 
-                a.ArticleContent!.Headline.TranslatedHeadline = headlineTranslationResult.FirstError.Description);
+                a.ArticleContent!.Headline!.TranslatedHeadline = headlineTranslationResult.FirstError.Description);
         }
         else
         {
@@ -61,7 +73,7 @@ internal class BatchNewsParser(INewsParseProcessor newsParseProcessor,
     
             articlesToBeTranslated.ForEach(article => 
             {
-                if (translationMap.TryGetValue(article.ArticleContent!.Headline.OriginalHeadline, out var translated))
+                if (translationMap.TryGetValue(article.ArticleContent!.Headline!.OriginalHeadline, out var translated))
                 {
                     article.ArticleContent.Headline = translated;
                 }

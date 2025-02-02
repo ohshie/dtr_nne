@@ -6,9 +6,9 @@ using dtr_nne.Domain.Repositories;
 
 namespace dtr_nne.Application.Services.EntityManager;
 
-public class GetManagerEntity<T, TDto>(ILogger<GetManagerEntity<T, TDto>> logger, 
+public class GetManagedEntity<T, TDto>(ILogger<GetManagedEntity<T, TDto>> logger, 
     IRepository<T> aiAssistantRepository, IManagedEntityMapper mapper) 
-    : IGetManagerEntity<TDto>
+    : IGetManagedEntity<TDto>
     where T : class, IManagedEntity
     where TDto : class, IManagedEntityDto
 {
@@ -25,7 +25,7 @@ public class GetManagerEntity<T, TDto>(ILogger<GetManagerEntity<T, TDto>> logger
     }
 }
 
-public interface IGetManagerEntity<TDto>
+public interface IGetManagedEntity<TDto>
     where TDto : class, IManagedEntityDto
 {
     public Task<ErrorOr<List<TDto>>> GetAll();

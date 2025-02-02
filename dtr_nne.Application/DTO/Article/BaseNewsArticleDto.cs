@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace dtr_nne.Application.DTO.Article;
 
-public class BaseNewsArticleDto
+public class BaseNewsArticleDto : IManagedEntityDto
 {
     public int Id { get; set; }
     public string OriginalHeadline { get; set; } = string.Empty;

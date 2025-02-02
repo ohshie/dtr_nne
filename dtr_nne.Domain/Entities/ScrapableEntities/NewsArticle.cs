@@ -3,7 +3,7 @@ using dtr_nne.Domain.Entities.ManagedEntities;
 
 namespace dtr_nne.Domain.Entities.ScrapableEntities;
 
-public class NewsArticle : IScrapableEntity
+public class NewsArticle : IScrapableEntity, IManagedEntity
 {
     [Key]
     public int Id { get; set; }
@@ -17,6 +17,5 @@ public class NewsArticle : IScrapableEntity
     public int NewsOutletId { get; set; }
     public NewsOutlet? NewsOutlet { get; set; }
 
-    public ArticleContent? ArticleContent { get; set; } = new();
-    public EditedArticle? EditedArticle { get; set; } = new();
+    public ArticleContent? ArticleContent { get; set; }
 }

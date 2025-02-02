@@ -5,6 +5,9 @@ using dtr_nne.Domain.Entities;
 using dtr_nne.Domain.Entities.ManagedEntities;
 using dtr_nne.Domain.Entities.ScrapableEntities;
 using dtr_nne.Domain.ExternalServices;
+using dtr_nne.Domain.IContext;
+using dtr_nne.Domain.Repositories;
+using dtr_nne.Domain.UnitOfWork;
 using NSubstitute;
 using Tests.Fixtures.NewsArticleFixtures;
 using Tests.Fixtures.NewsOutletFixtures;
@@ -20,8 +23,11 @@ public class TestBatchNewsParser
         _newsParseHelper = Substitute.For<INewsParseHelper>();
         _scrapingService = Substitute.For<IScrapingService>();
         _translatorService = Substitute.For<ITranslatorService>();
+        _newsArticleRepository = Substitute.For<IRepository<NewsArticle>>();
+        _unitOfWork = Substitute.For<IUnitOfWork<INneDbContext>>();
         
-        _sut = new(_newsParseProcessor, _articleParseProcessor,_newsParseHelper);
+        _sut = new(_newsParseProcessor, _articleParseProcessor,_newsParseHelper, 
+            _newsArticleRepository, _unitOfWork);
         
         BasicSetup();
     }
@@ -29,6 +35,8 @@ public class TestBatchNewsParser
     private BatchNewsParser _sut;
     private INewsParseProcessor _newsParseProcessor;
     private IArticleParseProcessor _articleParseProcessor;
+    private readonly IRepository<NewsArticle> _newsArticleRepository;
+    private readonly IUnitOfWork<INneDbContext> _unitOfWork;
     private readonly INewsParseHelper _newsParseHelper;
     private readonly IScrapingService _scrapingService;
     private readonly ITranslatorService _translatorService;

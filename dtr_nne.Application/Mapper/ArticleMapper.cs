@@ -18,7 +18,7 @@ public partial class ArticleMapper : IArticleMapper
 
             Themes = article.NewsOutlet!.Themes,
 
-            OriginalHeadline = article.ArticleContent!.Headline.OriginalHeadline,
+            OriginalHeadline = article.ArticleContent!.Headline!.OriginalHeadline,
             TranslatedHeadline = article.ArticleContent.Headline.TranslatedHeadline,
 
             Body = article.ArticleContent.Body,

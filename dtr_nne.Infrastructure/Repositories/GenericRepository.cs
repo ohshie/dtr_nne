@@ -131,4 +131,18 @@ internal class GenericRepository<TEntity, TContext>(
             return false;
         }
     }
+
+    public bool AttachRange(IEnumerable<TEntity> entities)
+    {
+        try
+        {
+            unitOfWork.Context.AttachRange(entities);
+            return true;
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Failed to attach provided entities {TypeOfEntity}", entities.GetType());
+            return false;
+        }
+    }
 }
