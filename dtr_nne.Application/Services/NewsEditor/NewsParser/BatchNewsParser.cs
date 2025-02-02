@@ -68,12 +68,13 @@ internal class BatchNewsParser(INewsParseProcessor newsParseProcessor,
         }
         else
         {
+            
             var translationMap = headlineTranslationResult.Value
-                .ToDictionary(h => h.OriginalHeadline, h => h);
+                .ToDictionary(h => h.Id, h => h);
     
             articlesToBeTranslated.ForEach(article => 
             {
-                if (translationMap.TryGetValue(article.ArticleContent!.Headline!.OriginalHeadline, out var translated))
+                if (translationMap.TryGetValue(article.ArticleContent!.Headline!.Id, out var translated))
                 {
                     article.ArticleContent.Headline = translated;
                 }
