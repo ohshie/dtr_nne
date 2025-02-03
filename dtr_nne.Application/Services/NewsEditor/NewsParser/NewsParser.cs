@@ -9,10 +9,10 @@ internal class NewsParser(INewsParseHelper newsParseHelper,
 {
     public async Task<ErrorOr<NewsArticle>> ExecuteParse(NewsArticle newsArticle)
     {
-        if (newsParseHelper.RequestScraper() is not { } scraper)
+        if (await newsParseHelper.RequestScraper() is not { } scraper)
             return Errors.ExternalServiceProvider.Service.NoActiveServiceFound;
 
-        if (newsParseHelper.RequestTranslator() is not { } translator)
+        if (await newsParseHelper.RequestTranslator() is not { } translator)
             return Errors.ExternalServiceProvider.Service.NoActiveServiceFound;
         
         var outlets = await newsParseHelper.RequestOutlets(newsArticle);

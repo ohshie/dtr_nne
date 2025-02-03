@@ -63,12 +63,12 @@ public class TestExternalServiceManagerHelper : TestExternalServiceManagerBase
     }
     
     [Fact]
-    public void FindRequiredExistingService_WhenServiceExists_ReturnsService()
+    public async Task FindRequiredExistingService_WhenServiceExists_ReturnsService()
     {
         // Arrange
 
         // Act
-        var result = _sut.FindRequiredExistingService(TestService);
+        var result = await _sut.FindRequiredExistingService(TestService);
 
         // Assert
         result.IsError.Should().BeFalse();
@@ -76,13 +76,13 @@ public class TestExternalServiceManagerHelper : TestExternalServiceManagerBase
     }
 
     [Fact]  
-    public void FindRequiredExistingService_WhenNoServiceExists_ReturnsError()
+    public async Task FindRequiredExistingService_WhenNoServiceExists_ReturnsError()
     {
         // Assemble
         MockRepository.ClearSubstitute();
 
         // Act
-        var result = _sut.FindRequiredExistingService(TestService);
+        var result = await _sut.FindRequiredExistingService(TestService);
 
         // Assert 
         result.IsError.Should().BeTrue();
@@ -90,13 +90,13 @@ public class TestExternalServiceManagerHelper : TestExternalServiceManagerBase
     }
 
     [Fact]
-    public void FindRequiredExistingService_WhenNoServiceMatch_ReturnsError()
+    public async Task FindRequiredExistingService_WhenNoServiceMatch_ReturnsError()
     {
         // Assemble
         TestService.ServiceName = "";
 
         // Act
-        var result = _sut.FindRequiredExistingService(TestService);
+        var result = await _sut.FindRequiredExistingService(TestService);
 
         // Assert
         result.IsError.Should().BeTrue();

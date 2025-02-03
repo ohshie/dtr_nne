@@ -13,7 +13,7 @@ internal class DeleteExternalService(ILogger<DeleteExternalService> logger,
         logger.LogInformation("Starting delete method for service {Service}", serviceDto.ServiceName);
         var mappedService = mapper.DtoToService(serviceDto);
         
-        var requiredService = helper.FindRequiredExistingService(mappedService);
+        var requiredService = await helper.FindRequiredExistingService(mappedService);
         if (requiredService.IsError)
         {
             return requiredService.FirstError;

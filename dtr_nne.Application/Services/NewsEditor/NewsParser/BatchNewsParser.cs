@@ -15,10 +15,10 @@ internal class BatchNewsParser(INewsParseProcessor newsParseProcessor,
         var outlets = await newsParseHelper.RequestOutlets();
         if (outlets.IsError) return outlets.FirstError;
 
-        if (newsParseHelper.RequestScraper() is not { } scraper)
+        if (await newsParseHelper.RequestScraper() is not { } scraper)
             return Errors.ExternalServiceProvider.Service.NoActiveServiceFound;
         
-        if (newsParseHelper.RequestTranslator() is not {} translator)
+        if (await newsParseHelper.RequestTranslator() is not {} translator)
             return Errors.ExternalServiceProvider.Service.NoActiveServiceFound;
 
         var results = fullProcess

@@ -13,11 +13,11 @@ public class ExternalServiceProvider(ILogger<ExternalServiceProvider> logger,
     IExternalServiceFactory serviceFactory) : IExternalServiceProvider
 {
     [Experimental("OPENAI001")]
-    public IExternalService Provide(ExternalServiceType type, string apiKey = "")
+    public async Task<IExternalService> Provide(ExternalServiceType type, string apiKey = "")
     {
         logger.LogInformation("Providing external service of type {Type}", type);
         
-        var service = ConstructService(apiKey, type);
+        var service = await ConstructService(apiKey, type);
         
         switch (type)
         {
@@ -36,12 +36,12 @@ public class ExternalServiceProvider(ILogger<ExternalServiceProvider> logger,
         throw new InvalidOperationException($"Unsupported service type {type}.");
     }   
 
-    internal ExternalService ConstructService(string apiKey, ExternalServiceType type)
+    internal async Task<ExternalService> ConstructService(string apiKey, ExternalServiceType type)
     {
         logger.LogDebug("Constructing service for type {Type}", type);
         if (string.IsNullOrEmpty(apiKey))
         {
-            var requestedServices = repository.GetByType(type); 
+            var requestedServices = await  repository.GetByType(type); 
             if (requestedServices is null || requestedServices.Count < 1)
             {
                 logger.LogError("No services found for type {Type}", type);

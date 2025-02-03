@@ -5,5 +5,5 @@ namespace dtr_nne.Domain.Repositories;
 
 public interface IExternalServiceProviderRepository : IRepository<ExternalService>
 {
-    public List<ExternalService>? GetByType(ExternalServiceType type);
+    public Task<List<ExternalService>?> GetByType(ExternalServiceType type);
 }

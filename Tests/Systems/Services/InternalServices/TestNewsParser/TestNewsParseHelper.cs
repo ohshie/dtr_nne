@@ -53,12 +53,12 @@ public class TestNewsParseHelper
     }
 
     [Fact]
-    public void RequestScraper_WhenServiceExist_ReturnsScrapingService()
+    public async Task RequestScraper_WhenServiceExist_ReturnsScrapingService()
     {
         // Assemble
 
         // Act
-        var result = _sut.RequestScraper();
+        var result = await _sut.RequestScraper();
 
         // Assert 
         result.Should().NotBeNull();
@@ -66,26 +66,26 @@ public class TestNewsParseHelper
     }
     
     [Fact]
-    public void RequestScraper_WhenProviderThrows_ReturnsNull()
+    public async Task RequestScraper_WhenProviderThrows_ReturnsNull()
     {
         // Assemble
         _provider.Provide(ExternalServiceType.Scraper)
-            .Throws(new Exception());
+            .ThrowsAsync(new Exception());
         
         // Act
-        var result = _sut.RequestScraper();
+        var result = await _sut.RequestScraper();
 
         // Assert 
         result.Should().BeNull();
     }
     
     [Fact]
-    public void RequestTranslator_WhenServiceExist_ReturnsScrapingService()
+    public async Task RequestTranslator_WhenServiceExist_ReturnsScrapingService()
     {
         // Assemble
 
         // Act
-        var result = _sut.RequestTranslator();
+        var result = await _sut.RequestTranslator();
 
         // Assert 
         result.Should().NotBeNull();
@@ -93,14 +93,14 @@ public class TestNewsParseHelper
     }
     
     [Fact]
-    public void RequestTranslator_WhenProviderThrows_ReturnsNull()
+    public async Task RequestTranslator_WhenProviderThrows_ReturnsNull()
     {
         // Assemble
         _provider.Provide(ExternalServiceType.Translator)
-            .Throws(new Exception());
+            .ThrowsAsync(new Exception());
         
         // Act
-        var result = _sut.RequestTranslator();
+        var result = await _sut.RequestTranslator();
 
         // Assert 
         result.Should().BeNull();

@@ -12,7 +12,7 @@ public class NewsRewriter(ILogger<NewsRewriter> logger, IArticleMapper mapper,
 {
     public async Task<ErrorOr<ArticleContentDto>> Rewrite(ArticleContentDto articleContentDto)
     {
-        if (RequestService() is not { } activeService)
+        if (await RequestService() is not { } activeService)
         {
             return Errors.ExternalServiceProvider.Service.NoActiveServiceFound;
         }
@@ -30,11 +30,11 @@ public class NewsRewriter(ILogger<NewsRewriter> logger, IArticleMapper mapper,
         return processedArticleDto;
     }
 
-    internal ILlmService? RequestService()
+    internal async Task<ILlmService?> RequestService()
     {
         try
         {
-            var service = serviceProvider.Provide(ExternalServiceType.Llm) as ILlmService;
+            var service = await serviceProvider.Provide(ExternalServiceType.Llm) as ILlmService;
             return service;
         }
         catch (Exception e)

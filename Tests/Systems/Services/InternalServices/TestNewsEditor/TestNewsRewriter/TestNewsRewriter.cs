@@ -46,7 +46,7 @@ public class TestNewsRewriter
     private void BasicSetup()
     {
         _mockServiceProvider.Setup(provider => provider.Provide(ExternalServiceType.Llm, ""))
-            .Returns(_mockLlmService.Object);
+            .ReturnsAsync(_mockLlmService.Object);
         
         _mockArticleMapper.Setup(mapper => mapper.DtoToArticleContent(_mockArticleContentDto))
             .Returns(_mockArticle);
@@ -64,7 +64,7 @@ public class TestNewsRewriter
         // Arrange
         _mockServiceProvider
             .Setup(provider => provider.Provide(ExternalServiceType.Llm, ""))
-            .Returns((ILlmService)null!);
+            .ReturnsAsync((ILlmService)null!);
 
         // Act
         var result = await _sut.Rewrite(_mockArticleContentDto);
@@ -79,8 +79,8 @@ public class TestNewsRewriter
     {
         // Arrange
         _mockLlmService
-            .Setup(service => service.ProcessArticleAsync(_mockArticle))
-            .ReturnsAsync(Errors.ExternalServiceProvider.Llm.AssistantRunError);
+            .Setup(service => service.ProcessArticleAsync(_mockArticle).Result)
+            .Returns(Errors.ExternalServiceProvider.Llm.AssistantRunError);
 
         // Act
         var result = await _sut.Rewrite(_mockArticleContentDto);
@@ -108,14 +108,14 @@ public class TestNewsRewriter
     }
     
     [Fact]
-    public void RequestService_WhenExceptionOccurs_ReturnsNull()
+    public async Task RequestService_WhenExceptionOccurs_ReturnsNull()
     {
         // Arrange
         _mockServiceProvider.Setup(provider => provider.Provide(ExternalServiceType.Llm, ""))
             .Throws(new Exception("Service provider error"));
 
         // Act
-        var result = _sut.RequestService();
+        var result = await _sut.RequestService();
 
         // Assert
         result.Should().BeNull();

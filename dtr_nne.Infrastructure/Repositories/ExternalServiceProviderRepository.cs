@@ -15,14 +15,14 @@ internal class ExternalServiceProviderRepository(ILogger<ExternalServiceProvider
 {
     private readonly IUnitOfWork<NneDbContext> _unitOfWork = unitOfWork;
 
-    public List<ExternalService>? GetByType(ExternalServiceType type)
+    public async Task<List<ExternalService>?> GetByType(ExternalServiceType type)
     {
         try
         {
-            var service = _unitOfWork.Context.ExternalServices
+            var service = await _unitOfWork.Context.ExternalServices
                 .Where(s => s.Type == type)
                 .AsNoTracking()
-                .ToList();
+                .ToListAsync();
 
             return service;
         }

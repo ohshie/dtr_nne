@@ -13,7 +13,7 @@ internal class UpdateExternalService(ILogger<UpdateExternalService> logger,
         logger.LogInformation("Starting Update method for service {Service}", serviceDto.ServiceName);
         var mappedServiceDto = mapper.DtoToService(serviceDto);
         
-        var requiredServiceExist = helper.FindRequiredExistingService(mappedServiceDto);
+        var requiredServiceExist = await helper.FindRequiredExistingService(mappedServiceDto);
         if (requiredServiceExist.IsError)
         {
             return requiredServiceExist.FirstError;

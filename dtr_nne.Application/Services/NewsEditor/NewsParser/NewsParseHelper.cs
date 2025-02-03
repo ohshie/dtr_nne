@@ -15,11 +15,11 @@ internal class NewsParseHelper(ILogger<NewsParseHelper> logger,
     IExternalServiceProvider serviceProvider, 
     IRepository<NewsOutlet> newsOutletRepository) : INewsParseHelper 
 {
-    public IScrapingService? RequestScraper()
+    public async Task<IScrapingService?> RequestScraper()
     {
         try
         {
-            return serviceProvider.Provide(ExternalServiceType.Scraper) as IScrapingService;
+            return await serviceProvider.Provide(ExternalServiceType.Scraper) as IScrapingService;
         }
         catch (Exception e)
         {
@@ -28,11 +28,11 @@ internal class NewsParseHelper(ILogger<NewsParseHelper> logger,
         }
     }
 
-    public ITranslatorService? RequestTranslator()
+    public async Task<ITranslatorService?> RequestTranslator()
     {
         try
         {
-            return serviceProvider.Provide(ExternalServiceType.Translator) as ITranslatorService;
+            return await serviceProvider.Provide(ExternalServiceType.Translator) as ITranslatorService;
             
         }
         catch (Exception e)
@@ -89,7 +89,7 @@ internal class NewsParseHelper(ILogger<NewsParseHelper> logger,
 
 internal interface INewsParseHelper
 {
-    public IScrapingService? RequestScraper();
-    public ITranslatorService? RequestTranslator();
+    public Task<IScrapingService?> RequestScraper();
+    public Task<ITranslatorService?> RequestTranslator();
     public Task<ErrorOr<List<NewsOutlet>>> RequestOutlets(NewsArticle? targetParse = null);
 }
