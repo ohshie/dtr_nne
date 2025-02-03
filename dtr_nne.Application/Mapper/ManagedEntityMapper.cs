@@ -5,8 +5,8 @@ using dtr_nne.Application.DTO.ExternalService.OpenAiAssistantDto;
 using dtr_nne.Application.DTO.NewsOutlet;
 using dtr_nne.Domain.Entities;
 using dtr_nne.Domain.Entities.ManagedEntities;
-using InvalidOperationException = System.InvalidOperationException;
 using dtr_nne.Domain.Entities.ScrapableEntities;
+using InvalidOperationException = System.InvalidOperationException;
 
 namespace dtr_nne.Application.Mapper;
 
@@ -116,8 +116,8 @@ public class ManagedEntityMapper : IManagedEntityMapper
                  Copyright = dto.Copyrights,
                  Headline = new Headline()
                  {
-                     OriginalHeadline = dto.OriginalHeadline,
-                     TranslatedHeadline = dto.TranslatedHeadline
+                     OriginalHeadline = dto.Header,
+                     TranslatedHeadline = dto.TranslatedHeader
                  },
                  Images = dto.Pictures,
                  Source = dto.Source,
@@ -136,8 +136,8 @@ public class ManagedEntityMapper : IManagedEntityMapper
             {
                 Headline = new Headline()
                 {
-                    OriginalHeadline = dto.OriginalHeadline,
-                    TranslatedHeadline = dto.TranslatedHeadline
+                    OriginalHeadline = dto.Header,
+                    TranslatedHeadline = dto.TranslatedHeader
                 },
                 EditedArticle = new(),
             },
@@ -215,8 +215,8 @@ public class ManagedEntityMapper : IManagedEntityMapper
         return new NewsArticleDto
         {
             Id = entity.Id,
-            OriginalHeadline = entity.ArticleContent!.Headline!.OriginalHeadline,
-            TranslatedHeadline = entity.ArticleContent!.Headline.TranslatedHeadline,
+            Header = entity.ArticleContent!.Headline!.OriginalHeadline,
+            TranslatedHeader = entity.ArticleContent!.Headline.TranslatedHeadline,
             Body = entity.ArticleContent.Body,
             Copyrights = entity.ArticleContent.Copyright,
             Pictures = entity.ArticleContent.Images,
