@@ -19,7 +19,7 @@ public class ExternalServiceController(IGetExternalService getExternalService, I
     [ProducesResponseType<Error>(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> GetAll(ExternalServiceType type)
     {
-        var services = getExternalService.GetAllByType(type);
+        var services = await getExternalService.GetAllByType(type);
         
         if (services.IsError)
         {

@@ -17,10 +17,9 @@ public partial class ArticleMapper : IArticleMapper
             Uri = article.Website,
 
             Themes = article.NewsOutlet!.Themes,
-
-            OriginalHeadline = article.ArticleContent!.Headline!.OriginalHeadline,
-            TranslatedHeadline = article.ArticleContent.Headline.TranslatedHeadline,
-
+            
+            Header = article.ArticleContent!.Headline.OriginalHeadline,
+            TranslatedHeader = article.ArticleContent.Headline.TranslatedHeadline,
             Body = article.ArticleContent.Body,
             Copyrights = article.ArticleContent.Copyright,
             Pictures = article.ArticleContent.Images,
@@ -44,8 +43,8 @@ public partial class ArticleMapper : IArticleMapper
             {
                 Headline = new Headline()
                 {
-                    OriginalHeadline = articleDto.OriginalHeadline,
-                    TranslatedHeadline = articleDto.TranslatedHeadline
+                    OriginalHeadline = articleDto.Header,
+                    TranslatedHeadline = articleDto.TranslatedHeader
                 }
             },
             

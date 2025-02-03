@@ -160,7 +160,7 @@ public class TestExternalServiceController
         // Assemble
         _mockGetExternalService
             .Setup(delete => delete.GetAllByType(It.IsAny<ExternalServiceType>()))
-            .Returns(new ErrorOr<List<ExternalServiceDto>>());
+            .ReturnsAsync(new ErrorOr<List<ExternalServiceDto>>());
 
         // Act
         var result = await _sut.GetAll(ExternalServiceType.Llm);
@@ -177,7 +177,7 @@ public class TestExternalServiceController
         // Assemble
         _mockGetExternalService.Setup(
                 service => service.GetAllByType(It.IsAny<ExternalServiceType>()))
-            .Returns(Errors.ExternalServiceProvider.Service.BadApiKey);
+            .ReturnsAsync(Errors.ExternalServiceProvider.Service.BadApiKey);
 
         // Act
         var result = await _sut.GetAll(ExternalServiceType.Llm);

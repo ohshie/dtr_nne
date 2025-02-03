@@ -3,6 +3,7 @@ using dtr_nne.Application.DTO.Article;
 using dtr_nne.Application.Extensions;
 using dtr_nne.Application.Mapper;
 using dtr_nne.Application.Services.NewsEditor.NewsParser;
+using dtr_nne.Domain.Entities.ScrapableEntities;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Tests.Fixtures.NewsArticleFixtures;
@@ -40,7 +41,7 @@ public class TestNewsParseManager
             .ExecuteBatchParse()
             .Returns(NewsArticleFixtureBase.Articles[1]);
 
-        _newsParser.ExecuteParse(NewsArticleFixtureBase.Articles[0][0])
+        _newsParser.ExecuteParse(Arg.Any<NewsArticle>())
             .Returns(NewsArticleFixtureBase.Articles[0][0]);
 
         _articleMapper
@@ -91,7 +92,7 @@ public class TestNewsParseManager
         // Assemble
 
         // Act
-        var result = await _sut.ExecuteParse(_tesArticleDto);
+        var result = await _sut.ExecuteParse(_tesArticleDto.Uri!);
 
         // Assert 
         result.IsError.Should().BeFalse();
@@ -103,11 +104,11 @@ public class TestNewsParseManager
     {
         // Assemble
         _newsParser
-            .ExecuteParse(NewsArticleFixtureBase.Articles[0][0])
+            .ExecuteParse(Arg.Any<NewsArticle>())
             .Returns(Errors.ExternalServiceProvider.Scraper.ScrapingRequestError(""));
 
         // Act
-        var result = await _sut.ExecuteParse(_tesArticleDto);
+        var result = await _sut.ExecuteParse(_tesArticleDto.Uri!);
 
         // Assert 
         result.IsError.Should().BeTrue();

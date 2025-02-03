@@ -110,7 +110,7 @@ public class ScrapingResultProcessor(ILogger<ScrapingResultProcessor> logger) : 
         }
         
         var cleanedUrl = url.TrimStart('/');
-        var baseUri = newsOutlet.Website.AbsoluteUri;
+        var baseUri = newsOutlet.Website!.AbsoluteUri;
         var combinedUrl = new Uri(baseUri+cleanedUrl);
 
         logger.LogInformation("Created combined URL: {CombinedUrl} from base: {BaseUri} and path: {Path}", 

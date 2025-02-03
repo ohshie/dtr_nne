@@ -31,30 +31,30 @@ public class TestExternalServiceProviderRepository : IClassFixture<GenericDataba
     private readonly Mock<ExternalService> _mockExternalService;
 
     [Fact]
-    public void GetByType_WhenInvoked_ShouldReturnIEnumerableExternalService()
+    public async Task GetByType_WhenInvoked_ShouldReturnIEnumerableExternalService()
     {
         // Assemble
         _mockExternalService.Object.Type = ExternalServiceType.Llm;
         _mockExternalService.Object.InUse = true;
 
         _genericDatabaseFixture.Context.ExternalServices.Add(_mockExternalService.Object);
-        _genericDatabaseFixture.Context.SaveChangesAsync();
+        await _genericDatabaseFixture.Context.SaveChangesAsync();
 
         // Act
-        var result = _sut.GetByType(ExternalServiceType.Llm);
+        var result = await _sut.GetByType(ExternalServiceType.Llm);
 
         // Assert 
         result.Should().HaveCount(1);
     }
 
     [Fact]
-    public void GetByType_OnError_ShouldCatchAndReturnNull()
+    public async Task GetByType_OnError_ShouldCatchAndReturnNull()
     {
         // Assemble
-        _genericDatabaseFixture.Context.DisposeAsync();
+        await _genericDatabaseFixture.Context.DisposeAsync();
         
         // Act
-        var result = _sut.GetByType(ExternalServiceType.Llm);
+        var result = await _sut.GetByType(ExternalServiceType.Llm);
 
         // Assert 
         result.Should().BeNull();

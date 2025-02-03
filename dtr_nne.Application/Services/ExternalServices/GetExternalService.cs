@@ -10,11 +10,11 @@ internal class GetExternalService(ILogger<GetExternalService> logger,
     IExternalServiceMapper mapper,
     IExternalServiceProviderRepository repository) : IGetExternalService
 {
-    public ErrorOr<List<ExternalServiceDto>> GetAllByType(ExternalServiceType type)
+    public async Task<ErrorOr<List<ExternalServiceDto>>> GetAllByType(ExternalServiceType type)
     {
         logger.LogInformation("Starting Add method for service: {ServiceType}", type);
 
-        if (repository.GetByType(type) is not { } registeredServices)
+        if (await repository.GetByType(type) is not { } registeredServices)
         {
             logger.LogWarning("No registered services of type: {ServiceType} were found in Db", type);
             return Errors.ExternalServiceProvider.Service.NoSavedServiceFound;
@@ -30,5 +30,5 @@ internal class GetExternalService(ILogger<GetExternalService> logger,
 
 public interface IGetExternalService
 {
-    public ErrorOr<List<ExternalServiceDto>> GetAllByType(ExternalServiceType type);
+    public Task<ErrorOr<List<ExternalServiceDto>>> GetAllByType(ExternalServiceType type);
 }

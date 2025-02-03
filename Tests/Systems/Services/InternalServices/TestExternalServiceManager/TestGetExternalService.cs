@@ -26,7 +26,7 @@ public class TestGetExternalService : TestExternalServiceManagerBase
     private readonly GetExternalService _sut;
 
     [Fact]
-    public void Get_WhenServicesRegistered_ReturnsListOfServices()
+    public async Task Get_WhenServicesRegistered_ReturnsListOfServices()
     {
         // Assemble
         MockRepository
@@ -39,7 +39,7 @@ public class TestGetExternalService : TestExternalServiceManagerBase
         _testExternalServicesDtos[0].Id = _testExternalServicesList[0].Id;
 
         // Act
-        var result = _sut.GetAllByType(ExternalServiceType.Llm);
+        var result = await _sut.GetAllByType(ExternalServiceType.Llm);
 
         // Assert 
         result.IsError.Should().BeFalse();
@@ -47,13 +47,13 @@ public class TestGetExternalService : TestExternalServiceManagerBase
     }
 
     [Fact]
-    public void Get_WhenNoServicesRegistered_ReturnsError()
+    public async Task Get_WhenNoServicesRegistered_ReturnsError()
     {
         // Assemble
         MockRepository.ClearSubstitute();
 
         // Act
-        var result = _sut.GetAllByType(ExternalServiceType.Llm);
+        var result = await _sut.GetAllByType(ExternalServiceType.Llm);
 
         // Assert
         result.IsError.Should().BeTrue();

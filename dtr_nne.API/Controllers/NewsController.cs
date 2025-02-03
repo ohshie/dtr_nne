@@ -52,9 +52,9 @@ public class NewsController(INewsParseManager newsParseManager, INewsRewriter re
     [HttpPost("ParseArticle", Name = "ParseArticle")]
     [ProducesResponseType<List<NewsArticleDto>>(StatusCodes.Status200OK)]
     [ProducesResponseType<Error>(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> ParseArticle(BaseNewsArticleDto articleDto)
+    public async Task<ActionResult> ParseArticle(Uri articleUri)
     {
-        var newsArticles = await newsParseManager.ExecuteParse(articleDto);
+        var newsArticles = await newsParseManager.ExecuteParse(articleUri);
         if (newsArticles.IsError)
         {
             return BadRequest(newsArticles.FirstError);

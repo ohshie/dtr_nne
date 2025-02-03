@@ -1,13 +1,16 @@
+using System.Diagnostics.CodeAnalysis;
 using dtr_nne.Application.DTO;
 using dtr_nne.Application.DTO.Article;
 using dtr_nne.Application.DTO.ExternalService.OpenAiAssistantDto;
 using dtr_nne.Application.DTO.NewsOutlet;
 using dtr_nne.Domain.Entities;
 using dtr_nne.Domain.Entities.ManagedEntities;
+using InvalidOperationException = System.InvalidOperationException;
 using dtr_nne.Domain.Entities.ScrapableEntities;
 
 namespace dtr_nne.Application.Mapper;
 
+[SuppressMessage("Minor Code Smell", "S1075:URIs should not be hardcoded")]
 public class ManagedEntityMapper : IManagedEntityMapper
 {
     public TDto EntityToDto<T, TDto>(T entity) 
@@ -20,7 +23,7 @@ public class ManagedEntityMapper : IManagedEntityMapper
             NewsArticle newsArticle => MapEntityToDto(newsArticle) as TDto,
             OpenAiAssistant openAiAssistant => MapEntityToDto(openAiAssistant) as TDto,
             _ => null
-        };
+        } ?? throw new InvalidOperationException();
     }
     
     public List<TDto> EntityToDto<T, TDto>(List<T> entities) 
@@ -33,7 +36,7 @@ public class ManagedEntityMapper : IManagedEntityMapper
             List<NewsArticle> newsArticle => MapEntityToDto(newsArticle) as List<TDto>,
             List<OpenAiAssistant> openAiAssistant => MapEntityToDto(openAiAssistant) as List<TDto>,
             _ => null
-        };
+        } ?? throw new InvalidOperationException();
     }
 
     public T DtoToEntity<T, TDto>(TDto entityDto) 
@@ -46,7 +49,7 @@ public class ManagedEntityMapper : IManagedEntityMapper
             NewsArticleDto newsArticleDto => MapDtoToEntitty(newsArticleDto) as T,
             OpenAiAssistantDto openAiAssistant => MapDtoToEntitty(openAiAssistant) as T,
             _ => null
-        };
+        } ?? throw new InvalidOperationException();
     }
 
     public List<T> DtoToEntity<T, TDto>(List<TDto> entityDtos) 
@@ -61,7 +64,7 @@ public class ManagedEntityMapper : IManagedEntityMapper
             List<BaseNewsArticleDto> newsArticleDtos => MapDtoToEntity(newsArticleDtos) as List<T>,
             List<OpenAiAssistantDto> openAiAssistant => MapDtoToEntity(openAiAssistant) as List<T>,
             _ => null
-        };
+        } ?? throw new InvalidOperationException();
     }
 
     internal NewsOutlet MapDtoToEntitty(NewsOutletDto dto)
@@ -88,7 +91,7 @@ public class ManagedEntityMapper : IManagedEntityMapper
         {
             Id = dto.Id,
             Name = dto.Name,
-            Website = new Uri("http://empty.com"),
+            Website = new Uri("https://empty.com"),
             Themes = [],
 
             MainPagePassword = string.Empty,
@@ -198,7 +201,7 @@ public class ManagedEntityMapper : IManagedEntityMapper
             Id = entity.Id,
             InUse = entity.InUse,
             AlwaysJs = entity.AlwaysJs,
-            Website = entity.Website,
+            Website = entity.Website!,
             NewsPassword = entity.NewsPassword,
             Themes = entity.Themes,
             Name = entity.Name,

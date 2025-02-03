@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using dtr_nne.Application.Extensions;
 using dtr_nne.Domain.Entities;
@@ -12,6 +13,7 @@ using dtr_nne.Domain.UnitOfWork;
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 namespace dtr_nne.Application.Services.ExternalServices;
 
+[SuppressMessage("Minor Code Smell", "S1075:URIs should not be hardcoded")]
 internal class ExternalServiceManagerHelper(ILogger<ExternalServiceManagerHelper> logger, 
     IExternalServiceProvider serviceProvider, 
     IExternalServiceProviderRepository repository,
@@ -19,7 +21,7 @@ internal class ExternalServiceManagerHelper(ILogger<ExternalServiceManagerHelper
 {
     public async Task<ErrorOr<bool>> CheckKeyValidity(ExternalService incomingService)
     {
-        if (serviceProvider.Provide(incomingService.Type, incomingService.ApiKey) is not { } externalService)
+        if (await serviceProvider.Provide(incomingService.Type, incomingService.ApiKey) is not { } externalService)
         {
             return Errors.ExternalServiceProvider.Service.NoSavedServiceFound;
         }
@@ -55,9 +57,9 @@ internal class ExternalServiceManagerHelper(ILogger<ExternalServiceManagerHelper
         return success.Value;
     }
     
-    public ErrorOr<ExternalService> FindRequiredExistingService(ExternalService serviceDto)
+    public async Task<ErrorOr<ExternalService>> FindRequiredExistingService(ExternalService serviceDto)
     {
-        if (repository.GetByType(serviceDto.Type) is not { } currentServices)
+        if (await repository.GetByType(serviceDto.Type) is not { } currentServices)
         {
             return Errors.ExternalServiceProvider.Service.NoSavedServiceFound;
         }
@@ -164,6 +166,6 @@ internal class ExternalServiceManagerHelper(ILogger<ExternalServiceManagerHelper
 internal interface IExternalServiceManagerHelper
 {
     public Task<ErrorOr<bool>> CheckKeyValidity(ExternalService incomingService);
-    public ErrorOr<ExternalService> FindRequiredExistingService(ExternalService serviceDto);
+    public Task<ErrorOr<ExternalService>> FindRequiredExistingService(ExternalService serviceDto);
     public Task<ErrorOr<bool>> PerformDataOperation(ExternalService service, string action);
 }

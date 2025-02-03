@@ -71,7 +71,7 @@ public class ScrapingProcessor(ILogger<ScrapingProcessor> logger) : IScrapingPro
     private async Task<(T, ErrorOr<string>)> ScrapePage<T>(T entity, IScrapingService service) 
     where T : IScrapableEntity
     {
-        logger.LogInformation("Starting to scrape webpage: {PageUrl}", entity.Website.AbsoluteUri);
+        logger.LogInformation("Starting to scrape webpage: {PageUrl}", entity.Website!.AbsoluteUri);
         
         var scrapeResult = await service.ScrapeWebsiteWithRetry(entity);
         logger.LogInformation("{PageUrl} processed, success: {ResultIsError}", entity.Website.AbsoluteUri, !scrapeResult.IsError);
