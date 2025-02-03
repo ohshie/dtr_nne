@@ -10,7 +10,7 @@ public class NewsOutlet : IManagedEntity, IScrapableEntity
     public bool AlwaysJs { get; set; }
     [StringLength(50, MinimumLength = 0)] public required string Name { get; set; } = string.Empty;
 
-    public required Uri Website { get; set; }
+    public required Uri? Website { get; set; }
     
     [StringLength(300, MinimumLength = 0)]
     public required string MainPagePassword { get; set; } = string.Empty;

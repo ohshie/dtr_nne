@@ -120,6 +120,10 @@ public static class Errors
             public static Error NoHeadlineProvided => Error.NotFound(
                 code: "Translator.Service.NoHeadlineProvided",
                 description: "No headlines were provided for translation");
+
+            public static Error UnexpectedErrorFromService(string error = "") => Error.Unexpected(
+                code: "Translator.Service.UnexpectedErrorFromService",
+                description: $"While translating service produced: {error}");
         }
         public static class Api
         {

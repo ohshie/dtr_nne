@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Web;
 using dtr_nne.Application.Extensions;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.Logging;
 
 namespace dtr_nne.Infrastructure.ExternalServices.ScrapingServices;
 
+[SuppressMessage("Minor Code Smell", "S1075:URIs should not be hardcoded")]
 public class ZenrowsService(ILogger<ZenrowsService> logger, ExternalService service, IHttpClientFactory clientFactory) 
     : IZenrowsService 
 {
@@ -25,7 +27,7 @@ public class ZenrowsService(ILogger<ZenrowsService> logger, ExternalService serv
             var result = await ScrapeWebsite(requestUrl);
             if (!result.IsError)
             {   
-                logger.LogInformation("Successfully processed URL: {Url}", entity.Website.AbsoluteUri);
+                logger.LogInformation("Successfully processed URL: {Url}", entity.Website!.AbsoluteUri);
                 content = result.Value;
                 break;
             }
@@ -39,7 +41,7 @@ public class ZenrowsService(ILogger<ZenrowsService> logger, ExternalService serv
             
             logger.LogWarning(
                 "Failed to process URL: {Url} without JS Rendering, attempting to scrape it again with JS rendering",
-                entity.Website.AbsoluteUri);
+                entity.Website!.AbsoluteUri);
             requestUrl = new StringBuilder(requestUrl).Append("?js_render=true").ToString();
         }
 
@@ -82,7 +84,7 @@ public class ZenrowsService(ILogger<ZenrowsService> logger, ExternalService serv
         var query = HttpUtility.ParseQueryString(string.Empty);
         query.Add("apikey", apiKey);
 
-        query.Add("url", newsOutlet.Website.AbsoluteUri);
+        query.Add("url", newsOutlet.Website!.AbsoluteUri);
         
         if (!string.IsNullOrEmpty(newsOutlet.WaitTimer))
         {

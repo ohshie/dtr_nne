@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace dtr_nne.Application.DTO.Article;
 
+[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
 public class NewsArticleDto : BaseNewsArticleDto
 {
     public string Body { get; set; } = string.Empty;

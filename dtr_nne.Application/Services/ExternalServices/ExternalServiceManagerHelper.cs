@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using dtr_nne.Application.Extensions;
 using dtr_nne.Domain.Entities;
@@ -12,6 +13,7 @@ using dtr_nne.Domain.UnitOfWork;
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 namespace dtr_nne.Application.Services.ExternalServices;
 
+[SuppressMessage("Minor Code Smell", "S1075:URIs should not be hardcoded")]
 internal class ExternalServiceManagerHelper(ILogger<ExternalServiceManagerHelper> logger, 
     IExternalServiceProvider serviceProvider, 
     IExternalServiceProviderRepository repository,

@@ -95,8 +95,8 @@ public class TestDeeplTranslator
         var result = await _sut.Object.TranslateHeadlines(_testHeadlines, _testExternalService.ApiKey);
 
         // Assert
-        result.IsError.Should().BeTrue();
-        result.FirstError.Should().Be(Errors.Translator.Api.BadApiKey);
+        result.IsError.Should().BeFalse();
+        result.Value[0].TranslatedHeadline.Should().Be("While translating service produced: Authorization failure, check AuthKey");
     }
     
     [Fact]

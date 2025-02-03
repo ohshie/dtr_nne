@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace dtr_nne.Application.DTO.Article;
 
+[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
 public class BaseNewsArticleDto
 {
     public int Id { get; set; }
@@ -9,5 +11,6 @@ public class BaseNewsArticleDto
     public string TranslatedHeader { get; set; } = string.Empty;
     [Required]
     public Uri? Uri { get; set; }
+    
     public string Error { get; set; } = string.Empty;
 }

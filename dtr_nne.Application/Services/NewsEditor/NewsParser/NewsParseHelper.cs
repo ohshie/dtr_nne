@@ -73,7 +73,7 @@ internal class NewsParseHelper(ILogger<NewsParseHelper> logger,
 
     internal List<NewsOutlet> FilterNewsOutlets(List<NewsOutlet> outlets, NewsArticle filter)
     {
-        var filteredOutlets = outlets.Where(no => no.Website.Host == filter.Website?.Host).ToList();
+        var filteredOutlets = outlets.Where(no => no.Website!.Host == filter.Website?.Host).ToList();
         if (filteredOutlets.Count == 0)
         {
             logger.LogWarning("No matching outlet found for provided article host: {ArticleHost}", filter.Website!.Host);
