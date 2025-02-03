@@ -2,15 +2,17 @@ using dtr_nne.Application.DTO.Article;
 using dtr_nne.Application.Services.NewsEditor.NewsParser;
 using dtr_nne.Application.Services.NewsEditor.NewsRewriter;
 using ErrorOr;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace dtr_nne.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-public class NewsController(INewsParser newsParser, INewsRewriter rewriter) : ControllerBase
+public class NewsController(INewsParseManager newsParseManager, INewsRewriter rewriter) : ControllerBase
 {
     [HttpPost("RewriteNews", Name = "RewriteNews")]
     [ProducesResponseType<ArticleContentDto>(StatusCodes.Status200OK)]
@@ -21,10 +23,10 @@ public class NewsController(INewsParser newsParser, INewsRewriter rewriter) : Co
         
         if (editedArticle.IsError)
         {
-            return BadRequest(editedArticle.FirstError);
+            return BadRequest(editedArticle.Errors);
         }
 
-        return Ok(editedArticle);
+        return Ok(editedArticle.Value);
     }
     
     [HttpPost("ParseNews", Name = "ParseNews")]
@@ -33,7 +35,7 @@ public class NewsController(INewsParser newsParser, INewsRewriter rewriter) : Co
     [ProducesResponseType<Error>(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> ParseNews(bool fullProcess = true)
     {
-        var newsArticles = await newsParser.ExecuteBatchParse(true);
+        var newsArticles = await newsParseManager.ExecuteBatchParse(fullProcess);
         if (newsArticles.IsError)
         {
             return BadRequest(newsArticles.FirstError);
@@ -50,9 +52,9 @@ public class NewsController(INewsParser newsParser, INewsRewriter rewriter) : Co
     [HttpPost("ParseArticle", Name = "ParseArticle")]
     [ProducesResponseType<List<NewsArticleDto>>(StatusCodes.Status200OK)]
     [ProducesResponseType<Error>(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> ParseArticle(BaseNewsArticleDto articleDto)
+    public async Task<ActionResult> ParseArticle(Uri articleUri)
     {
-        var newsArticles = await newsParser.Execute(articleDto);
+        var newsArticles = await newsParseManager.ExecuteParse(articleUri);
         if (newsArticles.IsError)
         {
             return BadRequest(newsArticles.FirstError);

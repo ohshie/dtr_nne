@@ -2,6 +2,7 @@ using System.ClientModel;
 using System.Diagnostics.CodeAnalysis;
 using dtr_nne.Application.Extensions;
 using dtr_nne.Domain.Entities;
+using dtr_nne.Domain.Entities.ManagedEntities;
 using dtr_nne.Domain.ExternalServices;
 using dtr_nne.Domain.Repositories;
 using ErrorOr;
@@ -145,7 +146,7 @@ internal class OpenAiService(ILogger<OpenAiService> logger,
         for (var attempt = 0; attempt < maxAttempts; attempt++)
         {
             await Task.Delay(delayMilliSeconds);
-            var threadRun = assistantClient.GetRun(threadId, runId);
+            var threadRun = await assistantClient.GetRunAsync(threadId, runId);
 
             if (threadRun.Value.Status.IsTerminal)
             {
@@ -187,25 +188,25 @@ internal class OpenAiService(ILogger<OpenAiService> logger,
         {
             if (message.RunId == editedArticle.EditedBodyRunId)
             {
-                editedArticle.EditedBody = message.Content.Last().Text;
+                editedArticle.EditedBody = message.Content[^1].Text;
                 logger.LogDebug("Updated edited body from run {RunId}", message.RunId);
                 continue;
             }
             if (message.RunId == editedArticle.TranslatedBodyRunId)
             {
-                editedArticle.TranslatedBody = message.Content.Last().Text;
+                editedArticle.TranslatedBody = message.Content[^1].Text;
                 logger.LogDebug("Updated translated body from run {RunId}", message.RunId);
                 continue;
             }
             if (message.RunId == editedArticle.HeaderRunId)
             {
-                editedArticle.Header = message.Content.Last().Text;
+                editedArticle.Header = message.Content[^1].Text;
                 logger.LogDebug("Updated header from run {RunId}", message.RunId);
                 continue;
             }
             if (message.RunId == editedArticle.SubheaderRunId)
             {
-                editedArticle.Subheader = message.Content.Last().Text;
+                editedArticle.Subheader = message.Content[^1].Text;
                 logger.LogDebug("Updated subheader from run {RunId}", message.RunId);
             }
         }

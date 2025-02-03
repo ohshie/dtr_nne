@@ -1,5 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
-using dtr_nne.Application.ExternalServices;
+using dtr_nne.Application.Services.ExternalServices;
 using dtr_nne.Domain.Entities;
 using dtr_nne.Domain.Enums;
 using dtr_nne.Domain.ExternalServices;
@@ -61,44 +61,44 @@ public class TestExternalServiceProvider
 
         _mockRepository
             .Setup(repository => repository.GetByType(ExternalServiceType.Llm))
-            .Returns(_mockExternalServiceLlmList.Object);
+            .ReturnsAsync(_mockExternalServiceLlmList.Object);
         
         _mockRepository
             .Setup(repository => repository.GetByType(ExternalServiceType.Translator))
-            .Returns(_mockExternalServiceTranslatorList.Object);
+            .ReturnsAsync(_mockExternalServiceTranslatorList.Object);
     }
     
     [Fact]
-    public void GetService_Llm_WhenSuccess_ShouldReturnRequestedService()
+    public async Task GetService_Llm_WhenSuccess_ShouldReturnRequestedService()
     {
         // Assemble
         
         // Act
-        var result = _sut.Provide(ExternalServiceType.Llm, "test");
+        var result = await _sut.Provide(ExternalServiceType.Llm, "test");
 
         // Assert
         result.Should().BeAssignableTo<ILlmService>();
     }
     
     [Fact]
-    public void GetService_Translator_WhenSuccess_ShouldReturnRequestedService()
+    public async Task GetService_Translator_WhenSuccess_ShouldReturnRequestedService()
     {
         // Assemble
         
         // Act
-        var result = _sut.Provide(ExternalServiceType.Translator, "test");
+        var result = await _sut.Provide(ExternalServiceType.Translator, "test");
 
         // Assert
         result.Should().BeAssignableTo<ITranslatorService>();
     }
 
     [Fact]
-    public void GetService_OnInvoke_ShouldCallRepositoryForCurrenActiveService()
+    public async Task GetService_OnInvoke_ShouldCallRepositoryForCurrenActiveService()
     {
         // Assemble
 
         // Act
-        _sut.Provide(ExternalServiceType.Llm);
+        await _sut.Provide(ExternalServiceType.Llm);
 
         // Assert 
         _mockRepository.Verify(repository => repository.GetByType(ExternalServiceType.Llm), Times.Once);
@@ -114,7 +114,7 @@ public class TestExternalServiceProvider
         var act = () => _sut.Provide(ExternalServiceType.Llm);
 
         // Assert 
-        act.Should().Throw<InvalidOperationException>();
+        act.Should().ThrowAsync<InvalidOperationException>();
     }
 
     [Fact]
@@ -133,6 +133,6 @@ public class TestExternalServiceProvider
         var act = () => _sut.Provide(ExternalServiceType.Llm);
 
         // Assert 
-        act.Should().Throw<InvalidOperationException>();
+        act.Should().ThrowAsync<InvalidOperationException>();
     }
 }

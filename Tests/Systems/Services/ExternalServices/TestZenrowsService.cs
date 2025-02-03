@@ -1,11 +1,14 @@
 using System.Net;
 using dtr_nne.Application.Extensions;
 using dtr_nne.Domain.Entities;
+using dtr_nne.Domain.Entities.ManagedEntities;
+using dtr_nne.Domain.Entities.ScrapableEntities;
 using dtr_nne.Domain.Enums;
 using dtr_nne.Infrastructure.ExternalServices.ScrapingServices;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
+using Tests.Fixtures.NewsOutletFixtures;
 
 namespace Tests.Systems.Services.ExternalServices;
 
@@ -24,9 +27,6 @@ public class ZenrowsServiceTests
             InUse = true
         };
 
-        _testUri = new Uri("https://test.com");
-        _testCssSelector = ".test-selector";
-
         DefaultSetup();
 
         _sut = new ZenrowsService(
@@ -39,10 +39,9 @@ public class ZenrowsServiceTests
     private readonly Mock<IHttpClientFactory> _mockHttpClientFactory;
     private HttpClient? _httpClient;
     private readonly Mock<HttpMessageHandler> _mockHttpMessageHandler;
-    private readonly Uri _testUri;
-    private readonly string _testCssSelector;
+    private readonly string _baseUri = "https://api.zenrows.com/v1/";
 
-    internal void DefaultSetup()
+    private void DefaultSetup()
     {
         _mockHttpMessageHandler
             .Protected()
@@ -70,7 +69,7 @@ public class ZenrowsServiceTests
         var expectedContent = "<html><body>Test content</body></html>";
 
         // Act
-        var result = await _sut.ScrapeWebsiteWithRetry(_testUri, _testCssSelector);
+        var result = await _sut.ScrapeWebsiteWithRetry(NewsOutletFixtureBase.Outlets[0][0]);
 
         // Assert
         result.IsError.Should().BeFalse();
@@ -93,10 +92,36 @@ public class ZenrowsServiceTests
             });
 
         // Act
-        var result = await _sut.ScrapeWebsiteWithRetry(_testUri, _testCssSelector);
+        var result = await _sut.ScrapeWebsiteWithRetry(NewsOutletFixtureBase.Outlets[0][0]);
 
         // Assert
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(Errors.ExternalServiceProvider.Scraper.ScrapingRequestError("Cannot access a disposed object.\nObject name: 'System.Net.Http.HttpClient'."));
     }
+    
+    [Fact]
+    public void BuildRequestString_WithBasicParameters_ReturnsCorrectQueryString()
+    {
+        // Arrange
+        var apiKey = "test-api-key";
+        var newsArticle = new NewsArticle
+        {
+            Website = new Uri("https://example.com/article"),
+            NewsOutlet = new NewsOutlet
+            {
+                Name = null!,
+                Website = null!,
+                MainPagePassword = null!,
+                NewsPassword = null!,
+                Themes = null!
+            }
+        };
+
+        // Act
+        var result = _sut.BuildRequestString(newsArticle, apiKey);
+
+        // Assert
+        result.Should().Be($"{_baseUri}?apikey=test-api-key&premium_proxy=true&url=https%3a%2f%2fexample.com%2farticle");
+    }
+
 }

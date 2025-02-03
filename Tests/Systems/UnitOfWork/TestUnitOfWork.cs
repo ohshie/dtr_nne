@@ -1,4 +1,4 @@
-using dtr_nne.Domain.Entities;
+using dtr_nne.Domain.Entities.ManagedEntities;
 using dtr_nne.Infrastructure.Context;
 using dtr_nne.Infrastructure.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
@@ -33,10 +33,10 @@ public class TestUnitOfWork(GenericDatabaseFixture<NewsOutlet> genericDatabaseFi
         var sut = new UnitOfWork<NneDbContext>(genericDatabaseFixture.Context, _logger.Object);
         
         // Act
-        Func<Task> act = async () => await sut.Save();
+        var result = await sut.Save();
         
         // Assert
-        await act.Should().ThrowAsync<Exception>();
+        result.Should().BeFalse();
     }
     
     [Fact]

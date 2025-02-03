@@ -52,11 +52,11 @@ internal class GenericRepository<TEntity, TContext>(
         }
         catch (Exception e)
         {
-            logger.LogError("Something went really wrong when trying to AddRange to Db {Exception}, \n {ExceptionTrace} \n {ExceptionInnerException}", 
+            logger.LogError(e, "Something went really wrong when trying to AddRange to Db {Exception}, \n {ExceptionTrace} \n {ExceptionInnerException}", 
                 e.Message, 
                 e.StackTrace, 
                 e.InnerException?.Message ?? "No Inner Exception");
-            throw;
+            return false;
         }
     }
 
@@ -69,16 +69,80 @@ internal class GenericRepository<TEntity, TContext>(
         }
         catch (Exception e)
         {
-            logger.LogError("Something went really wrong when trying to Perform Update in Db {Exception}, \n {ExceptionTrace} \n {ExceptionInnerException}", 
+            logger.LogError(e, "Something went really wrong when trying to Perform Update in Db {Exception}, \n {ExceptionTrace} \n {ExceptionInnerException}", 
                 e.Message, 
                 e.StackTrace, 
                 e.InnerException?.Message ?? "No Inner Exception");
-            throw;
+            return false;
+        }
+    }
+    
+    public bool UpdateRange(IEnumerable<TEntity> entities)
+    {
+        try
+        {
+            unitOfWork.Context.UpdateRange(entities);
+            return true;
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Failed to pass Update Range on {TypeOfEntity}, Exception: {Exception}, \n" +
+                             "{Message}\n" +
+                             "{StackTrace}", 
+                entities.GetType(),
+                e.InnerException?.Message ?? "No Inner Exception",
+                e.Message,
+                e.StackTrace);
+            return false;
         }
     }
 
-    public Task<bool> Remove(TEntity? entity)
+    public bool Remove(TEntity entity)
     {
-        throw new NotImplementedException();
+        try
+        {
+            unitOfWork.Context.Remove(entity);
+            return true;
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Failed to remove provided entity of type {TypeOfEntity}", entity.GetType());
+            return false;
+        }
+    }
+
+    public bool RemoveRange(IEnumerable<TEntity> entities)
+    {
+        try
+        {
+            unitOfWork.Context.RemoveRange(entities);
+            return true;
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Failed to pass Remove Range on {TypeOfEntity}, " +
+                             "Exception: {Exception}, \n" +
+                             "{Message}\n" +
+                             "{StackTrace}", 
+                entities.GetType(),
+                e.InnerException?.Message ?? "No Inner Exception",
+                e.Message,
+                e.StackTrace);
+            return false;
+        }
+    }
+
+    public bool AttachRange(IEnumerable<TEntity> entities)
+    {
+        try
+        {
+            unitOfWork.Context.AttachRange(entities);
+            return true;
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Failed to attach provided entities {TypeOfEntity}", entities.GetType());
+            return false;
+        }
     }
 }

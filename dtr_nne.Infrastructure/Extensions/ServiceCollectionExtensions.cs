@@ -1,4 +1,6 @@
-using dtr_nne.Application.ExternalServices;
+using dtr_nne.Application.Services.ExternalServices;
+using dtr_nne.Domain.Entities.ManagedEntities;
+using dtr_nne.Domain.Entities.ScrapableEntities;
 using dtr_nne.Domain.IContext;
 using dtr_nne.Domain.Repositories;
 using dtr_nne.Domain.UnitOfWork;
@@ -21,7 +23,7 @@ public static class ServiceCollectionExtensions
         var connectionString = configuration.GetConnectionString("DefaultConnection");
         serviceCollection.AddDbContext<INneDbContext, NneDbContext>(s =>
         {
-            s.UseSqlite(connectionString, builder => builder.MigrationsAssembly("dtr_nne.Infrastructure"))
+            s.UseSqlite(connectionString, builder => builder.MigrationsAssembly("dtr_nne.API"))
                 .ConfigureWarnings(builder => builder.Log(RelationalEventId.PendingModelChangesWarning));
         });
 
@@ -30,10 +32,12 @@ public static class ServiceCollectionExtensions
         serviceCollection.AddScoped<IUnitOfWork<NneDbContext>, UnitOfWork<NneDbContext>>();
         
         // Repositories
-        serviceCollection.AddScoped<INewsOutletRepository, NewsOutletRepository>();
         serviceCollection.AddScoped<IExternalServiceProviderRepository, ExternalServiceProviderRepository>();
         serviceCollection.AddScoped<IOpenAiAssistantRepository, OpenAiAssistantRepository>();
         serviceCollection.AddScoped<INewsArticleRepository, NewsArticleRepository>();
+        serviceCollection.AddScoped<IRepository<OpenAiAssistant>, GenericRepository<OpenAiAssistant, NneDbContext>>();
+        serviceCollection.AddScoped<IRepository<NewsArticle>, GenericRepository<NewsArticle, NneDbContext>>();
+        serviceCollection.AddScoped<IRepository<NewsOutlet>, GenericRepository<NewsOutlet, NneDbContext>>();
         
         // Providers
         serviceCollection.AddTransient<IExternalServiceProvider, ExternalServiceProvider>();

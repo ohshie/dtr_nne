@@ -15,20 +15,20 @@ internal class ExternalServiceProviderRepository(ILogger<ExternalServiceProvider
 {
     private readonly IUnitOfWork<NneDbContext> _unitOfWork = unitOfWork;
 
-    public List<ExternalService>? GetByType(ExternalServiceType type)
+    public async Task<List<ExternalService>?> GetByType(ExternalServiceType type)
     {
         try
         {
-            var service = _unitOfWork.Context.ExternalServices
+            var service = await _unitOfWork.Context.ExternalServices
                 .Where(s => s.Type == type)
                 .AsNoTracking()
-                .ToList();
+                .ToListAsync();
 
             return service;
         }
         catch (Exception e)
         {
-            logger.LogError("Something went wrong when trying to fetch external services by type {Type}, " +
+            logger.LogError(e, "Something went wrong when trying to fetch external services by type {Type}, " +
                             "{Exception}, \n {ExceptionTrace} \n {ExceptionInnerException}", 
                 type.GetType(),
                 e.Message, 

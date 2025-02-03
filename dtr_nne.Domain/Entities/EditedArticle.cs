@@ -4,6 +4,7 @@ namespace dtr_nne.Domain.Entities;
 
 public class EditedArticle
 {
+    [Key]
     public int Id { get; set; }
     
     [MaxLength(1000)]
@@ -22,4 +23,7 @@ public class EditedArticle
     public string TranslatedBody { get; set; } = string.Empty;
     [MaxLength(1000)]
     public string TranslatedBodyRunId { get; set; } = string.Empty;
+    
+    public int ArticleContentId { get; set; }
+    public ArticleContent? ArticleContent { get; set; }
 }

@@ -1,30 +1,26 @@
 using dtr_nne.Application.DTO.NewsOutlet;
-using dtr_nne.Application.Services.NewsOutletServices;
+using dtr_nne.Application.Services.EntityManager;
 using ErrorOr;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace dtr_nne.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
-public class NewsOutletController(IGetNewsOutletService getNewsOutletService, 
-    IAddNewsOutletService addNewsOutletService, 
-    IUpdateNewsOutletService updateNewsOutletService, 
-    IDeleteNewsOutletService deleteNewsOutletService) : ControllerBase
+public class NewsOutletController(IGetManagedEntity<NewsOutletDto> getNewsOutletService, 
+    IAddManagedEntity<NewsOutletDto> addNewsOutletService, 
+    IUpdateManagedEntity<NewsOutletDto> updateNewsOutletService, 
+    IDeleteManagedEntity<BaseNewsOutletsDto> deleteNewsOutletService) : ControllerBase
 {
     [HttpGet("Get", Name = "Get")]
     [ProducesResponseType<NewsOutletDto>(StatusCodes.Status200OK)]
-    [ProducesResponseType<Error>(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> Get()
     {
-        var newsOutlets = await getNewsOutletService.GetAllNewsOutlets();
+        var newsOutlets = await getNewsOutletService.GetAll();
 
-        if (newsOutlets.Count != 0)
-        {
-            return Ok(newsOutlets);
-        }
-        
-        return NotFound(newsOutlets);
+        return newsOutlets.IsError ? Ok(newsOutlets.Errors) : Ok(newsOutlets.Value);
     }
 
     [HttpPost("Add", Name = "Add Outlet")]
@@ -32,14 +28,14 @@ public class NewsOutletController(IGetNewsOutletService getNewsOutletService,
     [ProducesResponseType<Error>(StatusCodes.Status422UnprocessableEntity)]
     public async Task<ActionResult> Add(List<NewsOutletDto> newsOutletDtos)
     {
-        var addedNewsOutletDtos = await addNewsOutletService.AddNewsOutlets(newsOutletDtos);
+        var addedNewsOutletDtos = await addNewsOutletService.Add(newsOutletDtos);
 
-        if (addedNewsOutletDtos.Count == 0)
+        if (addedNewsOutletDtos.IsError)
         {
-            return UnprocessableEntity();
+            return UnprocessableEntity(addedNewsOutletDtos.FirstError);
         }
         
-        return CreatedAtAction(nameof(Add), addedNewsOutletDtos);
+        return CreatedAtAction(nameof(Add), addedNewsOutletDtos.Value);
     }
 
     [HttpPut("Update", Name = "Update")]
@@ -49,7 +45,7 @@ public class NewsOutletController(IGetNewsOutletService getNewsOutletService,
     [ProducesResponseType<Error>(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> Update(List<NewsOutletDto> newsOutletDtos)
     {
-        var resultOfUpdate = await updateNewsOutletService.UpdateNewsOutlets(newsOutletDtos);
+        var resultOfUpdate = await updateNewsOutletService.Update(newsOutletDtos);
 
         if (resultOfUpdate.IsError)
         {
@@ -73,9 +69,9 @@ public class NewsOutletController(IGetNewsOutletService getNewsOutletService,
     [ProducesResponseType<NewsOutletDto>(StatusCodes.Status206PartialContent)]
     [ProducesResponseType<Error>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<Error>(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> Delete(List<NewsOutletDto> newsOutletDtos)
+    public async Task<ActionResult> Delete(List<BaseNewsOutletsDto> newsOutletDtos)
     {
-        var resultOfDeletion = await deleteNewsOutletService.DeleteNewsOutlets(newsOutletDtos);
+        var resultOfDeletion = await deleteNewsOutletService.Delete(newsOutletDtos);
 
         if (resultOfDeletion.IsError)
         {

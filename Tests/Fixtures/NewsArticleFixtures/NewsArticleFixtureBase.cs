@@ -1,5 +1,6 @@
 using Bogus;
 using dtr_nne.Domain.Entities;
+using dtr_nne.Domain.Entities.ScrapableEntities;
 using Tests.Fixtures.NewsOutletFixtures;
 
 namespace Tests.Fixtures.NewsArticleFixtures;
@@ -30,7 +31,7 @@ public class NewsArticleFixtureBase
                 Error = "",
                 NewsOutlet = NewsOutletFixtureBase.Outlets[0][0],
                 Themes = NewsOutletFixtureBase.Outlets[0][0].Themes,
-                Uri = new Uri(Faker.Internet.UrlWithPath())
+                Website = new Uri(Faker.Internet.UrlWithPath())
             }
         ],
         [
@@ -53,7 +54,7 @@ public class NewsArticleFixtureBase
                 Error = "",
                 NewsOutlet = NewsOutletFixtureBase.Outlets[0][0],
                 Themes = NewsOutletFixtureBase.Outlets[0][0].Themes,
-                Uri = new Uri(Faker.Internet.UrlWithPath())
+                Website = new Uri(Faker.Internet.UrlWithPath())
             },
             new NewsArticle()
             {
@@ -74,7 +75,7 @@ public class NewsArticleFixtureBase
                 Error = "",
                 NewsOutlet = NewsOutletFixtureBase.Outlets[0][0],
                 Themes = NewsOutletFixtureBase.Outlets[0][0].Themes,
-                Uri = new Uri(Faker.Internet.UrlWithPath())
+                Website = new Uri(Faker.Internet.UrlWithPath())
             },
             new NewsArticle()
             {
@@ -95,7 +96,7 @@ public class NewsArticleFixtureBase
                 Error = "",
                 NewsOutlet = NewsOutletFixtureBase.Outlets[0][0],
                 Themes = NewsOutletFixtureBase.Outlets[0][0].Themes,
-                Uri = new Uri(Faker.Internet.UrlWithPath())
+                Website = new Uri(Faker.Internet.UrlWithPath())
             },
         ]
     ];

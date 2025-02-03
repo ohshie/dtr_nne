@@ -6,5 +6,8 @@ namespace dtr_nne.Application.Mapper;
 public interface IExternalServiceMapper
 {
     public ExternalService DtoToService(ExternalServiceDto externalServiceDto);
+    public ExternalService DtoToService(BaseExternalServiceDto externalServiceDto);
+    public List<ExternalService> DtoToService(List<ExternalServiceDto> externalServiceDto);
     public ExternalServiceDto ServiceToDto(ExternalService service);
+    public List<ExternalServiceDto> ServiceToDto(List<ExternalService> service);
 }

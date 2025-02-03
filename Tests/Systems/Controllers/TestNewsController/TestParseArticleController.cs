@@ -1,7 +1,7 @@
-using dtr_nne.Application.DTO.Article;
 using dtr_nne.Application.Extensions;
+using dtr_nne.Domain.Entities.ManagedEntities;
 using Microsoft.AspNetCore.Mvc;
-using Moq;
+using NSubstitute;
 
 namespace Tests.Systems.Controllers.TestNewsController;
 
@@ -13,7 +13,7 @@ public class TestParseArticleController : BaseTestNewsController
         // Arrange
 
         // Act
-        var result = await Sut.ParseArticle(It.IsAny<BaseNewsArticleDto>());
+        var result = await Sut.ParseArticle(TestArticleDto.Uri!);
 
         // Assert
         result.Should().BeOfType<OkObjectResult>();
@@ -26,11 +26,11 @@ public class TestParseArticleController : BaseTestNewsController
     {
         // Assemble
         MockNewsParser
-            .Setup(rewriter => rewriter.Execute(It.IsAny<NewsArticleDto>()).Result)
-            .Returns(Errors.NewsOutlets.NotFoundInDb);
+            .ExecuteParse(TestArticleDto.Uri!)
+            .Returns(Errors.ManagedEntities.NotFoundInDb(typeof(NewsOutlet)));
 
         // Act
-        var result = await Sut.ParseArticle(It.IsAny<NewsArticleDto>());
+        var result = await Sut.ParseArticle(TestArticleDto.Uri!);
 
         // Assert
         result.Should().BeOfType<BadRequestObjectResult>();

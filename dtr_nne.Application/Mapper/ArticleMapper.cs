@@ -1,5 +1,6 @@
 using dtr_nne.Application.DTO.Article;
 using dtr_nne.Domain.Entities;
+using dtr_nne.Domain.Entities.ScrapableEntities;
 using Riok.Mapperly.Abstractions;
 
 namespace dtr_nne.Application.Mapper;
@@ -13,13 +14,12 @@ public partial class ArticleMapper : IArticleMapper
         {
             Id = article.Id,
             Error = article.Error,
-            Uri = article.Uri,
+            Uri = article.Website,
 
             Themes = article.NewsOutlet!.Themes,
-
-            OriginalHeadline = article.ArticleContent!.Headline.OriginalHeadline,
-            TranslatedHeadline = article.ArticleContent.Headline.TranslatedHeadline,
-
+            
+            Header = article.ArticleContent!.Headline.OriginalHeadline,
+            TranslatedHeader = article.ArticleContent.Headline.TranslatedHeadline,
             Body = article.ArticleContent.Body,
             Copyrights = article.ArticleContent.Copyright,
             Pictures = article.ArticleContent.Images,
@@ -43,12 +43,12 @@ public partial class ArticleMapper : IArticleMapper
             {
                 Headline = new Headline()
                 {
-                    OriginalHeadline = articleDto.OriginalHeadline,
-                    TranslatedHeadline = articleDto.TranslatedHeadline
+                    OriginalHeadline = articleDto.Header,
+                    TranslatedHeadline = articleDto.TranslatedHeader
                 }
             },
             
-            Uri = articleDto.Uri,
+            Website = articleDto.Uri,
         };
     }
     

@@ -115,10 +115,10 @@ public class DeeplTranslator(ILogger<DeeplTranslator> logger, ExternalService se
 
             return translatedHeadline;
         }
-        catch (Exception)
+        catch (Exception e)
         {
-            logger.LogError("Error during translation request for headline: {OriginalHeadline}", originalHeadline);
-            throw;
+            logger.LogError(e, "Error during translation request for headline: {OriginalHeadline}", originalHeadline);
+            return Errors.Translator.Service.UnexpectedErrorFromService(e.Message).Description;
         }
     }
 }

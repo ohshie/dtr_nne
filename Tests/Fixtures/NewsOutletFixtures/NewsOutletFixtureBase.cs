@@ -1,5 +1,5 @@
 using Bogus;
-using dtr_nne.Domain.Entities;
+using dtr_nne.Domain.Entities.ManagedEntities;
 
 namespace Tests.Fixtures.NewsOutletFixtures;
 

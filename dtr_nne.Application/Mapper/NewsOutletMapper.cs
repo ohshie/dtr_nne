@@ -1,5 +1,5 @@
 using dtr_nne.Application.DTO.NewsOutlet;
-using dtr_nne.Domain.Entities;
+using dtr_nne.Domain.Entities.ManagedEntities;
 using Riok.Mapperly.Abstractions;
 
 namespace dtr_nne.Application.Mapper;
