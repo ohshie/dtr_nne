@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\dtr_nne.Application\dtr_nne.Application.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="DeepL.net" Version="1.11.0" />
+      <PackageReference Include="HtmlAgilityPack" Version="1.11.72" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.1" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.1">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.1" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.0" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.1">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.1" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.1" />
+      <PackageReference Include="OpenAI" Version="2.1.0" />
+      <PackageReference Include="SonarAnalyzer.CSharp" Version="10.5.0.109200">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+    </ItemGroup>
+
+</Project>

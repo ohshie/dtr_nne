@@ -1,0 +1,57 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <RootNamespace>dtr_nne</RootNamespace>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <RuntimeIdentifiers>linux-musl-x64;linux-musl-arm64</RuntimeIdentifiers>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="HtmlAgilityPack" Version="1.11.72" />
+      <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.0" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.1" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.1">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.1" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.0" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.1">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Microsoft.Extensions.ApiDescription.Server" Version="9.0.1">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.1" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.1" />
+      <PackageReference Include="Moq" Version="4.20.72" />
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+      <PackageReference Include="Serilog" Version="4.2.0" />
+      <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+      <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.0" />
+      <PackageReference Include="Serilog.Settings.Configuration" Version="9.0.0" />
+      <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+      <PackageReference Include="Serilog.Sinks.Grafana.Loki" Version="8.3.0" />
+      <PackageReference Include="Serilog.Sinks.Loki" Version="3.0.0" />
+      <PackageReference Include="SonarAnalyzer.CSharp" Version="10.5.0.109200">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\dtr_nne.Application\dtr_nne.Application.csproj" />
+      <ProjectReference Include="..\dtr_nne.Infrastructure\dtr_nne.Infrastructure.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Migrations\" />
+    </ItemGroup>
+
+</Project>
