@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using dtr_nne.Application.DTO.Article;
 using dtr_nne.Application.Mapper;
+using dtr_nne.Domain.Entities.ScrapableEntities;
 
 [assembly:InternalsVisibleTo("Tests")]
 namespace dtr_nne.Application.Services.NewsEditor.NewsParser;
@@ -26,10 +27,10 @@ internal class NewsParseManager(ILogger<NewsParseManager> logger,
         return newsArticleDtos;
     }
 
-    public async Task<ErrorOr<NewsArticleDto>> ExecuteParse(BaseNewsArticleDto articleDto)
+    public async Task<ErrorOr<NewsArticleDto>> ExecuteParse(Uri articleUri)
     {
-        logger.LogInformation("Starting single article processing for URL: {Url}", articleDto.Uri);
-        var newsArticle = mapper.BaseNewsArticleDtoToNewsArticle(articleDto);
+        logger.LogInformation("Starting single article processing for URL: {Url}", articleUri.AbsoluteUri);
+        var newsArticle = CreateNewsArticleFromUri(articleUri);
 
         var result = await newsParser.ExecuteParse(newsArticle);
         if (result.IsError)
@@ -42,10 +43,18 @@ internal class NewsParseManager(ILogger<NewsParseManager> logger,
         logger.LogInformation("Successfully processed article with title: {Url}", processedArticleDto.Uri);
         return processedArticleDto;
     }
+
+    private NewsArticle CreateNewsArticleFromUri(Uri newsArticleUri)
+    {
+        return new NewsArticle
+        {
+            Website = newsArticleUri
+        };
+    }
 }
 
 public interface INewsParseManager
 {
     public Task<ErrorOr<List<NewsArticleDto>>> ExecuteBatchParse(bool fullProcess = true);
-    public Task<ErrorOr<NewsArticleDto>> ExecuteParse(BaseNewsArticleDto articleDto);
+    public Task<ErrorOr<NewsArticleDto>> ExecuteParse(Uri articleUri);
 }
