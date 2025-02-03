@@ -1,4 +1,5 @@
 using dtr_nne.Application.Services.NewsEditor.NewsParser.ContentProcessing.ScrapingResultProcessor;
+using dtr_nne.Domain.Entities;
 using dtr_nne.Domain.Entities.ManagedEntities;
 using dtr_nne.Domain.Entities.ScrapableEntities;
 using HtmlAgilityPack;
@@ -34,7 +35,11 @@ public class TestScrapingResultProcessor
     private readonly NewsArticle _testNewsArticle = new()
     {
         Website = new Uri("https://example.com/article1"),
-        NewsOutlet = TestNewsOutlet
+        NewsOutlet = TestNewsOutlet,
+        ArticleContent = new()
+        {
+            Headline = new Headline()
+        }
     };
     
     [Fact]

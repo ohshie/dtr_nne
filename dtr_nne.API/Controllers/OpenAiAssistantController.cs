@@ -9,7 +9,7 @@ namespace dtr_nne.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/[controller]")]
-public class OpenAiAssistantController(IGetManagerEntity<OpenAiAssistantDto> getManagedEntityService, 
+public class OpenAiAssistantController(IGetManagedEntity<OpenAiAssistantDto> getManagedEntityService, 
     IAddManagedEntity<OpenAiAssistantDto> addManagedEntityService, 
     IUpdateManagedEntity<OpenAiAssistantDto> updateManagedEntityService, 
     IDeleteManagedEntity<OpenAiAssistantDto> deleteManagedEntityService) : ControllerBase

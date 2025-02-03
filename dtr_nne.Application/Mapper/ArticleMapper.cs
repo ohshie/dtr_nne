@@ -17,10 +17,9 @@ public partial class ArticleMapper : IArticleMapper
             Uri = article.Website,
 
             Themes = article.NewsOutlet!.Themes,
-
+            
             Header = article.ArticleContent!.Headline.OriginalHeadline,
             TranslatedHeader = article.ArticleContent.Headline.TranslatedHeadline,
-
             Body = article.ArticleContent.Body,
             Copyrights = article.ArticleContent.Copyright,
             Pictures = article.ArticleContent.Images,

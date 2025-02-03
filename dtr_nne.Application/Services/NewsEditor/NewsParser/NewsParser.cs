@@ -28,8 +28,8 @@ internal class NewsParser(INewsParseHelper newsParseHelper,
             return parseResult.FirstError;
         }
 
-        var headlineTranslationResult = await translator.Translate([parseResult.Value[0].ArticleContent!.Headline]);
-        parseResult.Value[0].ArticleContent!.Headline.TranslatedHeadline = headlineTranslationResult.IsError
+        var headlineTranslationResult = await translator.Translate([parseResult.Value[0].ArticleContent!.Headline!]);
+        parseResult.Value[0].ArticleContent!.Headline!.TranslatedHeadline = headlineTranslationResult.IsError
             ? headlineTranslationResult.FirstError.Description
             : headlineTranslationResult.Value[0].TranslatedHeadline;
         

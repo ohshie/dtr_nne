@@ -14,6 +14,9 @@ internal class NneDbContext(DbContextOptions<NneDbContext> options) : DbContext(
 {
     internal DbSet<NewsOutlet> NewsOutlets { get; set; }
     internal DbSet<NewsArticle> NewsArticles { get; set; }
+    internal DbSet<ArticleContent> ArticlesContent { get; set; }
+    internal DbSet<EditedArticle> EditedArticles { get; set; }
+    internal DbSet<Headline> Headlines { get; set; }
     internal DbSet<ExternalService> ExternalServices { get; set; }
     internal DbSet<OpenAiAssistant> OpenAiAssistants { get; set; }
     
@@ -23,6 +26,24 @@ internal class NneDbContext(DbContextOptions<NneDbContext> options) : DbContext(
             .HasMany(no => no.Articles)
             .WithOne(na => na.NewsOutlet)
             .HasForeignKey(na => na.NewsOutletId)
+            .IsRequired();
+        
+        modelBuilder.Entity<NewsArticle>()
+            .HasOne(na => na.ArticleContent)
+            .WithOne(ac => ac.NewsArticle)
+            .HasForeignKey<ArticleContent>(ac => ac.NewsArticleId)
+            .IsRequired();
+        
+        modelBuilder.Entity<ArticleContent>()
+            .HasOne(ac => ac.Headline)
+            .WithOne(h => h.ArticleContent)
+            .HasForeignKey<Headline>(h => h.Id)
+            .IsRequired();
+        
+        modelBuilder.Entity<ArticleContent>()
+            .HasOne(ac => ac.EditedArticle)
+            .WithOne(ea => ea.ArticleContent)
+            .HasForeignKey<EditedArticle>(ea => ea.ArticleContentId)
             .IsRequired();
     }
     

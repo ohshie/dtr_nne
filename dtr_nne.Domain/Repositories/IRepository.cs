@@ -11,4 +11,5 @@ public interface IRepository<TEntity>
     bool UpdateRange(IEnumerable<TEntity> entities);
     bool Remove(TEntity entity);
     bool RemoveRange(IEnumerable<TEntity> entities);
+    bool AttachRange(IEnumerable<TEntity> entities);
 }

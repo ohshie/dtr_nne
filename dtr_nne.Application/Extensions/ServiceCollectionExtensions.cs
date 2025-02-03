@@ -1,8 +1,10 @@
+using dtr_nne.Application.DTO.Article;
 using dtr_nne.Application.DTO.ExternalService.OpenAiAssistantDto;
 using dtr_nne.Application.DTO.NewsOutlet;
 using dtr_nne.Application.Mapper;
 using dtr_nne.Application.Services.EntityManager;
 using dtr_nne.Application.Services.ExternalServices;
+using dtr_nne.Application.Services.NewsArticleManager;
 using dtr_nne.Application.Services.NewsEditor.NewsParser;
 using dtr_nne.Application.Services.NewsEditor.NewsParser.ContentProcessing;
 using dtr_nne.Application.Services.NewsEditor.NewsParser.ContentProcessing.HeadlineTranslateProcessor;
@@ -10,6 +12,7 @@ using dtr_nne.Application.Services.NewsEditor.NewsParser.ContentProcessing.Scrap
 using dtr_nne.Application.Services.NewsEditor.NewsParser.ContentProcessing.ScrapingResultProcessor;
 using dtr_nne.Application.Services.NewsEditor.NewsRewriter;
 using dtr_nne.Domain.Entities.ManagedEntities;
+using dtr_nne.Domain.Entities.ScrapableEntities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -22,11 +25,11 @@ public static class ServiceCollectionExtensions
         #region ManagedEntities
         
         serviceCollection
-            .AddTransient<IGetManagerEntity<OpenAiAssistantDto>,
-                GetManagerEntity<OpenAiAssistant, OpenAiAssistantDto>>();
+            .AddTransient<IGetManagedEntity<OpenAiAssistantDto>,
+                GetManagedEntity<OpenAiAssistant, OpenAiAssistantDto>>();
         serviceCollection
-            .AddTransient<IGetManagerEntity<NewsOutletDto>,
-                GetManagerEntity<NewsOutlet, NewsOutletDto>>();
+            .AddTransient<IGetManagedEntity<NewsOutletDto>,
+                GetManagedEntity<NewsOutlet, NewsOutletDto>>();
         
         serviceCollection
             .AddTransient<IAddManagedEntity<OpenAiAssistantDto>,
@@ -51,6 +54,10 @@ public static class ServiceCollectionExtensions
         serviceCollection
             .AddTransient<IUpdateManagedEntity<NewsOutletDto>,
                 UpdateManagedEntity<NewsOutlet, NewsOutletDto>>();
+        
+        serviceCollection
+            .AddTransient<IGetManagedEntity<NewsArticleDto>,
+                GetManagedEntity<NewsArticle, NewsArticleDto>>();
         
         serviceCollection.AddTransient<IManagedEntityHelper<OpenAiAssistant>, ManagedEntityHelper<OpenAiAssistant>>();
         serviceCollection.AddTransient<IManagedEntityHelper<NewsOutlet>, ManagedEntityHelper<NewsOutlet>>();
@@ -85,6 +92,9 @@ public static class ServiceCollectionExtensions
         serviceCollection.AddTransient<IHeadlineTranslationProcessor, HeadlineTranslationProcessor>();
 
         #endregion
+
+        serviceCollection.AddTransient<IDeleteNewsArticle, DeleteNewsArticle>();
+        serviceCollection.AddTransient<IGetNewsArticles, GetNewsArticles>();
         
         serviceCollection.AddTransient<INewsOutletMapper, NewsOutletMapper>();
         serviceCollection.AddTransient<IArticleMapper, ArticleMapper>();

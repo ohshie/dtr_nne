@@ -8,7 +8,9 @@ public class NewsOutlet : IManagedEntity, IScrapableEntity
     public int Id { get; set; }
     public bool InUse { get; set; }
     public bool AlwaysJs { get; set; }
-    [StringLength(50, MinimumLength = 0)] public required string Name { get; set; } = string.Empty;
+    
+    [StringLength(50, MinimumLength = 0)] 
+    public required string Name { get; set; } = string.Empty;
 
     public required Uri? Website { get; set; }
     

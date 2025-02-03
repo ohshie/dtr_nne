@@ -14,48 +14,49 @@ internal class NewsArticleRepository(ILogger<NewsArticleRepository> logger,
     : GenericRepository<NewsArticle, NneDbContext>(logger, unitOfWork), INewsArticleRepository
 {
     private readonly IUnitOfWork<NneDbContext> _unitOfWork = unitOfWork;
-    
-    public async Task<IEnumerable<NewsArticle>> GetSpecificAmount(int amount)
-    {
-        var articles = await _unitOfWork.Context.NewsArticles
-            .OrderByDescending(na => na.Id)
-            .Take(amount)
-            .ToListAsync();
 
-        return articles;
+    public async Task<List<NewsArticle>?> GetAllWithChildren()
+    {
+        try
+        {
+            var articles = await unitOfWork.Context.NewsArticles
+                .Include(na => na.NewsOutlet)
+                .Include(na => na.ArticleContent)
+                .ThenInclude(ac => ac!.Headline)
+                .Include(na => na.ArticleContent!.EditedArticle)
+                .ToListAsync();
+
+            return articles;
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Error produced while attempting to getting all saved articles with children");
+            return null;
+        }
     }
 
     public async Task<IEnumerable<NewsArticle>> GetLatestResults()
     {
         var articles = await _unitOfWork.Context.NewsArticles
+            .Include(c => c.ArticleContent)
+            .Include(c => c.ArticleContent)
+            .ThenInclude(c => c!.Headline)
             .Where(na => na.ParseTime > DateTime.Now.AddDays(-2))
             .ToListAsync();
 
         return articles;
     }
 
-    public async Task<bool> AddRange(List<NewsArticle> articles)
+    public bool RemoveArticleRange(List<NewsArticle> articles)
     {
         try
         {
-            foreach (var article in articles)
-            {
-                if (article.NewsOutlet is not null)
-                {
-                    unitOfWork.Context.NewsOutlets.Entry(article.NewsOutlet!).State = EntityState.Unchanged;
-                }
-                
-                await DbSet.AddAsync(article);
-            }
-            
+            unitOfWork.Context.NewsArticles.RemoveRange(articles);
             return true;
         }
         catch (Exception e)
         {
-            logger.LogError(e, "Something went really wrong when trying to AddRange to Db {Exception}, \n {ExceptionTrace} \n {ExceptionInnerException}", 
-                e.Message, 
-                e.StackTrace, 
-                e.InnerException?.Message ?? "No Inner Exception");
+            logger.LogError(e, "Deletion of {ArticleCount} news articles failed", articles.Count);
             return false;
         }
     }

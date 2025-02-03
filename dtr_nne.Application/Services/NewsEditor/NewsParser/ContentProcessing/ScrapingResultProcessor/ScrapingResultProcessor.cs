@@ -153,12 +153,12 @@ public class ScrapingResultProcessor(ILogger<ScrapingResultProcessor> logger) : 
         if (headerNode == null)
         {
             logger.LogWarning("Header node not found using selector: {Selector}", headerSelector);
-            article.ArticleContent!.Headline.OriginalHeadline =
+            article.ArticleContent!.Headline!.OriginalHeadline =
                 $"Header node not found using selector: {headerSelector}";
             return;
         }
 
-        if (string.IsNullOrEmpty(article.ArticleContent!.Headline.OriginalHeadline))
+        if (string.IsNullOrEmpty(article.ArticleContent!.Headline!.OriginalHeadline))
         {
             article.ArticleContent.Headline.OriginalHeadline = HtmlEntity.DeEntitize(headerNode.InnerText).Trim();
         }

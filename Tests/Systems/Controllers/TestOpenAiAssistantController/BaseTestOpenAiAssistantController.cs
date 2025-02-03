@@ -7,7 +7,7 @@ namespace Tests.Systems.Controllers.TestOpenAiAssistantController;
 
 public abstract class BaseTestOpenAiAssistantController
 {
-    internal readonly Mock<IGetManagerEntity<OpenAiAssistantDto>> MockGetOpenAiAssistantService;
+    internal readonly Mock<IGetManagedEntity<OpenAiAssistantDto>> MockGetOpenAiAssistantService;
     internal readonly Mock<IAddManagedEntity<OpenAiAssistantDto>> MockAddOpenAiAssistantService;
     internal readonly Mock<IUpdateManagedEntity<OpenAiAssistantDto>> MockUpdateOpenAiAssistantService;
     internal readonly Mock<IDeleteManagedEntity<OpenAiAssistantDto>> MockDeleteOpenAiAssistantService;
